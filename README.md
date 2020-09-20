@@ -2,6 +2,8 @@
 
 A small newsboat-inspired terminal youtube viewer
 
+Shows a list of youtube channels and videos that can be opened in mpv (currently [umpv](https://pastebin.com/eAs451QF) only).
+
 ## Current features
 
 - Load urls from ~/.config/tyt/urls
