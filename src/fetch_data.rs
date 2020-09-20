@@ -290,6 +290,8 @@ pub fn fetch_channel_list() -> ChannelList {
                 );
             }
         }
+        channel.videos.sort_by_key(|v| v.video.time.clone());
+        channel.videos.reverse();
         channel_list.channels.push(channel);
     }
 
