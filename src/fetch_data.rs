@@ -217,7 +217,7 @@ impl VideoItem {
         // open with mpv
         let link = format!("https://www.youtube.com/watch?v={}", &self.video.id);
         Command::new("notify-send").arg("Open video").arg(&self.video.title).spawn().expect("failed");
-        Command::new("umpv").arg(link).arg("&").arg("disown").spawn().expect("failed");
+        Command::new("umpv").arg(link).spawn().expect("failed");
     }
 }
 
