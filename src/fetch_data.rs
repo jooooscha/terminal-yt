@@ -6,10 +6,10 @@ use quick_xml::de::from_str;
 use std::{
     fs::File,
     io::BufReader,
-    path::Path,
     io::prelude::*,
     process::Command,
 };
+use dirs::home_dir;
 use tui::{
     widgets::ListState,
     style::{Color, Modifier, Style},
@@ -21,8 +21,8 @@ use crate::draw::draw;
 
 use chrono::DateTime;
 
-const HISTORY_FILE_PATH: &str = "/home/joscha/.config/tyt/history.json";
-const URLS_FILE_PATH: &str = "/home/joscha/.config/tyt/urls";
+const HISTORY_FILE_PATH: &str = ".config/tyt/history.json";
+const URLS_FILE_PATH: &str = ".config/tyt/urls";
 
 // Deserialize structs
 #[derive(Debug, Deserialize)]
@@ -305,9 +305,12 @@ pub fn fetch_channel_list() -> ChannelList {
 fn write_history(channel_list: &ChannelList) {
     let list = channel_list.channels.clone();
     let serial: Vec<ChannelSerial> = list.into_iter().map(|channel| channel.to_serial()).collect();
-
     let json = serde_json::to_string(&serial).unwrap();
-    let mut file = match File::create(Path::new(HISTORY_FILE_PATH)) {
+
+    let mut path = home_dir().unwrap();
+    path.push(HISTORY_FILE_PATH);
+
+    let mut file = match File::create(path) {
         Ok(file) => file,
         Err(e) => panic!("history write error: {}", e),
     };
@@ -315,7 +318,11 @@ fn write_history(channel_list: &ChannelList) {
 }
 
 fn read_history() -> ChannelList {
-    match File::open(Path::new(HISTORY_FILE_PATH)) {
+    
+    let mut path = home_dir().unwrap();
+    path.push(HISTORY_FILE_PATH);
+
+    match File::open(path) {
         Ok(mut file) => {
             let mut reader = String::new();
             file.read_to_string(&mut reader).unwrap();
@@ -335,7 +342,9 @@ fn read_history() -> ChannelList {
 }
 
 fn read_urls_file() -> Vec<String> {
-    match File::open(Path::new(URLS_FILE_PATH)) {
+    let mut path = home_dir().unwrap();
+    path.push(URLS_FILE_PATH);
+    match File::open(path) {
         Ok(file) => {
             let mut vec = Vec::new();
             let reader = BufReader::new(file);

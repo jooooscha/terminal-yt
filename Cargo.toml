@@ -14,3 +14,4 @@ reqwest = { version = "*", features = ["blocking"] }
 regex = "*"
 toml = "*"
 chrono = "*"
+dirs = "*"
