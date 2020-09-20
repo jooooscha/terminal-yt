@@ -243,16 +243,6 @@ impl ToString for VideoItem {
 pub fn fetch_channel_list() -> ChannelList {
     let client = Client::builder().build().ok().unwrap();
 
-    /* let urls = vec![
-     *     "https://www.youtube.com/feeds/videos.xml?channel_id=UC0vBXGSyV14uvJ4hECDOl0Q",
-     *     "https://www.youtube.com/feeds/videos.xml?channel_id=UC5NOEUbkLheQcaaRldYW5GA",
-     *     "https://www.youtube.com/feeds/videos.xml?channel_id=UCSju5G2aFaWMqn-_0YBtq5A",
-     *     "https://www.youtube.com/feeds/videos.xml?channel_id=UCzV9N7eGedBchEQjQhPapyQ",
-     *     "https://www.youtube.com/feeds/videos.xml?channel_id=UCcg7sLuZ3fyALEU7o2S6bvQ",
-     *     "https://www.youtube.com/feeds/videos.xml?channel_id=UCa8qyXCS-FTs0fHD6HJeyiw",
-     *     "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A",
-     *     "https://www.youtube.com/feeds/videos.xml?channel_id=UCcXhhVwCT6_WqjkEniejRJQ",
-     * ]; */
     let urls = read_urls_file();
 
     let history: ChannelList = read_history();
