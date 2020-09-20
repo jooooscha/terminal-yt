@@ -3,7 +3,7 @@
 A small newsboat-inspired terminal youtube viewer written in Rust.
 
 Shows a list of youtube channels and videos that can be opened in mpv (currently [umpv](https://pastebin.com/eAs451QF) only).
-Build with [tui](https://github.com/fdehau/tui-rs) with the termion backend.
+Build with [tui](https://github.com/fdehau/tui-rs) with termion as backend.
 
 ## Current features
 
