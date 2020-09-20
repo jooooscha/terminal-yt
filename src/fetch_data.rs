@@ -293,6 +293,7 @@ pub fn fetch_channel_list() -> ChannelList {
         channel_list.channels.push(channel);
     }
 
+    channel_list.channels.sort_by_key(|c| c.name.clone());
     //TODO sort channel_list
 
     channel_list
