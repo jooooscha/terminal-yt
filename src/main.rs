@@ -129,7 +129,7 @@ fn main() {
                 }
             },
             Event::Key(Key::Char('R')) => {
-                let _ = app.terminal.resize(app.terminal.size().unwrap());
+                let _ = app.terminal.autoresize();
                 channel_list.show(&mut app);
             },
             _ => {}
