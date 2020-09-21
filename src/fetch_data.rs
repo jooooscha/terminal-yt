@@ -16,9 +16,6 @@ use tui::{
     text::{Span, Spans},
 };
 
-use crate::*;
-use crate::draw::draw;
-
 use chrono::DateTime;
 
 const HISTORY_FILE_PATH: &str = ".config/tyt/history.json";
@@ -48,10 +45,9 @@ pub trait ToString {
     fn to_string(&mut self) -> Spans;
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ChannelList {
-    // channels: Vec<Channel>,
-    channels: Vec<Channel>,
+    pub channels: Vec<Channel>,
     pub list_state: ListState,
 }
 
@@ -63,7 +59,7 @@ pub struct Channel {
     pub list_state: ListState,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 struct ChannelSerial {
     name: String,
     link: String,
@@ -78,13 +74,12 @@ pub struct VideoItem {
 //----------------------------------
 impl ChannelList {
     fn new(channels: Vec<Channel>) -> ChannelList {
+        let mut state = ListState::default();
+        state.select(Some(0));
         ChannelList {
             channels,
-            list_state: ListState::default(),
+            list_state: state,
         }
-    }
-    pub fn show<W: Write>(&mut self, app: &mut App<W>) {
-        draw(self.channels.clone(), app, &mut self.list_state);
     }
     pub fn save(&self) {
         write_history(self);
@@ -114,21 +109,25 @@ impl ChannelList {
         };
         self.list_state.select(Some(index));
     }
-    pub fn get_selected(&mut self) -> Option<&mut Channel> {
-        match self.list_state.selected() {
-            Some(i) => self.channels.get_mut(i),
-            None => panic!("nothing selected"),
-        }
-    }
 }
 //----------------------------------
 impl Channel {
-    fn new() -> Channel {
+    pub fn new() -> Channel {
+        let mut state = ListState::default();
+        state.select(Some(0));
         Channel {
             name: String::from("New Channel"),
             videos: Vec::new(),
             link: String::new(),
-            list_state: ListState::default(),
+            list_state: state,
+        }
+    }
+    fn from_serial(serial: ChannelSerial) -> Channel {
+        Channel {
+            name: serial.name,
+            link: serial.link,
+            videos: serial.videos,
+            ..Channel::new()
         }
     }
     fn to_serial(&self) -> ChannelSerial {
@@ -137,12 +136,6 @@ impl Channel {
             link: self.link.clone(),
             videos: self.videos.clone(),
         }
-    }
-    pub fn show<W: Write>(&mut self, app: &mut App<W>) {
-        if self.list_state.selected() == None {
-            self.list_state.select(Some(0));
-        }
-        draw(self.videos.clone(), app, &mut self.list_state);
     }
     pub fn next(&mut self) {
         let state = &self.list_state;
@@ -168,12 +161,6 @@ impl Channel {
         };
         self.list_state.select(Some(index));
     }
-    pub fn get_selected(&mut self) -> Option<&mut VideoItem> {
-        match self.list_state.selected() {
-            Some(i) => self.videos.get_mut(i),
-            None => panic!("nothing selected"),
-        }
-    }
 }
 
 impl ToString for Channel {
@@ -192,17 +179,6 @@ impl ToString for Channel {
     }
 }
 //------------------------------------
-impl ChannelSerial {
-    fn to_internal(&self) -> Channel {
-        Channel {
-            list_state: ListState::default(),
-            name: self.name.clone(),
-            link: self.link.clone(),
-            videos: self.videos.clone(),
-        }
-    }
-}
-//------------------------------------
 impl VideoItem {
     pub fn new(video: Video) -> VideoItem {
         VideoItem {
@@ -217,14 +193,15 @@ impl VideoItem {
         // open with mpv
         let link = format!("https://www.youtube.com/watch?v={}", &self.video.id);
         Command::new("notify-send").arg("Open video").arg(&self.video.title).spawn().expect("failed");
-        Command::new("umpv").arg(link).spawn().expect("failed");
+        /* Command::new("umpv").arg(link).spawn().expect("failed"); */
+        Command::new("setsid").arg("-f").arg("umpv").arg(link).spawn().expect("umpv stating failed");
     }
 }
 
 impl ToString for VideoItem {
     fn to_string(&mut self) -> Spans {
         let d = DateTime::parse_from_rfc3339(&self.video.time).unwrap();
-        
+
         let date = format!("{:>4} - ", &d.format("%d.%m"));
         let title = format!("{}", &self.video.title);
 
@@ -286,7 +263,6 @@ pub fn fetch_channel_list() -> ChannelList {
     }
 
     channel_list.channels.sort_by_key(|c| c.name.clone());
-    //TODO sort channel_list
 
     channel_list
 }
@@ -308,7 +284,6 @@ fn write_history(channel_list: &ChannelList) {
 }
 
 fn read_history() -> ChannelList {
-    
     let mut path = home_dir().unwrap();
     path.push(HISTORY_FILE_PATH);
 
@@ -318,7 +293,7 @@ fn read_history() -> ChannelList {
             file.read_to_string(&mut reader).unwrap();
             let mut channels: Vec<ChannelSerial> = serde_json::from_str(&reader).unwrap();
             // morph into internal struct
-            let list = channels.iter_mut().map(|channel_ser| channel_ser.to_internal()).collect();
+            let list = channels.iter_mut().map(|serial| Channel::from_serial(serial.clone())).collect();
             // return
             ChannelList::new(list)
         }

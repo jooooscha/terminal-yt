@@ -13,26 +13,52 @@ use tui::{
 
 mod draw;
 mod fetch_data;
+use draw::*;
 
 use fetch_data::*;
 
-use Screens::*;
+use Screen::*;
 
 pub struct App<W: Write> {
     pub terminal: Terminal<TermionBackend<W>>,
-    pub current_title: String,
+    current_screen: Screen,
+    pub app_title: String,
+    pub all_channels: ChannelList,
+    pub current_selected: usize,
 }
 
-enum Screens {
+impl<W: Write> App<W> {
+    fn update(&mut self) {
+        draw(self);
+    }
+    fn get_selected_channel(&mut self) -> &mut Channel {
+        let i = self.current_selected;
+        &mut self.all_channels.channels[i]
+    }
+    fn get_selected_video(&mut self) -> &mut VideoItem {
+        let c = self.get_selected_channel();
+        let i = c.list_state.selected().unwrap();
+        &mut c.videos[i]
+    }
+    fn close_right_block(&mut self) {
+        self.current_screen = Channels;
+        self.all_channels.list_state.select(Some(self.current_selected));
+        self.update();
+    }
+}
+
+#[derive(PartialEq, Clone)]
+enum Screen {
     Channels,
     Videos,
 }
 
-const TITLE: &str = "Terminal Youtube";
+const TITLE: &str = "Terminal-Youtube";
 
 fn main() {
     let stdout = stdout().into_raw_mode().unwrap();
     let mouse_terminal = MouseTerminal::from(stdout);
+    /* let screen = mouse_terminal; */
     let screen = AlternateScreen::from(mouse_terminal);
     let stdin = stdin();
     let backend = TermionBackend::new(screen);
@@ -40,97 +66,103 @@ fn main() {
 
     let mut app = App {
         terminal,
-        current_title: String::from(TITLE),
+        app_title: String::from(TITLE),
+        current_screen: Channels,
+        all_channels: fetch_channel_list(),
+        current_selected: 0,
     };
 
-    let mut channel_list = fetch_channel_list();
-
-    channel_list.next(); // select first item
-    channel_list.show(&mut app);
-
-    let mut current_screen: Screens = Channels;
-    /* let mut current_list: &Vec<T: ListMove> = Vec::new(); */
+    app.update();
 
     for event in stdin.events() {
         match event.unwrap() {
             Event::Key(Key::Char('q')) => { // --------- close ---------------
-                match current_screen {
+                match app.current_screen {
                     Channels => {
                         break;
                     },
                     Videos => {
-                        app.current_title = String::from(TITLE);
-                        channel_list.show(&mut app);
-                        current_screen = Channels;
+                        app.close_right_block();
                     },
                 }
             },
-            Event::Key(Key::Char('j')) | Event::Key(Key::Down) => {
-                match current_screen {
-                    Channels => {
-                        channel_list.next();
-                        channel_list.show(&mut app);
-                    },
+            Event::Key(Key::Esc) => {
+                match app.current_screen {
+                    Channels => {},
                     Videos => {
-                        channel_list.get_selected().unwrap().next();
-                        channel_list.get_selected().unwrap().show(&mut app);
+                        app.close_right_block();
                     }
                 }
+            }
+            Event::Key(Key::Char('j')) | Event::Key(Key::Down) => {
+                match app.current_screen {
+                    Channels => {
+                        app.all_channels.next();
+                    },
+                    Videos => {
+                        app.get_selected_channel().next();
+                    }
+                }
+                app.update();
             },
             Event::Key(Key::Char('k')) | Event::Key(Key::Up) => {
-                match current_screen {
+                match app.current_screen {
                     Channels => {
-                        channel_list.prev();
-                        channel_list.show(&mut app);
+                        app.all_channels.prev();
                     },
                     Videos => {
-                        channel_list.get_selected().unwrap().prev();
-                        channel_list.get_selected().unwrap().show(&mut app);
+                        app.get_selected_channel().prev();
                     }
                 }
+                app.update();
             },
-            Event::Key(Key::Char('o')) => {  // ----------- open ---------------
-                let video_list = channel_list.get_selected().unwrap();
-                match current_screen {
+            Event::Key(Key::Char('\n')) => {  // ----------- open ---------------
+                match app.current_screen {
                     Channels => {
-                        app.current_title = video_list.name.clone();
-                        video_list.show(&mut app);
-                        current_screen = Videos;
+                        app.current_selected = app.all_channels.list_state.selected().unwrap();
+                        app.current_screen = Videos;
+                        app.all_channels.list_state.select(None);
+                        app.update()
+                    },
+                    Videos => {}
+                }
+            },
+            Event::Key(Key::Char('o')) => {
+                match app.current_screen {
+                    Channels => {
+                        app.current_selected = app.all_channels.list_state.selected().unwrap();
+                        app.current_screen = Videos;
+                        app.all_channels.list_state.select(None);
                     },
                     Videos => {
-                        video_list.get_selected().unwrap().open();
-                    }
+                        app.get_selected_video().open();
+                    },
                 }
-            },
+                app.update();
+            }
             Event::Key(Key::Char('m')) => { // ----------- mark ---------------
-                match current_screen {
+                match app.current_screen {
                     Channels => (),
                     Videos => {
-                        let list = channel_list.get_selected().unwrap();
-                        let item = list.get_selected().unwrap();
-                        item.mark(true);
-                        list.next();
-                        list.show(&mut app); // redraw screen
-                        channel_list.save(); // write changes
+                        app.get_selected_video().mark(true);
+                        app.get_selected_channel().next();
+                        app.update();
                     },
                 }
             },
             Event::Key(Key::Char('M')) => { // ----------- unmark -------------
-                match current_screen {
+                match app.current_screen {
                     Channels => (),
                     Videos => {
-                        let list = channel_list.get_selected().unwrap();
-                        let item = list.get_selected().unwrap();
-                        item.mark(false);
-                        list.next();
-                        list.show(&mut app); // redraw screen
-                        channel_list.save(); // write changes
+                        app.get_selected_video().mark(false);
+                        app.get_selected_channel().next();
+                        app.update();
                     },
                 }
             },
             Event::Key(Key::Char('R')) => {
                 let _ = app.terminal.autoresize();
-                channel_list.show(&mut app);
+                app.update();
             },
             _ => {}
         }
