@@ -45,6 +45,9 @@ impl<W: Write> App<W> {
         self.all_channels.list_state.select(Some(self.current_selected));
         self.update();
     }
+    fn save(&self) {
+        self.all_channels.save();
+    }
 }
 
 #[derive(PartialEq, Clone)]
@@ -73,6 +76,7 @@ fn main() {
     };
 
     app.update();
+    /* app.fetch_videos(); */
 
     for event in stdin.events() {
         match event.unwrap() {
@@ -147,6 +151,7 @@ fn main() {
                         app.get_selected_video().mark(true);
                         app.get_selected_channel().next();
                         app.update();
+                        app.save();
                     },
                 }
             },
@@ -157,6 +162,7 @@ fn main() {
                         app.get_selected_video().mark(false);
                         app.get_selected_channel().next();
                         app.update();
+                        app.save();
                     },
                 }
             },

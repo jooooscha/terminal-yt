@@ -267,6 +267,10 @@ pub fn fetch_channel_list() -> ChannelList {
     channel_list
 }
 
+/* fn fetch_new_videos() -> ChannelList {
+ *
+ * } */
+
 
 fn write_history(channel_list: &ChannelList) {
     let list = channel_list.channels.clone();

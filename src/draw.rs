@@ -1,11 +1,16 @@
 use std::io::Write;
 use tui::{
     widgets::{
+        Paragraph,
         BorderType,
     },
     style::Style,
-    text::Spans,
+    text::{
+        Spans,
+        Span,
+    },
     layout::{
+        Alignment,
         Layout,
         Constraint,
         Direction
@@ -15,10 +20,11 @@ use tui::{
 use crate::*;
 use crate::fetch_data::ToString;
 
+const INFO_LINE: &str = "q close, o open video/select, Enter select, m mark, M unmark, j down, k up, R redraw screen (buggy)";
 
 pub fn draw<W: Write>(app: &mut App<W>) {
 
-    let mut all_chan = app.all_channels.clone(); 
+    let mut all_chan = app.all_channels.clone();
     let mut chan = Vec::new();
     let chan_str: Vec<Spans> = all_chan.channels.iter_mut().map(|e| e.to_string()).collect();
     for e in chan_str.into_iter() {
@@ -38,7 +44,7 @@ pub fn draw<W: Write>(app: &mut App<W>) {
 
     let constraints = match app.current_screen {
         Channels =>  [ Constraint::Percentage(100) ].as_ref(),
-        Videos => [ Constraint::Percentage(50), Constraint::Percentage(50) ].as_ref(),
+        Videos => [ Constraint::Percentage(35), Constraint::Percentage(65) ].as_ref(),
     };
 
     let (show_second_block, channel_name) = match app.current_screen {
@@ -52,11 +58,20 @@ pub fn draw<W: Write>(app: &mut App<W>) {
     let title = String::from("TYT");
 
     let _res = app.terminal.draw(|f| {
+        let vert = Layout::default()
+            .direction(Direction::Vertical)
+            .margin(0)
+            .constraints([
+                Constraint::Percentage(99),
+                Constraint::Percentage(1),
+            ])
+            .split(f.size());
+
         let chunks = Layout::default()
             .direction(Direction::Horizontal)
             .margin(1)
             .constraints(constraints)
-            .split(f.size());
+            .split(vert[0]);
 
         let block = Block::default()
             .title(title)
@@ -81,5 +96,11 @@ pub fn draw<W: Write>(app: &mut App<W>) {
                 .highlight_symbol(">> ");
             f.render_stateful_widget(list, chunks[1], vid_state);
         }
+
+        let paragraph = Paragraph::new(Span::from(INFO_LINE))
+            .style(Style::default())
+            .alignment(Alignment::Left);
+        f.render_widget(paragraph, vert[1]);
+
     });
 }
