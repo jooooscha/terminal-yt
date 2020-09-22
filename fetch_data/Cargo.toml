@@ -1,6 +1,6 @@
 [package]
 name = "fetch_data"
-version = "0.1.0"
+version = "0.3.0"
 authors = ["joooscha <joscha.loos@pm.me>"]
 edition = "2018"
 
