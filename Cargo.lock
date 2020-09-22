@@ -171,6 +171,7 @@ dependencies = [
  "serde",
  "serde_json",
  "termion",
+ "threadpool",
  "toml",
  "tui",
 ]
@@ -988,6 +989,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "threadpool"
+version = "1.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d050e60b33d41c19108b32cea32164033a9013fe3b46cbd4457559bfbf77afaa"
+dependencies = [
+ "num_cpus",
+]
+
+[[package]]
 name = "time"
 version = "0.1.44"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1102,7 +1112,7 @@ dependencies = [
 
 [[package]]
 name = "tyt"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "fetch_data",
  "termion",

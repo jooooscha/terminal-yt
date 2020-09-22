@@ -20,7 +20,7 @@ use tui::{
 use crate::*;
 use fetch_data::structs::ToString;
 
-const INFO_LINE: &str = "q close, o open video/select, Enter select, m mark, M unmark, j down, k up, R redraw screen (buggy)";
+const INFO_LINE: &str = "q close, o open video/select, Enter select, m mark, M unmark, j down, k up";
 
 pub fn draw<W: Write>(app: &mut App<W>) {
 
@@ -34,7 +34,10 @@ pub fn draw<W: Write>(app: &mut App<W>) {
 
     let i = app.current_selected;
 
-    let mut all_vids = app.all_channels.channels[i].clone();
+    let mut all_vids = match app.all_channels.channels.get(i) {
+        Some(e) => e.clone(),
+        None => Channel::new(),
+    };
     let mut vid = Vec::new();
     let vid_str: Vec<Spans> = all_vids.videos.iter_mut().map(|e| e.to_string()).collect();
     for e in vid_str.into_iter() {
@@ -56,6 +59,12 @@ pub fn draw<W: Write>(app: &mut App<W>) {
     };
 
     let title = String::from("TYT");
+    
+    let update_line = if app.update_line.is_empty() {
+        String::from(INFO_LINE)
+    } else {
+        app.update_line.clone()
+    };
 
     let _res = app.terminal.draw(|f| {
         let vert = Layout::default()
@@ -97,7 +106,7 @@ pub fn draw<W: Write>(app: &mut App<W>) {
             f.render_stateful_widget(list, chunks[1], vid_state);
         }
 
-        let paragraph = Paragraph::new(Span::from(INFO_LINE))
+        let paragraph = Paragraph::new(Span::from(update_line))
             .style(Style::default())
             .alignment(Alignment::Left);
         f.render_widget(paragraph, vert[1]);

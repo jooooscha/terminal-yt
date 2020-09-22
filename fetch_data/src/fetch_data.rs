@@ -1,12 +1,17 @@
 /* extern crate termion; */
-
 use reqwest::blocking::Client;
 use quick_xml::de::from_str;
 use std::{
     fs::File,
     io::BufReader,
     io::prelude::*,
+    thread,
+    sync::{
+        mpsc::Sender,
+        mpsc::channel,
+    },
 };
+use threadpool::ThreadPool;
 use dirs::home_dir;
 
 
@@ -16,7 +21,7 @@ const HISTORY_FILE_PATH: &str = ".config/tyt/history.json";
 const URLS_FILE_PATH: &str = ".config/tyt/urls";
 
 //-------------------------------------
-pub fn fetch_channel_list() -> ChannelList {
+pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
     let client = Client::builder().build().ok().unwrap();
 
     let urls = read_urls_file();
@@ -24,41 +29,59 @@ pub fn fetch_channel_list() -> ChannelList {
     let history: ChannelList = read_history();
     let mut channel_list = ChannelList::new(Vec::new());
 
+    let worker_num = 4;
+    let jobs_num = urls.len();
+    let pool = ThreadPool::new(worker_num);
+    
+    let (tx, rx) = channel();
     for url in urls.into_iter() {
-        let body = match client.get(&url).send().ok() {
-            Some(e) => e.text().ok().unwrap(),
-            None => break
-        };
+        let tx = tx.clone();
+        let sender = sender.clone();
+        let history = history.clone();
+        let client = client.clone();
+        pool.execute(move || {
+            sender.send(format!("fetching... {}", url.clone())).unwrap();
 
-        let feed: Feed = from_str(&body).unwrap();
+            let body = match client.get(&url).send().ok() {
+                Some(e) => e.text().ok().unwrap(),
+                None => return
+            };
 
-        // ----------------------
+            let feed: Feed = from_str(&body).unwrap();
 
-        let mut channel = Channel::new();
-        channel.name = feed.title;
-        channel.link = feed.link;
+            // ----------------------
+
+            let mut channel = Channel::new();
+            channel.name = feed.title;
+            channel.link = feed.link;
 
 
-        for h in history.channels.iter() {
-            // match channel links
-            if h.link == channel.link {
-                // copy old video elements
-                channel.videos = h.videos.clone();
+            for h in history.channels.iter() {
+                // match channel links
+                if h.link == channel.link {
+                    // copy old video elements
+                    channel.videos = h.videos.clone();
 
-                break
+                    break
+                }
             }
-        }
-        // insert videos from feed, if not already in list
-        for vid in feed.entries {
-            if !channel.videos.iter().any(|video_item| video_item.video == vid) {
-                channel.videos.push(
-                    VideoItem::new(vid)
-                );
+            // insert videos from feed, if not already in list
+            for vid in feed.entries {
+                if !channel.videos.iter().any(|video_item| video_item.video == vid) {
+                    channel.videos.push(
+                        VideoItem::new(vid)
+                    );
+                }
             }
-        }
-        channel.videos.sort_by_key(|v| v.video.time.clone());
-        channel.videos.reverse();
-        channel_list.channels.push(channel);
+            channel.videos.sort_by_key(|v| v.video.time.clone());
+            channel.videos.reverse();
+
+            tx.send(channel).unwrap();
+            /* channel_list.channels.push(channel); */
+        });
+    }
+    for chan in rx.iter().take(jobs_num) {
+        channel_list.channels.push(chan);
     }
 
     channel_list.channels.sort_by_key(|c| c.name.clone());
@@ -66,9 +89,9 @@ pub fn fetch_channel_list() -> ChannelList {
     channel_list
 }
 
-/* fn fetch_new_videos() -> ChannelList {
- *
- * } */
+pub fn fetch_history_videos () -> ChannelList {
+    read_history()
+}
 
 
 pub fn write_history(channel_list: &ChannelList) {
