@@ -1,0 +1,1 @@
+/home/joscha/MEGA/programming/rust/tyt/fetch_data/target/debug/libfetch_data.rlib: /home/joscha/MEGA/programming/rust/tyt/fetch_data/src/fetch_data.rs /home/joscha/MEGA/programming/rust/tyt/fetch_data/src/lib.rs /home/joscha/MEGA/programming/rust/tyt/fetch_data/src/structs.rs
