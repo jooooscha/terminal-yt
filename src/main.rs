@@ -89,7 +89,7 @@ fn main() {
     let mouse_terminal = MouseTerminal::from(stdout);
     /* let screen = mouse_terminal; */
     let screen = AlternateScreen::from(mouse_terminal);
-    let stdin = stdin();
+    let _stdin = stdin();
     let backend = TermionBackend::new(screen);
     let terminal = Terminal::new(backend).unwrap();
 
