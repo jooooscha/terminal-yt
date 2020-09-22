@@ -10,14 +10,19 @@ use tui::{
     backend::TermionBackend,
     widgets::{Block, Borders, List, ListItem},
 };
+use Screen::*;
+
+use fetch_data::{
+    structs::{
+        ChannelList,
+        Channel,
+        VideoItem,
+    },
+    fetch_data::fetch_channel_list,
+};
 
 mod draw;
-mod fetch_data;
-use draw::*;
-
-use fetch_data::*;
-
-use Screen::*;
+use draw::draw;
 
 pub struct App<W: Write> {
     pub terminal: Terminal<TermionBackend<W>>,

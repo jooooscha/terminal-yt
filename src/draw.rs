@@ -18,7 +18,7 @@ use tui::{
 };
 
 use crate::*;
-use crate::fetch_data::ToString;
+use fetch_data::structs::ToString;
 
 const INFO_LINE: &str = "q close, o open video/select, Enter select, m mark, M unmark, j down, k up, R redraw screen (buggy)";
 

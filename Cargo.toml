@@ -15,3 +15,4 @@ regex = "*"
 toml = "*"
 chrono = "*"
 dirs = "*"
+fetch_data = { path = "./fetch_data" }

@@ -160,6 +160,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "fetch_data"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "dirs",
+ "quick-xml",
+ "regex",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "termion",
+ "toml",
+ "tui",
+]
+
+[[package]]
 name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1084,6 +1100,7 @@ version = "0.2.1"
 dependencies = [
  "chrono",
  "dirs",
+ "fetch_data",
  "quick-xml",
  "regex",
  "reqwest",
