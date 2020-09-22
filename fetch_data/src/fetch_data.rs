@@ -1,5 +1,4 @@
-extern crate termion;
-
+/* extern crate termion; */
 
 use reqwest::blocking::Client;
 use quick_xml::de::from_str;

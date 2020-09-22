@@ -1,10 +1,7 @@
 use serde::{Deserialize, Serialize};
-
-
 use std::{
     process::Command,
 };
-
 use tui::{
     widgets::ListState,
     style::{Color, Modifier, Style},

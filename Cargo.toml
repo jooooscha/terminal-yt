@@ -7,12 +7,4 @@ edition = "2018"
 [dependencies]
 termion = "*"
 tui = "*"
-serde = { version = "*", features = ["derive"] }
-serde_json = "*"
-quick-xml = { version = "*", features = ["serialize"] }
-reqwest = { version = "*", features = ["blocking"] }
-regex = "*"
-toml = "*"
-chrono = "*"
-dirs = "*"
 fetch_data = { path = "./fetch_data" }
