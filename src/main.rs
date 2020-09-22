@@ -1,22 +1,15 @@
 use std::{
     io::{stdout, stdin, Write},
-    time,
     thread,
-    thread::{
-        sleep
-    },
     sync::mpsc::{
         channel,
-        RecvError,
-        SendError,
     }
 };
 use termion::{
     raw::IntoRawMode,
     screen::AlternateScreen,
-    input::{MouseTerminal, TermRead},
+    input::MouseTerminal,
     event::Key,
-    terminal_size,
 };
 use tui::{
     Terminal,

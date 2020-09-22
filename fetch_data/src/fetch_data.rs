@@ -5,7 +5,6 @@ use std::{
     fs::File,
     io::BufReader,
     io::prelude::*,
-    thread,
     sync::{
         mpsc::Sender,
         mpsc::channel,
