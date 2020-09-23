@@ -20,7 +20,7 @@ use tui::{
 use crate::*;
 use fetch_data::structs::ToString;
 
-const INFO_LINE: &str = "q close, o open video/select, Enter select, m mark, M unmark, j down, k up";
+const INFO_LINE: &str = "q close; o open video/select; Enter/l select; Esc/h go back; m mark; M unmark; j down; k up; r to reload";
 
 pub fn draw<W: Write>(app: &mut App<W>) {
 
