@@ -94,9 +94,9 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
                 },
                 FeedType::Rss(_) => {
                     let rss: rss::Feed = from_str(&body).unwrap();
-                    channel.name = rss.channel.title;
-                    channel.link = rss.channel.link;
-                    temp_videos = rss.channel.videos;
+                    channel.name = rss.channel.title.clone();
+                    channel.link = rss.channel.link.clone();
+                    temp_videos = rss.channel.get_videos();
                 }
             }
 

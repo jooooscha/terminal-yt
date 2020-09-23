@@ -25,12 +25,11 @@ impl Feed {
     pub fn get_videos(&self) -> Vec<rss::Video> {
         let mut vids = Vec::new();
         for entry in self.entries.iter() {
-            let d = DateTime::parse_from_rfc3339(&entry.time.clone()).unwrap();
             vids.push(
                 rss::Video {
                     title: entry.title.clone(),
                     link: format!("https://www.youtube.com/watch?v={}", entry.id),
-                    time: d.to_rfc2822(),
+                    time: entry.time.clone(),
                 }
             );
         }

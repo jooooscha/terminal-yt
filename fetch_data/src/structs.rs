@@ -152,7 +152,7 @@ impl VideoItem {
 
 impl ToString for VideoItem {
     fn to_string(&mut self) -> Spans {
-        let d = DateTime::parse_from_rfc2822(&self.video.time).unwrap();
+        let d = DateTime::parse_from_rfc3339(&self.video.time).unwrap();
 
         let date = format!("{:>4} - ", &d.format("%d.%m"));
         let title = format!("{}", &self.video.title);
