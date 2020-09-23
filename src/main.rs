@@ -138,7 +138,7 @@ fn main() {
                         },
                     }
                 },
-                Key::Esc | Key::Char('h') => {
+                Key::Esc | Key::Char('h') | Key::Left => {
                 match app.current_screen {
                     Channels => {},
                         Videos => {
@@ -168,7 +168,7 @@ fn main() {
                     }
                     app.update();
                 },
-                Key::Char('\n') | Key::Char('l') => {  // ----------- open ---------------
+                Key::Char('\n') | Key::Char('l') | Key::Right => {  // ----------- open ---------------
                     match app.current_screen {
                         Channels => {
                             app.current_selected = app.all_channels.list_state.selected().unwrap();

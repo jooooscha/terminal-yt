@@ -9,6 +9,7 @@ use std::{
         mpsc::Sender,
         mpsc::channel,
     },
+    process::Command,
 };
 use threadpool::ThreadPool;
 use dirs::home_dir;
@@ -77,9 +78,15 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
         pool.execute(move || {
             sender.send(format!("fetching... {}", url.clone())).unwrap();
 
-            let body = match client.get(&url).send().ok() {
-                Some(e) => e.text().ok().unwrap(),
-                None => return
+            let body = match client.get(&url).send() {
+                Ok(response) => match response.text() {
+                    Ok(e) => e,
+                    Err(_) => return
+                },
+                Err(e) => {
+                    notify_user(format!("could not GET url: {}", e));
+                    return
+                }
             };
 
             let mut channel = Channel::new();
@@ -87,13 +94,25 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
 
             match item {
                 FeedType::Atom(_) => {
-                    let feed: atom::Feed = from_str(&body).unwrap();
+                    let feed: atom::Feed = match from_str(&body) {
+                        Ok(feed) => feed,
+                        Err(e) => {
+                            notify_user(format!("could not parse feed: {}", e));
+                            return
+                        }
+                    };
                     channel.name = feed.title.clone();
                     channel.link = feed.link.clone();
                     temp_videos = feed.get_videos();
                 },
                 FeedType::Rss(_) => {
-                    let rss: rss::Feed = from_str(&body).unwrap();
+                    let rss: rss::Feed = match from_str(&body) {
+                        Ok(feed) => feed,
+                        Err(e) => {
+                            notify_user(format!("could not parse feed: {}", e));
+                            return
+                        }
+                    };
                     channel.name = rss.channel.title.clone();
                     channel.link = rss.channel.link.clone();
                     temp_videos = rss.channel.get_videos();
@@ -123,7 +142,6 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
             channel.videos.reverse();
 
             tx.send(channel).unwrap();
-            /* channel_list.channels.push(channel); */
         });
     }
     for chan in rx.iter().take(jobs_num) {
@@ -133,6 +151,10 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
     channel_list.channels.sort_by_key(|c| c.name.clone());
 
     channel_list
+}
+
+fn notify_user(msg: String) {
+    Command::new("notify-send").arg(msg).spawn().expect("failed");
 }
 
 pub fn fetch_history_videos () -> ChannelList {
@@ -162,7 +184,11 @@ fn read_history() -> ChannelList {
         Ok(mut file) => {
             let mut reader = String::new();
             file.read_to_string(&mut reader).unwrap();
-            let channels: Vec<Channel> = serde_json::from_str(&reader).unwrap();
+            let channels: Vec<Channel> = match serde_json::from_str(&reader) {
+                Ok(data) => data,
+                Err(e) => panic!("could not read history file: {}", e),
+            };
+
             // return
             ChannelList::new(channels)
         }
@@ -179,16 +205,28 @@ fn read_urls_file() -> UrlFile {
     let mut path = home_dir().unwrap();
     path.push(URLS_FILE_PATH);
 
-    match File::open(path) {
+    match File::open(path.clone()) {
         Ok(mut file) => {
             let mut reader = String::new();
             file.read_to_string(&mut reader).unwrap();
-            let urls: UrlFile = toml::from_str(&reader).unwrap();
+            let urls: UrlFile = match toml::from_str(&reader) {
+                Ok(file) => file,
+                Err(e) => panic!("could not parse url file: {}", e),
+            };
 
             urls
         }
-        Err(e) => {
-            panic!("somthig is wrong with the url file: {}", e);
+        Err(_) => {
+            let mut file = File::create(path).unwrap();
+            let url_file = UrlFile {
+                atom: Vec::new(),
+                rss: Vec::new(),
+            };
+            let string = toml::to_string(&url_file).unwrap();
+            match file.write_all(string.as_bytes()) {
+                Ok(_) => read_urls_file(),
+                Err(e) => panic!("{}", e),
+            }
         }
     }
 }

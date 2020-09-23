@@ -1,4 +1,7 @@
-use std::io::Write;
+use std::{
+    io::Write,
+    /* process::Command, */
+};
 use tui::{
     widgets::{
         Paragraph,
@@ -110,6 +113,5 @@ pub fn draw<W: Write>(app: &mut App<W>) {
             .style(Style::default())
             .alignment(Alignment::Left);
         f.render_widget(paragraph, vert[1]);
-
     });
 }

@@ -1,0 +1,11 @@
+/home/joscha/MEGA/programming/rust/tyt/fetch_data/target/debug/deps/libthiserror_impl-3b6e40fecc0798e0.so: /home/joscha/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.20/src/lib.rs /home/joscha/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.20/src/ast.rs /home/joscha/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.20/src/attr.rs /home/joscha/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.20/src/expand.rs /home/joscha/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.20/src/fmt.rs /home/joscha/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.20/src/prop.rs /home/joscha/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.20/src/valid.rs
+
+/home/joscha/MEGA/programming/rust/tyt/fetch_data/target/debug/deps/thiserror_impl-3b6e40fecc0798e0.d: /home/joscha/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.20/src/lib.rs /home/joscha/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.20/src/ast.rs /home/joscha/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.20/src/attr.rs /home/joscha/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.20/src/expand.rs /home/joscha/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.20/src/fmt.rs /home/joscha/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.20/src/prop.rs /home/joscha/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.20/src/valid.rs
+
+/home/joscha/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.20/src/lib.rs:
+/home/joscha/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.20/src/ast.rs:
+/home/joscha/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.20/src/attr.rs:
+/home/joscha/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.20/src/expand.rs:
+/home/joscha/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.20/src/fmt.rs:
+/home/joscha/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.20/src/prop.rs:
+/home/joscha/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.20/src/valid.rs:

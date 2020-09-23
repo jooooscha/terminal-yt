@@ -1,3 +1,4 @@
+extern crate yaserde;
 use serde::{Deserialize, Serialize};
 use chrono::DateTime;
 
@@ -9,6 +10,7 @@ pub struct Feed {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Channel {
     pub title: String,
+    /* #[yaserde(prefix = "A")] */
     pub link: String,
     #[serde(rename = "item")]
     pub videos: Vec<Video>,
