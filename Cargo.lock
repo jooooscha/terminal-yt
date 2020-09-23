@@ -161,7 +161,7 @@ dependencies = [
 
 [[package]]
 name = "fetch_data"
-version = "0.1.0"
+version = "0.3.0"
 dependencies = [
  "chrono",
  "dirs",
@@ -174,6 +174,7 @@ dependencies = [
  "threadpool",
  "toml",
  "tui",
+ "yaserde",
 ]
 
 [[package]]
@@ -1112,7 +1113,7 @@ dependencies = [
 
 [[package]]
 name = "tyt"
-version = "0.2.2"
+version = "0.3.0"
 dependencies = [
  "fetch_data",
  "termion",
@@ -1338,4 +1339,20 @@ checksum = "d59cefebd0c892fa2dd6de581e937301d8552cb44489cdff035c6187cb63fa5e"
 dependencies = [
  "winapi 0.2.8",
  "winapi-build",
+]
+
+[[package]]
+name = "xml-rs"
+version = "0.8.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b07db065a5cf61a7e4ba64f29e67db906fb1787316516c4e6e5ff0fea1efcd8a"
+
+[[package]]
+name = "yaserde"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "445e980b222cf73fd4a5e87dba0faa519c81b1bdc88847d029435ca5279139b8"
+dependencies = [
+ "log",
+ "xml-rs",
 ]

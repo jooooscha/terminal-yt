@@ -1,9 +1,9 @@
-/* extern crate termion; */
+use serde::{Deserialize, Serialize};
 use reqwest::blocking::Client;
 use quick_xml::de::from_str;
 use std::{
     fs::File,
-    io::BufReader,
+    /* io::BufReader, */
     io::prelude::*,
     sync::{
         mpsc::Sender,
@@ -13,8 +13,38 @@ use std::{
 use threadpool::ThreadPool;
 use dirs::home_dir;
 
-
 use super::structs::*;
+use crate::atom;
+use crate::rss;
+
+#[derive(Deserialize, Serialize)]
+struct UrlFile {
+    atom: Vec<String>,
+    rss: Vec<String>,
+}
+
+#[derive(Clone)]
+enum FeedType {
+    Atom(String),
+    Rss(String),
+}
+
+impl UrlFile {
+    fn len(&self) -> usize {
+        self.atom.len() + self.rss.len()
+    }
+    fn get_mixed(&self) -> Vec<FeedType> {
+        let mut arr: Vec<FeedType> = Vec::new();
+        for url in self.atom.iter() {
+            arr.push(FeedType::Atom(url.clone()));
+        }
+        for url in self.rss.iter() {
+            arr.push(FeedType::Rss(url.clone()));
+        }
+        arr
+    }
+
+}
 
 const HISTORY_FILE_PATH: &str = ".config/tyt/history.json";
 const URLS_FILE_PATH: &str = ".config/tyt/urls";
@@ -31,9 +61,15 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
     let worker_num = 4;
     let jobs_num = urls.len();
     let pool = ThreadPool::new(worker_num);
-    
+
     let (tx, rx) = channel();
-    for url in urls.into_iter() {
+
+    for item in urls.get_mixed() {
+        let url = match item.clone() {
+            FeedType::Atom(s) => s,
+            FeedType::Rss(s) => s,
+        };
+
         let tx = tx.clone();
         let sender = sender.clone();
         let history = history.clone();
@@ -46,14 +82,23 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
                 None => return
             };
 
-            let feed: Feed = from_str(&body).unwrap();
-
-            // ----------------------
-
             let mut channel = Channel::new();
-            channel.name = feed.title;
-            channel.link = feed.link;
+            let temp_videos;
 
+            match item {
+                FeedType::Atom(_) => {
+                    let feed: atom::Feed = from_str(&body).unwrap();
+                    channel.name = feed.title.clone();
+                    channel.link = feed.link.clone();
+                    temp_videos = feed.get_videos();
+                },
+                FeedType::Rss(_) => {
+                    let rss: rss::Feed = from_str(&body).unwrap();
+                    channel.name = rss.channel.title;
+                    channel.link = rss.channel.link;
+                    temp_videos = rss.channel.videos;
+                }
+            }
 
             for h in history.channels.iter() {
                 // match channel links
@@ -64,14 +109,16 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
                     break
                 }
             }
+
             // insert videos from feed, if not already in list
-            for vid in feed.entries {
+            for vid in temp_videos.into_iter() {
                 if !channel.videos.iter().any(|video_item| video_item.video == vid) {
                     channel.videos.push(
                         VideoItem::new(vid)
                     );
                 }
             }
+
             channel.videos.sort_by_key(|v| v.video.time.clone());
             channel.videos.reverse();
 
@@ -95,8 +142,7 @@ pub fn fetch_history_videos () -> ChannelList {
 
 pub fn write_history(channel_list: &ChannelList) {
     let list = channel_list.channels.clone();
-    let serial: Vec<ChannelSerial> = list.into_iter().map(|channel| channel.to_serial()).collect();
-    let json = serde_json::to_string(&serial).unwrap();
+    let json = serde_json::to_string(&list).unwrap();
 
     let mut path = home_dir().unwrap();
     path.push(HISTORY_FILE_PATH);
@@ -116,11 +162,9 @@ fn read_history() -> ChannelList {
         Ok(mut file) => {
             let mut reader = String::new();
             file.read_to_string(&mut reader).unwrap();
-            let mut channels: Vec<ChannelSerial> = serde_json::from_str(&reader).unwrap();
-            // morph into internal struct
-            let list = channels.iter_mut().map(|serial| Channel::from_serial(serial.clone())).collect();
+            let channels: Vec<Channel> = serde_json::from_str(&reader).unwrap();
             // return
-            ChannelList::new(list)
+            ChannelList::new(channels)
         }
         Err(_) => {
             // write empty history
@@ -131,20 +175,20 @@ fn read_history() -> ChannelList {
     }
 }
 
-fn read_urls_file() -> Vec<String> {
+fn read_urls_file() -> UrlFile {
     let mut path = home_dir().unwrap();
     path.push(URLS_FILE_PATH);
+
     match File::open(path) {
-        Ok(file) => {
-            let mut vec = Vec::new();
-            let reader = BufReader::new(file);
-            for line in reader.lines() {
-                vec.push(line.ok().unwrap());
-            }
-            vec
+        Ok(mut file) => {
+            let mut reader = String::new();
+            file.read_to_string(&mut reader).unwrap();
+            let urls: UrlFile = toml::from_str(&reader).unwrap();
+
+            urls
         }
-        Err(_) => {
-            Vec::new()
+        Err(e) => {
+            panic!("somthig is wrong with the url file: {}", e);
         }
     }
 }

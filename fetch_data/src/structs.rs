@@ -10,24 +10,9 @@ use tui::{
 use chrono::DateTime;
 use super::fetch_data::*;
 
-// Deserialize structs
-#[derive(Debug, Deserialize)]
-pub struct Feed {
-    #[serde(rename = "entry")]
-    pub entries: Vec<Video>,
-    pub title: String,
-    #[serde(rename = "channelId")]
-    pub link: String,
-}
-
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
-pub struct Video {
-    #[serde(rename = "videoId")]
-    pub id: String,
-    pub title: String,
-    #[serde(rename = "published")]
-    pub time: String,
-}
+use crate::rss::{
+    Video,
+};
 
 // program structs
 pub trait ToString {
@@ -40,19 +25,13 @@ pub struct ChannelList {
     pub list_state: ListState,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Channel {
     pub name: String,
     pub link: String,
     pub videos: Vec<VideoItem>,
+    #[serde(skip)]
     pub list_state: ListState,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ChannelSerial {
-    name: String,
-    link: String,
-    videos: Vec<VideoItem>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -111,21 +90,6 @@ impl Channel {
             list_state: state,
         }
     }
-    pub fn from_serial(serial: ChannelSerial) -> Channel {
-        Channel {
-            name: serial.name,
-            link: serial.link,
-            videos: serial.videos,
-            ..Channel::new()
-        }
-    }
-    pub fn to_serial(&self) -> ChannelSerial {
-        ChannelSerial {
-            name: self.name.clone(),
-            link: self.link.clone(),
-            videos: self.videos.clone(),
-        }
-    }
     pub fn next(&mut self) {
         let state = &self.list_state;
         let index = match state.selected() {
@@ -180,16 +144,15 @@ impl VideoItem {
     }
     pub fn open(&self) {
         // open with mpv
-        let link = format!("https://www.youtube.com/watch?v={}", &self.video.id);
+        let link = &self.video.link;
         Command::new("notify-send").arg("Open video").arg(&self.video.title).spawn().expect("failed");
-        /* Command::new("umpv").arg(link).spawn().expect("failed"); */
         Command::new("setsid").arg("-f").arg("umpv").arg(link).spawn().expect("umpv stating failed");
     }
 }
 
 impl ToString for VideoItem {
     fn to_string(&mut self) -> Spans {
-        let d = DateTime::parse_from_rfc3339(&self.video.time).unwrap();
+        let d = DateTime::parse_from_rfc2822(&self.video.time).unwrap();
 
         let date = format!("{:>4} - ", &d.format("%d.%m"));
         let title = format!("{}", &self.video.title);
