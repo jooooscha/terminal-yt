@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 use crate::rss;
-use chrono::DateTime;
 
 // Deserialize structs
 #[derive(Debug, Deserialize)]

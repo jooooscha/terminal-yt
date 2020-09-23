@@ -3,6 +3,7 @@ use std::{
     thread,
     sync::mpsc::{
         channel,
+        Sender,
     }
 };
 use termion::{
@@ -77,6 +78,15 @@ enum Screen {
 
 const TITLE: &str = "Terminal-Youtube";
 
+fn update_channel_list(result_sender: Sender<ChannelList>, url_sender: Sender<String>) {
+    thread::spawn(move|| {
+        let new_chan = fetch_new_videos(url_sender);
+        result_sender.send(new_chan.clone()).unwrap();
+        write_history(&new_chan);
+    });
+
+}
+
 fn main() {
     let stdout = stdout().into_raw_mode().unwrap();
     let mouse_terminal = MouseTerminal::from(stdout);
@@ -97,22 +107,17 @@ fn main() {
 
     let events = Events::new();
 
-    let (mess, mesr) = channel();
-    let (update_sender, update_receiver) = channel();
+    let (result_sender, result_receiver) = channel();
+    let (url_sender, url_receiver) = channel();
 
-    thread::spawn(move|| {
-        let new_chan = fetch_new_videos(update_sender);
-        mess.send(new_chan.clone()).unwrap();
-        write_history(&new_chan);
-    });
-
+    update_channel_list(result_sender.clone(), url_sender.clone());
     let mut update = true;
 
     loop {
         let event = events.next();
 
         if update {
-            match mesr.try_recv() {
+            match result_receiver.try_recv() {
                 Ok(v) => {
                     app.all_channels = v;
                     update = false;
@@ -133,91 +138,96 @@ fn main() {
                         },
                     }
                 },
-              Key::Esc => {
-                  match app.current_screen {
-                      Channels => {},
-                      Videos => {
-                          app.close_right_block();
-                      }
-                  }
-              }
-              Key::Char('j') | Key::Down => {
-                  match app.current_screen {
-                      Channels => {
-                          app.all_channels.next();
-                      },
-                      Videos => {
-                          app.get_selected_channel().next();
-                      }
-                  }
-                  app.update();
-              },
-              Key::Char('k') | Key::Up => {
-                  match app.current_screen {
-                      Channels => {
-                          app.all_channels.prev();
-                      },
-                      Videos => {
-                          app.get_selected_channel().prev();
-                      }
-                  }
-                  app.update();
-              },
-              Key::Char('\n') => {  // ----------- open ---------------
-                  match app.current_screen {
-                      Channels => {
-                          app.current_selected = app.all_channels.list_state.selected().unwrap();
-                          app.current_screen = Videos;
-                          app.all_channels.list_state.select(None);
-                          app.update()
-                      },
-                      Videos => {}
-                  }
-              },
-              Key::Char('o') => {
-                  match app.current_screen {
-                      Channels => {
-                          app.current_selected = app.all_channels.list_state.selected().unwrap();
-                          app.current_screen = Videos;
-                          app.all_channels.list_state.select(None);
-                      },
-                      Videos => {
-                          app.get_selected_video().open();
-                      },
-                  }
-                  app.update();
-              }
-              Key::Char('m') => { // ----------- mark ---------------
-                  match app.current_screen {
-                      Channels => (),
-                      Videos => {
-                          app.get_selected_video().mark(true);
-                          app.get_selected_channel().next();
-                          app.update();
-                          app.save();
-                      },
-                  }
-              },
-              Key::Char('M') => { // ----------- unmark -------------
-                  match app.current_screen {
-                      Channels => (),
-                      Videos => {
-                          app.get_selected_video().mark(false);
-                          app.get_selected_channel().next();
-                          app.update();
-                          app.save();
-                      },
-                  }
-              },
+                Key::Esc | Key::Char('h') => {
+                match app.current_screen {
+                    Channels => {},
+                        Videos => {
+                            app.close_right_block();
+                        }
+                    }
+                }
+                Key::Char('j') | Key::Down => {
+                    match app.current_screen {
+                        Channels => {
+                            app.all_channels.next();
+                        },
+                        Videos => {
+                            app.get_selected_channel().next();
+                        }
+                    }
+                    app.update();
+                },
+                Key::Char('k') | Key::Up => {
+                    match app.current_screen {
+                        Channels => {
+                            app.all_channels.prev();
+                        },
+                        Videos => {
+                            app.get_selected_channel().prev();
+                        }
+                    }
+                    app.update();
+                },
+                Key::Char('\n') | Key::Char('l') => {  // ----------- open ---------------
+                    match app.current_screen {
+                        Channels => {
+                            app.current_selected = app.all_channels.list_state.selected().unwrap();
+                            app.current_screen = Videos;
+                            app.all_channels.list_state.select(None);
+                            app.update()
+                        },
+                        Videos => {}
+                    }
+                },
+                Key::Char('o') => {
+                    match app.current_screen {
+                        Channels => {
+                            app.current_selected = app.all_channels.list_state.selected().unwrap();
+                            app.current_screen = Videos;
+                            app.all_channels.list_state.select(None);
+                        },
+                        Videos => {
+                            app.get_selected_video().open();
+                        },
+                    }
+                    app.update();
+                }
+                Key::Char('m') => { // ----------- mark ---------------
+                    match app.current_screen {
+                        Channels => (),
+                        Videos => {
+                            app.get_selected_video().mark(true);
+                            app.get_selected_channel().next();
+                            app.update();
+                            app.save();
+                        },
+                    }
+                },
+                Key::Char('M') => { // ----------- unmark -------------
+                    match app.current_screen {
+                        Channels => (),
+                        Videos => {
+                            app.get_selected_video().mark(false);
+                            app.get_selected_channel().next();
+                            app.update();
+                            app.save();
+                        },
+                    }
+                },
+                Key::Char('r') => {
+                    update_channel_list(result_sender.clone(), url_sender.clone());
+                    update = true;
+                }
                 _ => {}
             }
             Event::Tick => {
-                app.update_line = match update_receiver.try_recv() {
+                app.update_line = match url_receiver.try_recv() {
                     Ok(v) => v,
                     Err(_) => String::new(),
                 };
                 app.update();
             }
+
         }
     }
 }
