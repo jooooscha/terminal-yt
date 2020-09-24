@@ -10,6 +10,7 @@ Build with [tui](https://github.com/fdehau/tui-rs) with termion as backend.
 - Load urls from ~/.config/tyt/urls
 - config in ~/.config/tyt/config (not ready)
 - mark videos as watched
+- support for Atom and rss (not yet)
 
 ## Keys
 
