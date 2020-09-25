@@ -14,11 +14,16 @@ use std::{
 use threadpool::ThreadPool;
 use dirs::home_dir;
 
-use super::structs::*;
-use crate::atom;
-use crate::rss;
+use data_types::{
+    internal::{
+        ChannelList,
+        Channel,
+    },
+    rss,
+    atom,
+};
 
-#[derive(Deserialize, Serialize)]
+#[derive(Serialize, Deserialize)]
 struct UrlFile {
     atom: Vec<String>,
     rss: Vec<String>,
@@ -42,6 +47,7 @@ impl UrlFile {
         for url in self.rss.iter() {
             arr.push(FeedType::Rss(url.clone()));
         }
+
         arr
     }
 
@@ -51,13 +57,14 @@ const HISTORY_FILE_PATH: &str = ".config/tyt/history.json";
 const URLS_FILE_PATH: &str = ".config/tyt/urls";
 
 //-------------------------------------
+#[allow(dead_code)]
 pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
     let client = Client::builder().build().ok().unwrap();
 
     let urls = read_urls_file();
 
     let history: ChannelList = read_history();
-    let mut channel_list = ChannelList::new(Vec::new());
+    let mut channel_list = ChannelList::new();
 
     let worker_num = 4;
     let jobs_num = urls.len();
@@ -89,35 +96,34 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
                 }
             };
 
-            let mut channel = Channel::new();
-            let temp_videos;
+            let fetched_channel: Channel;
 
             match item {
                 FeedType::Atom(_) => {
-                    let feed: atom::Feed = match from_str(&body) {
+                    let atom_feed: atom::Feed = match from_str(&body) {
                         Ok(feed) => feed,
                         Err(e) => {
-                            notify_user(format!("could not paarse feed: {}", e));
+                            notify_user(format!("could not paarse atom feed: {}", e));
                             return
                         }
                     };
-                    channel.name = feed.title.clone();
-                    channel.link = feed.link.clone();
-                    temp_videos = feed.get_videos();
+                    fetched_channel = atom_feed.to_internal_channel();
                 },
                 FeedType::Rss(_) => {
-                    let rss: rss::Feed = match from_str(&body) {
+                    let rss_feed: rss::Feed = match from_str(&body) {
                         Ok(feed) => feed,
                         Err(e) => {
-                            notify_user(format!("could not parse feed: {}", e));
+                            notify_user(format!("could not parse rss feed: {}", e));
                             return
                         }
                     };
-                    channel.name = rss.channel.title.clone();
-                    channel.link = rss.channel.link.clone();
-                    temp_videos = rss.channel.get_videos();
+                    fetched_channel = rss_feed.to_internal_channel();
                 }
             }
+
+            let mut channel = Channel::new();
+            channel.name = fetched_channel.name;
+            channel.link = fetched_channel.link;
 
             for h in history.channels.iter() {
                 // match channel links
@@ -130,15 +136,15 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
             }
 
             // insert videos from feed, if not already in list
-            for vid in temp_videos.into_iter() {
-                if !channel.videos.iter().any(|video_item| video_item.video == vid) {
+            for vid in fetched_channel.videos.into_iter() {
+                if !channel.videos.iter().any(|video| video.link == vid.link) {
                     channel.videos.push(
-                        VideoItem::new(vid)
+                        vid
                     );
                 }
             }
 
-            channel.videos.sort_by_key(|v| v.video.time.clone());
+            channel.videos.sort_by_key(|video| video.pub_date.clone());
             channel.videos.reverse();
 
             tx.send(channel).unwrap();
@@ -149,6 +155,7 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
     }
 
     channel_list.channels.sort_by_key(|c| c.name.clone());
+    channel_list.list_state.select(Some(0));
 
     channel_list
 }
@@ -157,14 +164,8 @@ fn notify_user(msg: String) {
     Command::new("notify-send").arg(msg).spawn().expect("failed");
 }
 
-pub fn fetch_history_videos () -> ChannelList {
-    read_history()
-}
-
-
 pub fn write_history(channel_list: &ChannelList) {
-    let list = channel_list.channels.clone();
-    let json = serde_json::to_string(&list).unwrap();
+    let json = serde_json::to_string(channel_list).unwrap();
 
     let mut path = home_dir().unwrap();
     path.push(HISTORY_FILE_PATH);
@@ -176,7 +177,7 @@ pub fn write_history(channel_list: &ChannelList) {
     file.write_all(json.as_bytes()).unwrap();
 }
 
-fn read_history() -> ChannelList {
+pub fn read_history() -> ChannelList {
     let mut path = home_dir().unwrap();
     path.push(HISTORY_FILE_PATH);
 
@@ -184,17 +185,19 @@ fn read_history() -> ChannelList {
         Ok(mut file) => {
             let mut reader = String::new();
             file.read_to_string(&mut reader).unwrap();
-            let channels: Vec<Channel> = match serde_json::from_str(&reader) {
-                Ok(data) => data,
+            let mut channel_list: ChannelList = match serde_json::from_str(&reader) {
+                Ok(channels) => channels,
                 Err(e) => panic!("could not read history file: {}", e),
             };
 
+            channel_list.list_state.select(Some(0));
+
             // return
-            ChannelList::new(channels)
+            channel_list
         }
         Err(_) => {
             // write empty history
-            write_history(&ChannelList::new(Vec::new()));
+            write_history(&ChannelList::new());
             // try again
             read_history()
         }
