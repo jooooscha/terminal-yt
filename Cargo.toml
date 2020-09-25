@@ -1,10 +1,12 @@
 [package]
 name = "tyt"
-version = "0.4.2"
+version = "0.4.3"
 authors = ["joooscha <joscha.loos@pm.me>"]
 edition = "2018"
 
 [dependencies]
 termion = "*"
 tui = "*"
+
 fetch_data = { path = "./fetch_data" }
+data_types = { path = "./data_types" }

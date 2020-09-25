@@ -19,15 +19,19 @@ use tui::{
 };
 use Screen::*;
 use fetch_data::{
-    structs::{
-        ChannelList,
-        Channel,
-        VideoItem,
-    },
     fetch_data::{
         fetch_new_videos,
-        fetch_history_videos,
+        read_history,
         write_history,
+    },
+};
+
+use data_types::{
+    internal::{
+        ChannelList,
+        Channel,
+        Video,
+        ToSpans,
     },
 };
 
@@ -41,7 +45,7 @@ pub struct App<W: Write> {
     pub terminal: Terminal<TermionBackend<W>>,
     current_screen: Screen,
     pub app_title: String,
-    pub all_channels: ChannelList,
+    pub channel_list: ChannelList,
     pub current_selected: usize,
     pub update_line: String,
 }
@@ -52,20 +56,20 @@ impl<W: Write> App<W> {
     }
     fn get_selected_channel(&mut self) -> &mut Channel {
         let i = self.current_selected;
-        &mut self.all_channels.channels[i]
+        &mut self.channel_list.channels[i]
     }
-    fn get_selected_video(&mut self) -> &mut VideoItem {
+    fn get_selected_video(&mut self) -> &mut Video {
         let c = self.get_selected_channel();
         let i = c.list_state.selected().unwrap();
         &mut c.videos[i]
     }
     fn close_right_block(&mut self) {
         self.current_screen = Channels;
-        self.all_channels.list_state.select(Some(self.current_selected));
+        self.channel_list.list_state.select(Some(self.current_selected));
         self.update();
     }
     fn save(&self) {
-        self.all_channels.save();
+        write_history(&self.channel_list);
     }
 }
 
@@ -100,7 +104,7 @@ fn main() {
         terminal,
         app_title: String::from(TITLE),
         current_screen: Channels,
-        all_channels: fetch_history_videos(),
+        channel_list: read_history(),
         current_selected: 0,
         update_line: String::new(),
     };
@@ -119,7 +123,7 @@ fn main() {
         if update {
             match result_receiver.try_recv() {
                 Ok(v) => {
-                    app.all_channels = v;
+                    app.channel_list = v;
                     update = false;
                 },
                 Err(_) => {}
@@ -149,7 +153,7 @@ fn main() {
                 Key::Char('j') | Key::Down => {
                     match app.current_screen {
                         Channels => {
-                            app.all_channels.next();
+                            app.channel_list.next();
                         },
                         Videos => {
                             app.get_selected_channel().next();
@@ -160,7 +164,7 @@ fn main() {
                 Key::Char('k') | Key::Up => {
                     match app.current_screen {
                         Channels => {
-                            app.all_channels.prev();
+                            app.channel_list.prev();
                         },
                         Videos => {
                             app.get_selected_channel().prev();
@@ -171,9 +175,9 @@ fn main() {
                 Key::Char('\n') | Key::Char('l') | Key::Right => {  // ----------- open ---------------
                     match app.current_screen {
                         Channels => {
-                            app.current_selected = app.all_channels.list_state.selected().unwrap();
+                            app.current_selected = app.channel_list.list_state.selected().unwrap();
                             app.current_screen = Videos;
-                            app.all_channels.list_state.select(None);
+                            app.channel_list.list_state.select(None);
                             app.update()
                         },
                         Videos => {}
@@ -182,9 +186,10 @@ fn main() {
                 Key::Char('o') => {
                     match app.current_screen {
                         Channels => {
-                            app.current_selected = app.all_channels.list_state.selected().unwrap();
+                            app.current_selected = app.channel_list.list_state.selected().unwrap();
                             app.current_screen = Videos;
-                            app.all_channels.list_state.select(None);
+                            app.channel_list.list_state.select(None);
+                            app.get_selected_channel().list_state.select(Some(0));
                         },
                         Videos => {
                             app.get_selected_video().open();

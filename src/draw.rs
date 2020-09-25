@@ -1,6 +1,5 @@
 use std::{
     io::Write,
-    /* process::Command, */
 };
 use tui::{
     widgets::{
@@ -21,15 +20,14 @@ use tui::{
 };
 
 use crate::*;
-use fetch_data::structs::ToString;
 
 const INFO_LINE: &str = "q close; o open video/select; Enter/l select; Esc/h go back; m mark; M unmark; j down; k up; r to reload";
 
 pub fn draw<W: Write>(app: &mut App<W>) {
 
-    let mut all_chan = app.all_channels.clone();
+    let mut all_chan = app.channel_list.clone();
     let mut chan = Vec::new();
-    let chan_str: Vec<Spans> = all_chan.channels.iter_mut().map(|e| e.to_string()).collect();
+    let chan_str: Vec<Spans> = all_chan.channels.iter_mut().map(|e| e.to_spans()).collect();
     for e in chan_str.into_iter() {
         chan.push(ListItem::new(e));
     }
@@ -37,12 +35,12 @@ pub fn draw<W: Write>(app: &mut App<W>) {
 
     let i = app.current_selected;
 
-    let mut all_vids = match app.all_channels.channels.get(i) {
+    let mut all_vids = match app.channel_list.channels.get(i) {
         Some(e) => e.clone(),
         None => Channel::new(),
     };
     let mut vid = Vec::new();
-    let vid_str: Vec<Spans> = all_vids.videos.iter_mut().map(|e| e.to_string()).collect();
+    let vid_str: Vec<Spans> = all_vids.videos.iter_mut().map(|e| e.to_spans()).collect();
     for e in vid_str.into_iter() {
         vid.push(ListItem::new(e));
     }
@@ -56,13 +54,13 @@ pub fn draw<W: Write>(app: &mut App<W>) {
     let (show_second_block, channel_name) = match app.current_screen {
         Channels => (false, String::new()),
         Videos => {
-            let right_title = app.all_channels.channels[i].name.clone();
+            let right_title = app.channel_list.channels[i].name.clone();
             (true, right_title)
         }
     };
 
     let title = String::from("TYT");
-    
+
     let update_line = if app.update_line.is_empty() {
         String::from(INFO_LINE)
     } else {
