@@ -1,0 +1,13 @@
+[package]
+name = "data_types"
+version = "0.1.0"
+authors = ["joooscha <joscha.loos@pm.me>"]
+edition = "2018"
+
+[dependencies]
+serde = { version = "*", features = ["derive"] }
+serde_json = "*"
+quick-xml = { version = "*", features = ["serialize"] }
+# fetch_data = { path = "../fetch_data" }
+tui = "*"
+chrono = "*"

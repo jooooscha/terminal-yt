@@ -97,7 +97,7 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
                     let feed: atom::Feed = match from_str(&body) {
                         Ok(feed) => feed,
                         Err(e) => {
-                            notify_user(format!("could not parse feed: {}", e));
+                            notify_user(format!("could not paarse feed: {}", e));
                             return
                         }
                     };
