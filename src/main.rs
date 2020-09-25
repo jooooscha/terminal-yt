@@ -54,6 +54,7 @@ impl<W: Write> App<W> {
     fn update(&mut self) {
         draw(self);
     }
+    //--------------
     fn get_selected_channel(&mut self) -> &mut Channel {
         let i = self.current_selected;
         &mut self.channel_list.channels[i]
@@ -63,6 +64,21 @@ impl<W: Write> App<W> {
         let i = c.list_state.selected().unwrap();
         &mut c.videos[i]
     }
+    //---------------
+    fn open_selected_channel(&mut self) {
+        self.current_selected = match self.channel_list.list_state.selected() {
+            Some(selected) => selected,
+            None => return,
+        };
+        self.current_screen = Videos;
+        self.channel_list.list_state.select(None);
+        self.get_selected_channel().list_state.select(Some(0));
+        self.update();
+    }
+    fn open_selected_video(&mut self) {
+        self.get_selected_video().open();
+    }
+    //---------------------
     fn close_right_block(&mut self) {
         self.current_screen = Channels;
         self.channel_list.list_state.select(Some(self.current_selected));
@@ -175,10 +191,7 @@ fn main() {
                 Key::Char('\n') | Key::Char('l') | Key::Right => {  // ----------- open ---------------
                     match app.current_screen {
                         Channels => {
-                            app.current_selected = app.channel_list.list_state.selected().unwrap();
-                            app.current_screen = Videos;
-                            app.channel_list.list_state.select(None);
-                            app.update()
+                            app.open_selected_channel();
                         },
                         Videos => {}
                     }
@@ -186,16 +199,12 @@ fn main() {
                 Key::Char('o') => {
                     match app.current_screen {
                         Channels => {
-                            app.current_selected = app.channel_list.list_state.selected().unwrap();
-                            app.current_screen = Videos;
-                            app.channel_list.list_state.select(None);
-                            app.get_selected_channel().list_state.select(Some(0));
+                            app.open_selected_channel();
                         },
                         Videos => {
-                            app.get_selected_video().open();
+                            app.open_selected_video();
                         },
                     }
-                    app.update();
                 }
                 Key::Char('m') => { // ----------- mark ---------------
                     match app.current_screen {
@@ -221,6 +230,7 @@ fn main() {
                 },
                 Key::Char('r') => {
                     update_channel_list(result_sender.clone(), url_sender.clone());
+                    app.close_right_block();
                     update = true;
                 }
                 _ => {}
