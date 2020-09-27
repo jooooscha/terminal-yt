@@ -88,10 +88,14 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
             let body = match client.get(&url).send() {
                 Ok(response) => match response.text() {
                     Ok(e) => e,
-                    Err(_) => return
+                    Err(_) => {
+                        tx.send(None).unwrap();
+                        return
+                    },
                 },
                 Err(e) => {
                     notify_user(format!("could not GET url: {}", e));
+                    tx.send(None).unwrap();
                     return
                 }
             };
@@ -104,6 +108,7 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
                         Ok(feed) => feed,
                         Err(e) => {
                             notify_user(format!("could not paarse atom feed: {}", e));
+                            tx.send(None).unwrap();
                             return
                         }
                     };
@@ -114,6 +119,7 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
                         Ok(feed) => feed,
                         Err(e) => {
                             notify_user(format!("could not parse rss feed: {}", e));
+                            tx.send(None).unwrap();
                             return
                         }
                     };
@@ -127,7 +133,7 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
 
             for h in history.channels.iter() {
                 // match channel links
-                if h.link == channel.link {
+                if h.link == channel.link && h.name == channel.name {
                     // copy old video elements
                     channel.videos = h.videos.clone();
 
@@ -147,11 +153,14 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
             channel.videos.sort_by_key(|video| video.pub_date.clone());
             channel.videos.reverse();
 
-            tx.send(channel).unwrap();
+            tx.send(Some(channel)).unwrap();
         });
     }
-    for chan in rx.iter().take(jobs_num) {
-        channel_list.channels.push(chan);
+    for chan_opt in rx.iter().take(jobs_num) {
+        match chan_opt {
+            Some(chan) => channel_list.channels.push(chan),
+            None => (),
+        }
     }
 
     channel_list.channels.sort_by_key(|c| c.name.clone());

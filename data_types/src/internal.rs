@@ -18,7 +18,7 @@ pub trait ToSpans {
 
 //----------------------------------
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChannelList {
     pub channels: Vec<Channel>,
 
@@ -82,6 +82,21 @@ impl ChannelList {
             None => 0,
         };
         self.list_state.select(Some(index));
+    }
+
+    #[allow(dead_code)]
+    pub fn get_not_empty(&self) -> ChannelList {
+        let mut channels = Vec::new(); 
+        for channel in self.channels.iter().cloned() {
+            let num_marked = channel.videos.clone().into_iter().filter(|video| !video.marked).collect::<Vec<Video>>().len();
+            if num_marked != 0 {
+                channels.push(channel);
+            }
+        }
+        ChannelList {
+            channels,
+            ..ChannelList::new()
+        }
     }
 }
 

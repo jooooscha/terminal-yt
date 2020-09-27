@@ -46,8 +46,15 @@ pub struct App<W: Write> {
     current_screen: Screen,
     pub app_title: String,
     pub channel_list: ChannelList,
+    /* backup_list: ChannelList, */
     pub current_selected: usize,
     pub update_line: String,
+    pub config: Config,
+}
+
+#[allow(dead_code)]
+pub struct Config {
+    show_empty_channels: bool,
 }
 
 impl<W: Write> App<W> {
@@ -116,11 +123,17 @@ fn main() {
     let backend = TermionBackend::new(screen);
     let terminal = Terminal::new(backend).unwrap();
 
+    let config = Config {
+        show_empty_channels: true,
+    };
+
     let mut app = App {
         terminal,
+        config,
         app_title: String::from(TITLE),
         current_screen: Channels,
         channel_list: read_history(),
+        /* backup_list: ChannelList::new(), */
         current_selected: 0,
         update_line: String::new(),
     };
@@ -140,7 +153,8 @@ fn main() {
             match result_receiver.try_recv() {
                 Ok(v) => {
                     app.channel_list = v;
-                    update = false;
+                    /* update = false; */
+                    app.update();
                 },
                 Err(_) => {}
             }
@@ -233,6 +247,16 @@ fn main() {
                     app.close_right_block();
                     update = true;
                 }
+                /* Key::Char('t') => {
+                 *     app.config.show_empty_channels = !app.config.show_empty_channels;
+                 *     if app.config.show_empty_channels {
+                 *         app.backup_list = app.channel_list.clone();
+                 *         app.channel_list = app.channel_list.clone();
+                 *     } else {
+                 *         app.channel_list = app.backup_list.clone();
+                 *     }
+                 *     app.update();
+                 * } */
                 _ => {}
             }
             Event::Tick => {
