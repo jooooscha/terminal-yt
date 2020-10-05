@@ -155,8 +155,9 @@ fn main() {
     let (result_sender, result_receiver) = channel();
     let (url_sender, url_receiver) = channel();
 
-    update_channel_list(result_sender.clone(), url_sender.clone());
-    let mut update = true;
+    /* update_channel_list(result_sender.clone(), url_sender.clone()); */
+    // let mut update = true;
+    let mut update = false;
 
     loop {
         let event = events.next();
@@ -211,12 +212,12 @@ fn main() {
                         Channels => app.open_selected_channel(),
                         Videos => {
                             app.open_selected_video();
-                            if app.config.mark_on_open {
-                                app.get_selected_video().mark(true);
-                                app.get_selected_channel().next();
-                                app.update();
-                                app.save();
-                            }
+                            /* if app.config.mark_on_open {
+                             *     app.get_selected_video().mark(true);
+                             *     app.get_selected_channel().next();
+                             *     app.update();
+                             *     app.save();
+                             * } */
                         },
                     }
                 }
