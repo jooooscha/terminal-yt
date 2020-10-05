@@ -170,7 +170,7 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
 }
 
 fn notify_user(msg: String) {
-    Command::new("notify-send").arg(msg).spawn().expect("failed");
+    let _ = Command::new("notify-send").arg(msg).output().expect("failed");
 }
 
 pub fn write_history(channel_list: &ChannelList) {

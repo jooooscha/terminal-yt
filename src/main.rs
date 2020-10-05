@@ -37,7 +37,6 @@ use data_types::{
 
 mod draw;
 use draw::draw;
-
 mod events;
 use events::*;
 
@@ -55,6 +54,7 @@ pub struct App<W: Write> {
 #[allow(dead_code)]
 pub struct Config {
     show_empty_channels: bool,
+    mark_on_open: bool,
 }
 
 impl<W: Write> App<W> {
@@ -94,6 +94,17 @@ impl<W: Write> App<W> {
     fn save(&self) {
         write_history(&self.channel_list);
     }
+    /* fn action(&mut self, action: Action) {
+     *     match action {
+     *         Mark => {},
+     *         Unmark => {},
+     *         Up => {},
+     *         Down => {},
+     *         Enter => {},
+     *         Back => self.close_right_block(),
+     *         Open => {},
+     *     }
+     * } */
 }
 
 #[derive(PartialEq, Clone)]
@@ -125,6 +136,7 @@ fn main() {
 
     let config = Config {
         show_empty_channels: true,
+        mark_on_open: true,
     };
 
     let mut app = App {
@@ -153,7 +165,7 @@ fn main() {
             match result_receiver.try_recv() {
                 Ok(v) => {
                     app.channel_list = v;
-                    /* update = false; */
+                    update = false;
                     app.update();
                 },
                 Err(_) => {}
@@ -164,59 +176,47 @@ fn main() {
             Event::Input(input) => match input {
                 Key::Char('q') => {
                     match app.current_screen {
-                        Channels => {
-                            break;
-                        },
-                        Videos => {
-                            app.close_right_block();
-                        },
+                        Channels => break,
+                        Videos => app.close_right_block(),
                     }
                 },
                 Key::Esc | Key::Char('h') | Key::Left => {
-                match app.current_screen {
-                    Channels => {},
-                        Videos => {
-                            app.close_right_block();
-                        }
+                    match app.current_screen {
+                        Channels => {},
+                        Videos => app.close_right_block()
                     }
                 }
                 Key::Char('j') | Key::Down => {
                     match app.current_screen {
-                        Channels => {
-                            app.channel_list.next();
-                        },
-                        Videos => {
-                            app.get_selected_channel().next();
-                        }
+                        Channels => app.channel_list.next(),
+                        Videos => app.get_selected_channel().next(),
                     }
                     app.update();
                 },
                 Key::Char('k') | Key::Up => {
                     match app.current_screen {
-                        Channels => {
-                            app.channel_list.prev();
-                        },
-                        Videos => {
-                            app.get_selected_channel().prev();
-                        }
+                        Channels => app.channel_list.prev(),
+                        Videos => app.get_selected_channel().prev(),
                     }
                     app.update();
                 },
                 Key::Char('\n') | Key::Char('l') | Key::Right => {  // ----------- open ---------------
                     match app.current_screen {
-                        Channels => {
-                            app.open_selected_channel();
-                        },
+                        Channels => app.open_selected_channel(),
                         Videos => {}
                     }
                 },
                 Key::Char('o') => {
                     match app.current_screen {
-                        Channels => {
-                            app.open_selected_channel();
-                        },
+                        Channels => app.open_selected_channel(),
                         Videos => {
                             app.open_selected_video();
+                            if app.config.mark_on_open {
+                                app.get_selected_video().mark(true);
+                                app.get_selected_channel().next();
+                                app.update();
+                                app.save();
+                            }
                         },
                     }
                 }

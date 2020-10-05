@@ -180,8 +180,8 @@ impl Video {
     pub fn open(&self) {
         // open with mpv
         let link = &self.link;
-        Command::new("notify-send").arg("Open video").arg(&self.title).spawn().expect("failed");
-        Command::new("setsid").arg("-f").arg("umpv").arg(link).spawn().expect("umpv stating failed");
+        let _ = Command::new("notify-send").arg("Open video").arg(&self.title).output().expect("failed");
+        let _ = Command::new("setsid").arg("-f").arg("umpv").arg(link).output().expect("umpv stating failed");
     }
 }
 
