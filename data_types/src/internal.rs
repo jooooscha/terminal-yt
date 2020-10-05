@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 use std::{
-    process::Command,
+    process::{
+        Command,
+        Stdio,
+    },
 };
 use tui::{
     widgets::ListState,
@@ -180,8 +183,8 @@ impl Video {
     pub fn open(&self) {
         // open with mpv
         let link = &self.link;
-        let _ = Command::new("notify-send").arg("Open video").arg(&self.title).output().expect("failed");
-        let _ = Command::new("setsid").arg("-f").arg("umpv").arg(link).output().expect("umpv stating failed");
+        Command::new("notify-send").arg("Open video").arg(&self.title).stderr(Stdio::null()).spawn().expect("failed");
+        Command::new("setsid").arg("-f").arg("umpv").arg(link).stderr(Stdio::null()).spawn().expect("umpv stating failed");
     }
 }
 
