@@ -12,10 +12,27 @@ use dirs::home_dir;
 #[derive(Clone, Deserialize, Serialize)]
 pub struct Config {
     pub show_empty_channels: bool,
+    #[serde(default = "default_bool_true")]
     pub mark_on_open: bool,
+    #[serde(default = "default_bool_true")]
     pub down_on_mark: bool,
+    #[serde(default = "default_title")]
     pub app_title: String,
+    #[serde(default = "default_bool_true")]
+    pub update_at_start: bool,
 }
+
+fn default_title() -> String {
+    String::from("TYT")
+}
+
+fn default_bool_true() -> bool {
+    true
+}
+
+/* fn default_bool_false() -> bool {
+ *     true
+ * } */
 
 impl Config {
     pub fn default() -> Self {
@@ -24,6 +41,7 @@ impl Config {
             mark_on_open: true,
             down_on_mark: true,
             app_title: String::from("TYT"),
+            update_at_start: true
         }
     }
 

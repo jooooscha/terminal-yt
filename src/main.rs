@@ -56,7 +56,9 @@ fn main() {
     let (result_sender, result_receiver) = channel();
     let (url_sender, url_receiver) = channel();
 
-    update_channel_list(result_sender.clone(), url_sender.clone());
+    if app.config.update_at_start {
+        update_channel_list(result_sender.clone(), url_sender.clone());
+    }
 
     loop {
         let event = events.next();

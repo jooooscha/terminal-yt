@@ -94,7 +94,7 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
                     Ok(e) => Some(e),
                     Err(_) => None,
                 },
-                Err(e) => {
+                Err(_) => {
                     /* notify_user(format!("could not GET url: {}", e)); */
                     None
                 }
@@ -254,7 +254,7 @@ pub fn read_history() -> Option<ChannelList> {
             // return
             Some(channel_list)
         }
-        Err(e) => None,
+        Err(_) => None,
     }
 }
 
