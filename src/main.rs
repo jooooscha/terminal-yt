@@ -1,22 +1,12 @@
 use std::{
-    io::{stdout, stdin, Write},
     thread,
     sync::mpsc::{
         channel,
         Sender,
     }
 };
-use termion::{
-    raw::IntoRawMode,
-    screen::AlternateScreen,
-    input::MouseTerminal,
-    event::Key,
-};
-use tui::{
-    Terminal,
-    backend::TermionBackend,
-    widgets::{Block, Borders, List, ListItem},
-};
+use tui::widgets::{Block, Borders, List, ListItem};
+use termion::event::Key;
 use Screen::*;
 use fetch_data::{
     fetch_data::{
@@ -25,96 +15,25 @@ use fetch_data::{
         write_history,
     },
 };
-
 use data_types::{
     internal::{
         ChannelList,
         Channel,
-        Video,
         ToSpans,
     },
 };
-
 mod draw;
-use draw::draw;
 mod events;
+mod app;
+mod config;
+
+use draw::draw;
 use events::*;
-
-pub struct App<W: Write> {
-    pub terminal: Terminal<TermionBackend<W>>,
-    current_screen: Screen,
-    pub app_title: String,
-    pub channel_list: ChannelList,
-    /* backup_list: ChannelList, */
-    pub current_selected: usize,
-    pub update_line: String,
-    pub config: Config,
-}
-
-#[allow(dead_code)]
-pub struct Config {
-    show_empty_channels: bool,
-    mark_on_open: bool,
-}
-
-impl<W: Write> App<W> {
-    fn update(&mut self) {
-        draw(self);
-    }
-    //--------------
-    fn get_selected_channel(&mut self) -> &mut Channel {
-        let i = self.current_selected;
-        &mut self.channel_list.channels[i]
-    }
-    fn get_selected_video(&mut self) -> &mut Video {
-        let c = self.get_selected_channel();
-        let i = c.list_state.selected().unwrap();
-        &mut c.videos[i]
-    }
-    //---------------
-    fn open_selected_channel(&mut self) {
-        self.current_selected = match self.channel_list.list_state.selected() {
-            Some(selected) => selected,
-            None => return,
-        };
-        self.current_screen = Videos;
-        self.channel_list.list_state.select(None);
-        self.get_selected_channel().list_state.select(Some(0));
-        self.update();
-    }
-    fn open_selected_video(&mut self) {
-        self.get_selected_video().open();
-    }
-    //---------------------
-    fn close_right_block(&mut self) {
-        self.current_screen = Channels;
-        self.channel_list.list_state.select(Some(self.current_selected));
-        self.update();
-    }
-    fn save(&self) {
-        write_history(&self.channel_list);
-    }
-    /* fn action(&mut self, action: Action) {
-     *     match action {
-     *         Mark => {},
-     *         Unmark => {},
-     *         Up => {},
-     *         Down => {},
-     *         Enter => {},
-     *         Back => self.close_right_block(),
-     *         Open => {},
-     *     }
-     * } */
-}
-
-#[derive(PartialEq, Clone)]
-enum Screen {
-    Channels,
-    Videos,
-}
-
-
-const TITLE: &str = "Terminal-Youtube";
+use app::{
+    Action::*,
+    App,
+    Screen,
+};
 
 fn update_channel_list(result_sender: Sender<ChannelList>, url_sender: Sender<String>) {
     thread::spawn(move|| {
@@ -126,29 +45,7 @@ fn update_channel_list(result_sender: Sender<ChannelList>, url_sender: Sender<St
 }
 
 fn main() {
-    let stdout = stdout().into_raw_mode().unwrap();
-    let mouse_terminal = MouseTerminal::from(stdout);
-    /* let screen = mouse_terminal; */
-    let screen = AlternateScreen::from(mouse_terminal);
-    let _stdin = stdin();
-    let backend = TermionBackend::new(screen);
-    let terminal = Terminal::new(backend).unwrap();
-
-    let config = Config {
-        show_empty_channels: true,
-        mark_on_open: true,
-    };
-
-    let mut app = App {
-        terminal,
-        config,
-        app_title: String::from(TITLE),
-        current_screen: Channels,
-        channel_list: read_history(),
-        /* backup_list: ChannelList::new(), */
-        current_selected: 0,
-        update_line: String::new(),
-    };
+    let mut app = App::new_with_channel_list(read_history());
 
     let events = Events::new();
 
@@ -167,7 +64,7 @@ fn main() {
                 Ok(v) => {
                     app.channel_list = v;
                     update = false;
-                    app.update();
+                    app.action(Update);
                 },
                 Err(_) => {}
             }
@@ -175,77 +72,50 @@ fn main() {
 
         match event.unwrap() {
             Event::Input(input) => match input {
-                Key::Char('q') => {
+                Key::Char('q') => { // ----------------- close -----------------------
                     match app.current_screen {
                         Channels => break,
-                        Videos => app.close_right_block(),
+                        Videos => app.action(Back),
                     }
                 },
-                Key::Esc | Key::Char('h') | Key::Left => {
+                Key::Esc | Key::Char('h') | Key::Left => { // ---------------------- back --------------
                     match app.current_screen {
                         Channels => {},
-                        Videos => app.close_right_block()
+                        Videos => app.action(Back),
                     }
                 }
-                Key::Char('j') | Key::Down => {
-                    match app.current_screen {
-                        Channels => app.channel_list.next(),
-                        Videos => app.get_selected_channel().next(),
-                    }
-                    app.update();
+                Key::Char('j') | Key::Down => { // ---------------------- Down ---------------------
+                    app.action(Down);
                 },
                 Key::Char('k') | Key::Up => {
-                    match app.current_screen {
-                        Channels => app.channel_list.prev(),
-                        Videos => app.get_selected_channel().prev(),
-                    }
-                    app.update();
+                    app.action(Up);
                 },
                 Key::Char('\n') | Key::Char('l') | Key::Right => {  // ----------- open ---------------
                     match app.current_screen {
-                        Channels => app.open_selected_channel(),
+                        Channels => app.action(Enter),
                         Videos => {}
                     }
                 },
                 Key::Char('o') => {
                     match app.current_screen {
-                        Channels => app.open_selected_channel(),
+                        Channels => app.action(Enter),
                         Videos => {
-                            app.open_selected_video();
-                            /* if app.config.mark_on_open {
-                             *     app.get_selected_video().mark(true);
-                             *     app.get_selected_channel().next();
-                             *     app.update();
-                             *     app.save();
-                             * } */
+                            app.action(Open);
+                            if app.config.mark_on_open {
+                                app.action(Mark);
+                            }
                         },
                     }
                 }
                 Key::Char('m') => { // ----------- mark ---------------
-                    match app.current_screen {
-                        Channels => (),
-                        Videos => {
-                            app.get_selected_video().mark(true);
-                            app.get_selected_channel().next();
-                            app.update();
-                            app.save();
-                        },
-                    }
+                    app.action(Mark);
                 },
                 Key::Char('M') => { // ----------- unmark -------------
-                    match app.current_screen {
-                        Channels => (),
-                        Videos => {
-                            app.get_selected_video().mark(false);
-                            app.get_selected_channel().next();
-                            app.update();
-                            app.save();
-                        },
-                    }
+                    app.action(Unmark);
                 },
                 Key::Char('r') => {
                     update_channel_list(result_sender.clone(), url_sender.clone());
-                    app.close_right_block();
+                    app.action(Back);
                     update = true;
                 }
                 /* Key::Char('t') => {
@@ -265,7 +135,7 @@ fn main() {
                     Ok(v) => v,
                     Err(_) => String::new(),
                 };
-                app.update();
+                app.action(Update);
             }
 
         }

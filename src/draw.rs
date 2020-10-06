@@ -1,6 +1,3 @@
-use std::{
-    io::Write,
-};
 use tui::{
     widgets::{
         Paragraph,
@@ -23,7 +20,7 @@ use crate::*;
 
 const INFO_LINE: &str = "q close; o open video/select; Enter/l select; Esc/h go back; m mark; M unmark; j down; k up; r to reload";
 
-pub fn draw<W: Write>(app: &mut App<W>) {
+pub fn draw(app: &mut App) {
     let mut all_chan = app.channel_list.clone();
     let mut chan = Vec::new();
     let chan_str: Vec<Spans> = all_chan.channels.iter_mut().map(|e| e.to_spans()).collect();
@@ -32,7 +29,7 @@ pub fn draw<W: Write>(app: &mut App<W>) {
     }
     let chan_state = &mut all_chan.list_state;
 
-    let i = app.current_selected;
+    let i = app.get_current_selected();
 
     let mut all_vids = match app.channel_list.channels.get(i) {
         Some(e) => e.clone(),
@@ -58,7 +55,7 @@ pub fn draw<W: Write>(app: &mut App<W>) {
         }
     };
 
-    let title = String::from("TYT");
+    let title = app.config.app_title.clone();
 
     let update_line = if app.update_line.is_empty() {
         String::from(INFO_LINE)
