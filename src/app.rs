@@ -12,8 +12,10 @@ use termion::{
     input::MouseTerminal,
 };
 use data_types::internal::*;
-use fetch_data::fetch_data::*;
-use crate::config::Config;
+use fetch_data::{
+    fetch_data::*,
+    config::Config,
+};
 use crate::draw;
 
 use Action::*;
@@ -57,7 +59,7 @@ impl App {
         let backend = TermionBackend::new(screen);
         let terminal = Terminal::new(backend).unwrap();
 
-        let config = Config::default();
+        let config = Config::read_config_file();
 
         App {
             terminal,

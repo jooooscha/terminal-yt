@@ -3,7 +3,6 @@ use reqwest::blocking::Client;
 use quick_xml::de::from_str;
 use std::{
     fs::File,
-    /* io::BufReader, */
     io::prelude::*,
     sync::{
         mpsc::Sender,
@@ -63,7 +62,11 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
 
     let urls = read_urls_file();
 
-    let history: ChannelList = read_history();
+    let history: ChannelList = match read_history() {
+        Some(content) => content,
+        None => ChannelList::new(),
+    };
+
     let mut channel_list = ChannelList::new();
 
     let worker_num = 4;
@@ -82,73 +85,120 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
         let sender = sender.clone();
         let history = history.clone();
         let client = client.clone();
+
         pool.execute(move || {
             sender.send(format!("fetching... {}", url.clone())).unwrap();
 
-            let body = match client.get(&url).send() {
-                Ok(response) => match response.text() {
-                    Ok(e) => e,
-                    Err(_) => {
-                        tx.send(None).unwrap();
-                        return
-                    },
+            let response = match client.get(&url).send() {
+                Ok(r) => match r.text() {
+                    Ok(e) => Some(e),
+                    Err(_) => None,
                 },
                 Err(e) => {
-                    notify_user(format!("could not GET url: {}", e));
-                    tx.send(None).unwrap();
-                    return
+                    /* notify_user(format!("could not GET url: {}", e)); */
+                    None
                 }
             };
 
-            let fetched_channel: Channel;
+            let fetched_channel: Option<Channel>;
 
-            match item {
-                FeedType::Atom(_) => {
-                    let atom_feed: atom::Feed = match from_str(&body) {
-                        Ok(feed) => feed,
-                        Err(e) => {
-                            notify_user(format!("could not paarse atom feed: {}", e));
-                            tx.send(None).unwrap();
-                            return
+            if let Some(body) = response {
+                match item {
+                    FeedType::Atom(_) => {
+                        let atom_feed: atom::Feed = match from_str(&body) {
+                            Ok(feed) => feed,
+                            Err(e) => {
+                                notify_user(format!("could not paarse atom feed: {}", e));
+                                tx.send(None).unwrap();
+                                return
+                            }
+                        };
+                        fetched_channel = Some(atom_feed.to_internal_channel());
+                    },
+                    FeedType::Rss(_) => {
+                        let rss_feed: rss::Feed = match from_str(&body) {
+                            Ok(feed) => feed,
+                            Err(e) => {
+                                notify_user(format!("could not parse rss feed: {}", e));
+                                tx.send(None).unwrap();
+                                return
+                            }
+                        };
+                        fetched_channel = Some(rss_feed.to_internal_channel());
+                    }
+                }
+            } else {
+                fetched_channel = None;
+            }
+
+            let mut channel = Channel::new_with_url(&url);
+
+            match fetched_channel {
+                Some(content) => {
+                    channel.name = content.name;
+                    /* channel.link = content.link; */
+
+                    for h in history.channels.iter() {
+                        // match channel links
+                        if h.link == channel.link && h.name == channel.name {
+                            // copy old video elements
+                            channel.videos = h.videos.clone();
+
+                            break
                         }
-                    };
-                    fetched_channel = atom_feed.to_internal_channel();
+                    }
+
+                    for vid in content.videos.into_iter() {
+                        if !channel.videos.iter().any(|video| video.link == vid.link) {
+                            channel.videos.push(vid);
+                        }
+                    }
                 },
-                FeedType::Rss(_) => {
-                    let rss_feed: rss::Feed = match from_str(&body) {
-                        Ok(feed) => feed,
-                        Err(e) => {
-                            notify_user(format!("could not parse rss feed: {}", e));
-                            tx.send(None).unwrap();
-                            return
+                None => {
+                    let mut found = false;
+                    for h in history.channels.iter() {
+                        // match channel links
+                        if h.link == channel.link {
+                            // copy old video elements
+
+                            channel.name = h.name.clone();
+                            /* channel.link = h.link.clone(); */
+                            channel.videos = h.videos.clone();
+
+                            found = true;
+                            break
                         }
-                    };
-                    fetched_channel = rss_feed.to_internal_channel();
+                    }
+                    if !found {
+                        tx.send(None).unwrap();
+                        return
+                    }
                 }
             }
 
-            let mut channel = Channel::new();
-            channel.name = fetched_channel.name;
-            channel.link = fetched_channel.link;
+/*             let mut channel = Channel::new();
+ *             channel.name = fetched_channel.name;
+ *             channel.link = fetched_channel.link;
+ *
+ *             for h in history.channels.iter() {
+ *                 // match channel links
+ *                 if h.link == channel.link && h.name == channel.name {
+ *                     // copy old video elements
+ *                     channel.videos = h.videos.clone();
+ *
+ *                     break
+ *                 }
+ *             }
+ *
+ *             insert videos from feed, if not already in list
+ *             for vid in fetched_channel.videos.into_iter() {
+ *                 if !channel.videos.iter().any(|video| video.link == vid.link) {
+ *                     channel.videos.push(
+ *                         vid
+ *                     );
+ *                 }
+ *             } */
 
-            for h in history.channels.iter() {
-                // match channel links
-                if h.link == channel.link && h.name == channel.name {
-                    // copy old video elements
-                    channel.videos = h.videos.clone();
-
-                    break
-                }
-            }
-
-            // insert videos from feed, if not already in list
-            for vid in fetched_channel.videos.into_iter() {
-                if !channel.videos.iter().any(|video| video.link == vid.link) {
-                    channel.videos.push(
-                        vid
-                    );
-                }
-            }
 
             channel.videos.sort_by_key(|video| video.pub_date.clone());
             channel.videos.reverse();
@@ -186,7 +236,7 @@ pub fn write_history(channel_list: &ChannelList) {
     file.write_all(json.as_bytes()).unwrap();
 }
 
-pub fn read_history() -> ChannelList {
+pub fn read_history() -> Option<ChannelList> {
     let mut path = home_dir().unwrap();
     path.push(HISTORY_FILE_PATH);
 
@@ -202,14 +252,9 @@ pub fn read_history() -> ChannelList {
             channel_list.list_state.select(Some(0));
 
             // return
-            channel_list
+            Some(channel_list)
         }
-        Err(_) => {
-            // write empty history
-            write_history(&ChannelList::new());
-            // try again
-            read_history()
-        }
+        Err(e) => None,
     }
 }
 

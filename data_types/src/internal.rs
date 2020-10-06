@@ -117,6 +117,16 @@ impl Channel {
     }
 
     #[allow(dead_code)]
+    pub fn new_with_url(url: &String) -> Channel {
+        Channel {
+            name: String::from("New Channel"),
+            link: url.clone(),
+            videos: Vec::new(),
+            list_state: ListState::default(),
+        }
+    }
+
+    #[allow(dead_code)]
     pub fn next(&mut self) {
         let state = &self.list_state;
         let index = match state.selected() {

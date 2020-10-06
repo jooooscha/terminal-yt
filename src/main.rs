@@ -25,7 +25,6 @@ use data_types::{
 mod draw;
 mod events;
 mod app;
-mod config;
 
 use draw::draw;
 use events::*;
@@ -45,29 +44,26 @@ fn update_channel_list(result_sender: Sender<ChannelList>, url_sender: Sender<St
 }
 
 fn main() {
-    let mut app = App::new_with_channel_list(read_history());
+    let history = match read_history() {
+        Some(con) => con,
+        None => ChannelList::new(),
+    };
+
+    let mut app = App::new_with_channel_list(history);
 
     let events = Events::new();
 
     let (result_sender, result_receiver) = channel();
     let (url_sender, url_receiver) = channel();
 
-    /* update_channel_list(result_sender.clone(), url_sender.clone()); */
-    // let mut update = true;
-    let mut update = false;
+    update_channel_list(result_sender.clone(), url_sender.clone());
 
     loop {
         let event = events.next();
 
-        if update {
-            match result_receiver.try_recv() {
-                Ok(v) => {
-                    app.channel_list = v;
-                    update = false;
-                    app.action(Update);
-                },
-                Err(_) => {}
-            }
+        for c in result_receiver.try_iter() {
+             app.channel_list = c;
+             app.action(Update);
         }
 
         match event.unwrap() {
@@ -116,7 +112,6 @@ fn main() {
                 Key::Char('r') => {
                     update_channel_list(result_sender.clone(), url_sender.clone());
                     app.action(Back);
-                    update = true;
                 }
                 /* Key::Char('t') => {
                  *     app.config.show_empty_channels = !app.config.show_empty_channels;
