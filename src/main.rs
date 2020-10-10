@@ -64,8 +64,10 @@ fn main() {
         let event = events.next();
 
         for c in result_receiver.try_iter() {
-             app.channel_list = c;
-             app.action(Update);
+            /* app.channel_list = c; */
+            app.set_channel_list(c);
+
+            app.action(Update);
         }
 
         match event.unwrap() {

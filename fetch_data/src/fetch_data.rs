@@ -244,12 +244,10 @@ pub fn read_history() -> Option<ChannelList> {
         Ok(mut file) => {
             let mut reader = String::new();
             file.read_to_string(&mut reader).unwrap();
-            let mut channel_list: ChannelList = match serde_json::from_str(&reader) {
+            let channel_list: ChannelList = match serde_json::from_str(&reader) {
                 Ok(channels) => channels,
                 Err(e) => panic!("could not read history file: {}", e),
             };
-
-            channel_list.list_state.select(Some(0));
 
             // return
             Some(channel_list)

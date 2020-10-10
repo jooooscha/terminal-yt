@@ -16,12 +16,18 @@ use tui::{
     },
 };
 
-use crate::*;
+use crate::{
+    *,
+    app::{
+        App,
+        Filter,
+    },
+};
 
 const INFO_LINE: &str = "q close; o open video/select; Enter/l select; Esc/h go back; m mark; M unmark; j down; k up; r to reload";
 
 pub fn draw(app: &mut App) {
-    let mut all_chan = app.channel_list.clone();
+    let mut all_chan = app.get_filtered_chan(Filter::Visible).clone();
     let mut chan = Vec::new();
     let chan_str: Vec<Spans> = all_chan.channels.iter_mut().map(|e| e.to_spans()).collect();
     for e in chan_str.into_iter() {
@@ -31,7 +37,7 @@ pub fn draw(app: &mut App) {
 
     let i = app.get_current_selected();
 
-    let mut all_vids = match app.channel_list.channels.get(i) {
+    let mut all_vids = match app.get_filtered_chan(Filter::Visible).channels.get(i) {
         Some(e) => e.clone(),
         None => Channel::new(),
     };
@@ -50,7 +56,7 @@ pub fn draw(app: &mut App) {
     let (show_second_block, channel_name) = match app.current_screen {
         Channels => (false, String::new()),
         Videos => {
-            let right_title = app.channel_list.channels[i].name.clone();
+            let right_title = app.get_filtered_chan(Filter::Visible).channels[i].name.clone();
             (true, right_title)
         }
     };

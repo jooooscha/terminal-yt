@@ -25,9 +25,10 @@ pub struct App {
     pub terminal: Terminal<TermionBackend<termion::screen::AlternateScreen<termion::input::MouseTerminal<termion::raw::RawTerminal<std::io::Stdout>>>>>,
     pub config: Config,
     pub update_line: String,
-    pub channel_list: ChannelList,
     pub app_title: String,
     pub current_screen: Screen,
+    channel_list: ChannelList,
+    backup_list: ChannelList,
     current_selected: usize,
 }
 
@@ -41,6 +42,12 @@ pub enum Action {
     Back,
     Open,
     Update,
+}
+
+#[derive(PartialEq)]
+pub enum Filter {
+    All,
+    Visible,
 }
 
 #[derive(PartialEq, Clone)]
@@ -61,15 +68,19 @@ impl App {
 
         let config = Config::read_config_file();
 
-        App {
+        let mut app = App {
             terminal,
             config: config.clone(),
             app_title: config.app_title,
             current_screen: Channels,
-            channel_list,
+            channel_list: ChannelList::new(),
+            backup_list: ChannelList::new(),
             current_selected: 0,
             update_line: String::new(),
-        }
+        };
+        app.set_channel_list(channel_list);
+
+        app
     }
     pub fn action(&mut self, action: Action) {
         match action {
@@ -86,31 +97,32 @@ impl App {
             },
             Up => {
                 match self.current_screen {
-                    Channels => self.channel_list.prev(),
+                    Channels => self.get_filtered_chan(Filter::Visible).prev(),
                     Videos => self.get_selected_channel().prev(),
                 }
                 self.update();
             },
             Down => {
                 match self.current_screen {
-                    Channels => self.channel_list.next(),
+                    Channels => self.get_filtered_chan(Filter::Visible).next(),
                     Videos => self.get_selected_channel().next(),
                 }
                 self.update();
             },
             Enter => {
-                self.current_selected = match self.channel_list.list_state.selected() {
+                self.current_selected = match self.get_filtered_chan(Filter::Visible).list_state.selected() {
                     Some(selected) => selected,
                     None => return,
                 };
                 self.current_screen = Videos;
-                self.channel_list.list_state.select(None);
+                self.get_filtered_chan(Filter::Visible).list_state.select(None);
                 self.get_selected_channel().list_state.select(Some(0));
                 self.update();
             },
             Back => {
                 self.current_screen = Channels;
-                self.channel_list.list_state.select(Some(self.current_selected));
+                let curr_sel = self.current_selected.clone();
+                self.get_filtered_chan(Filter::Visible).list_state.select(Some(curr_sel));
                 self.update();
             },
             Open => {
@@ -121,8 +133,41 @@ impl App {
             },
         }
     }
+    pub fn set_channel_list(&mut self, cl: ChannelList) {
+        self.channel_list = cl;
+        self.channel_list.list_state.select(Some(0));
+    }
     pub fn get_current_selected(&self) -> usize {
         self.current_selected
+    }
+    pub fn get_filtered_chan(&mut self, filter: Filter) -> &mut ChannelList {
+
+        // base list
+        let backup = &self.backup_list;
+
+        // start new with current list (may be filtered)
+        let mut new = self.channel_list.clone();
+
+        // add all channels that are not in the list
+        for chan in backup.channels.iter() {
+            if !new.channels.iter().any(|c| c.link == chan.link) {
+                new.channels.push(chan.clone());
+            }
+        }
+
+        // save as new base list
+        self.backup_list = new.clone();
+
+        // filter channels that have only marked videos
+        if filter == Filter::Visible && self.current_screen == Channels { // only filter if on channel screen
+            if !self.config.show_empty_channels || true {
+                new.channels = new.channels.into_iter().filter(|c| c.videos.iter().any(|v| !v.marked)).collect();
+            }
+        }
+
+        self.channel_list = new;
+
+        &mut self.channel_list
     }
     fn update(&mut self) {
         draw(self);
@@ -138,7 +183,7 @@ impl App {
         &mut c.videos[i]
     }
     //---------------
-    fn save(&self) {
-        write_history(&self.channel_list);
+    fn save(&mut self) {
+        write_history(self.get_filtered_chan(Filter::All));
     }
 }
