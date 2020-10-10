@@ -160,7 +160,7 @@ impl App {
 
         // filter channels that have only marked videos
         if filter == Filter::Visible && self.current_screen == Channels { // only filter if on channel screen
-            if !self.config.show_empty_channels || true {
+            if !self.config.show_empty_channels {
                 new.channels = new.channels.into_iter().filter(|c| c.videos.iter().any(|v| !v.marked)).collect();
             }
         }
