@@ -14,16 +14,17 @@ Build with [tui](https://github.com/fdehau/tui-rs) and termion as backend.
 
 ## Keys
 
-|              |             |
-|--------------|-------------|
-| up           | k, up       |
-| down         | j, down     |
-| open video   | o           |
-| open channel | o,l,right   |
-| back         | esc,h,right |
-| mark         | m           |
-| unmark       | M           |
-| update       | r           |
+|                                                         |             |
+|---------------------------------------------------------|-------------|
+| up                                                      | k, up       |
+| down                                                    | j, down     |
+| open video                                              | o           |
+| open channel                                            | o,l,right   |
+| back                                                    | esc,h,right |
+| mark                                                    | m           |
+| unmark                                                  | M           |
+| update                                                  | r           |
+| show/hide channels that have no new videso (see config) | t           |
 
 ## Config
 
@@ -33,7 +34,7 @@ If no config file is found, a config file with all options and their default val
 
 | Name                | Default | Type | Description                                                         |
 |---------------------|---------|------|---------------------------------------------------------------------|
-| show_empty_channels | true    | bool | (not implemented yet) Show channels that have 0 new unmarked videos |
+| show_empty_channels | true    | bool | Show channels that have 0 new unmarked videos |
 | mark_on_open        | true    | bool | Mark a video if opened                                              |
 | down_on_mark        | true    | bool | Move pointer one down if a video is marked                          |
 | app_title           | "TYT"   | str  | The title of the left box                                           |
