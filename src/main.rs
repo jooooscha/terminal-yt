@@ -64,7 +64,6 @@ fn main() {
         let event = events.next();
 
         for c in result_receiver.try_iter() {
-            /* app.channel_list = c; */
             app.set_channel_list(c);
 
             app.action(Update);
@@ -117,16 +116,9 @@ fn main() {
                     update_channel_list(result_sender.clone(), url_sender.clone());
                     app.action(Back);
                 }
-                /* Key::Char('t') => {
-                 *     app.config.show_empty_channels = !app.config.show_empty_channels;
-                 *     if app.config.show_empty_channels {
-                 *         app.backup_list = app.channel_list.clone();
-                 *         app.channel_list = app.channel_list.clone();
-                 *     } else {
-                 *         app.channel_list = app.backup_list.clone();
-                 *     }
-                 *     app.update();
-                 * } */
+                Key::Char('t') => {
+                    app.config.show_empty_channels = !app.config.show_empty_channels
+                }
                 _ => {}
             }
             Event::Tick => {

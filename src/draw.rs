@@ -24,7 +24,7 @@ use crate::{
     },
 };
 
-const INFO_LINE: &str = "q close; o open video/select; Enter/l select; Esc/h go back; m mark; M unmark; j down; k up; r to reload";
+const INFO_LINE: &str = "q close; o open video/select; Enter/l select; Esc/h go back; m mark; M unmark";
 
 pub fn draw(app: &mut App) {
     let mut all_chan = app.get_filtered_chan(Filter::Visible).clone();

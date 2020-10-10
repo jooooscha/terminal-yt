@@ -101,6 +101,10 @@ impl ChannelList {
             ..ChannelList::new()
         }
     }
+
+    pub fn sort(&mut self) {
+        self.channels.sort_by_key(|c| c.name.clone());
+    }
 }
 
 //----------------------------------

@@ -155,6 +155,8 @@ impl App {
             }
         }
 
+        new.sort();
+
         // save as new base list
         self.backup_list = new.clone();
 
