@@ -89,7 +89,7 @@ impl ChannelList {
 
     #[allow(dead_code)]
     pub fn get_not_empty(&self) -> ChannelList {
-        let mut channels = Vec::new(); 
+        let mut channels = Vec::new();
         for channel in self.channels.iter().cloned() {
             let num_marked = channel.videos.clone().into_iter().filter(|video| !video.marked).collect::<Vec<Video>>().len();
             if num_marked != 0 {

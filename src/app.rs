@@ -33,9 +33,9 @@ pub struct App {
 
     pub current_screen: Screen,
     current_filter: Filter,
-    channel_list: ChannelList,
     current_selected: usize, // channel
 
+    channel_list: ChannelList,
     backup_list: ChannelList,
 }
 
@@ -165,6 +165,7 @@ impl App {
         self.set_channel_list(cl);
         self.filter_channel_list(self.current_filter);
     }
+
     fn set_channel_list(&mut self, cl: ChannelList) {
         match self.current_screen {
             Channels => {
