@@ -14,7 +14,10 @@ use termion::{
     screen::AlternateScreen,
     input::MouseTerminal,
 };
-use data_types::internal::*;
+use data_types::internal::{
+    *,
+    Filter,
+};
 use fetch_data::{
     fetch_data::*,
     config::Config,
@@ -32,11 +35,11 @@ pub struct App {
     pub app_title: String,
 
     pub current_screen: Screen,
-    current_filter: Filter,
+    pub filter: Filter,
     current_selected: usize, // channel
 
     channel_list: ChannelList,
-    backup_list: ChannelList,
+    /* backup_list: ChannelList, */
 }
 
 #[derive(PartialEq)]
@@ -51,11 +54,6 @@ pub enum Action {
     Update,
 }
 
-#[derive(PartialEq, Clone, Copy)]
-pub enum Filter {
-    All,
-    OnlyNew,
-}
 
 #[derive(PartialEq, Clone)]
 pub enum Screen {
@@ -75,8 +73,8 @@ impl App {
 
         let config = Config::read_config_file();
 
-        let current_filter = if config.show_empty_channels {
-            Filter::All
+        let filter = if config.show_empty_channels {
+            Filter::NoFilter
         } else {
             Filter::OnlyNew
         };
@@ -89,10 +87,10 @@ impl App {
             app_title: config.app_title,
             current_screen: Channels,
             channel_list,
-            backup_list: ChannelList::new(),
+            /* backup_list: ChannelList::new(), */
             current_selected: 0,
             update_line: String::new(),
-            current_filter,
+            filter,
         }
     }
     pub fn action(&mut self, action: Action) {
@@ -104,7 +102,9 @@ impl App {
                         Some(v) => v.mark(state),
                         None => return,
                     }
-                    if self.config.down_on_mark {
+                    if !self.get_selected_channel().unwrap().has_new() {
+                        self.action(Back);
+                    } else if self.config.down_on_mark {
                         if let Some(e) = self.get_selected_channel() {
                             e.next();
                         }
@@ -161,17 +161,31 @@ impl App {
             },
         }
     }
-    pub fn update_channel_list(&mut self, cl: ChannelList) {
-        self.set_channel_list(cl);
-        self.filter_channel_list(self.current_filter);
+    /* pub fn update_channel_list(&mut self, cl: ChannelList) {
+     *     self.set_channel_list(cl);
+     *     self.filter_channel_list(self.current_filter);
+     * } */
+
+    pub fn set_filter(&mut self, filter: Filter) {
+        self.filter = filter;
+        self.set_channel_list(self.channel_list.clone());
     }
 
-    fn set_channel_list(&mut self, cl: ChannelList) {
+    pub fn set_channel_list(&mut self, mut new_cl: ChannelList) {
+
+        // copy old filter
+        new_cl.filter(self.filter);
+
+        // use correct selection
         match self.current_screen {
             Channels => {
-                let pos = self.channel_list.list_state.selected();
-                self.channel_list = cl;
-                self.channel_list.list_state.select(pos)
+                let len: usize = cmp::max(0, new_cl.channels.len() as isize - 1) as usize;
+                let selected = new_cl.list_state.selected();
+
+                self.channel_list = new_cl;
+
+                let selected = cmp::min(selected, Some(len));
+                self.channel_list.list_state.select(selected)
             },
             Videos => {
                 let pos_in_chan = if let Some(c) = self.get_selected_channel() {
@@ -179,7 +193,7 @@ impl App {
                 } else {
                     return
                 };
-                self.channel_list = cl;
+                self.channel_list = new_cl;
                 match self.get_selected_channel() {
                     Some(c) => c.list_state.select(pos_in_chan),
                     None => self.action(Back),
@@ -190,39 +204,39 @@ impl App {
     pub fn get_channel_list(&mut self) -> &mut ChannelList {
         &mut self.channel_list
     }
-    pub fn filter_channel_list(&mut self, filter: Filter) {
-
-        // base list
-        let backup = &self.backup_list;
-
-        // start new with current list (may be filtered)
-        let mut new = self.channel_list.clone();
-
-        // add all channels that are not in the list
-        for chan in backup.channels.iter() {
-            if !new.channels.iter().any(|c| c.link == chan.link) {
-                new.channels.push(chan.clone());
-            }
-        }
-
-        new.sort();
-
-        // save as new base list
-        self.backup_list = new.clone();
-
-        // filter channels that have only marked videos
-        /* if self.current_screen == Channels { // only filter if on channel screen */
-            self.current_filter = filter;
-            if filter == Filter::OnlyNew {
-                if !self.config.show_empty_channels {
-                    new.channels = new.channels.into_iter().filter(|c| c.videos.iter().any(|v| !v.marked)).collect();
-                }
-            }
-        /* } */
-
-        /* self.channel_list = new; */
-        self.set_channel_list(new);
-    }
+/*     pub fn filter_channel_list(&mut self, filter: Filter) {
+ *
+ *         // base list
+ *         let backup = &self.backup_list;
+ *
+ *         // start new with current list (may be filtered)
+ *         let mut new = self.channel_list.clone();
+ *
+ *         // add all channels that are not in the list
+ *         for chan in backup.channels.iter() {
+ *             if !new.channels.iter().any(|c| c.link == chan.link) {
+ *                 new.channels.push(chan.clone());
+ *             }
+ *         }
+ *
+ *         new.sort();
+ *
+ *         // save as new base list
+ *         self.backup_list = new.clone();
+ *
+ *         // filter channels that have only marked videos
+ *         [> if self.current_screen == Channels { // only filter if on channel screen <]
+ *             self.current_filter = filter;
+ *             if filter == Filter::OnlyNew {
+ *                 if !self.config.show_empty_channels {
+ *                     new.channels = new.channels.into_iter().filter(|c| c.videos.iter().any(|v| !v.marked)).collect();
+ *                 }
+ *             }
+ *         [> } <]
+ *
+ *         [> self.channel_list = new; <]
+ *         self.set_channel_list(new);
+ *     } */
     pub fn get_current_selected(&self) -> usize {
         self.current_selected
     }
@@ -244,9 +258,9 @@ impl App {
     }
     //---------------
     fn save(&mut self) {
-        let f = self.current_filter;
-        self.filter_channel_list(Filter::All);
+        let f = self.filter;
+        self.set_filter(Filter::NoFilter);
         write_history(self.get_channel_list());
-        self.filter_channel_list(f);
+        self.set_filter(f);
     }
 }

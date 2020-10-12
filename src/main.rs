@@ -20,6 +20,7 @@ use data_types::{
         ChannelList,
         Channel,
         ToSpans,
+        Filter,
     },
 };
 mod draw;
@@ -32,7 +33,6 @@ use app::{
     Action::*,
     App,
     Screen,
-    Filter,
 };
 
 fn update_channel_list(result_sender: Sender<ChannelList>, url_sender: Sender<String>) {
@@ -65,7 +65,7 @@ fn main() {
         let event = events.next();
 
         for c in result_receiver.try_iter() {
-            app.update_channel_list(c);
+            app.set_channel_list(c);
 
             app.action(Update);
         }
@@ -119,7 +119,11 @@ fn main() {
                 }
                 Key::Char('t') => {
                     app.config.show_empty_channels = !app.config.show_empty_channels;
-                    app.filter_channel_list(Filter::OnlyNew);
+                    let new_filter = match app.filter {
+                        Filter::NoFilter => Filter::OnlyNew,
+                        Filter::OnlyNew => Filter::NoFilter,
+                    };
+                    app.set_filter(new_filter);
                 }
                 _ => {}
             }

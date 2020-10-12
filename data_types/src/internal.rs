@@ -13,6 +13,14 @@ use tui::{
 use chrono::DateTime;
 /* use fetch_data::write_history; */
 
+use Filter::*;
+
+
+#[derive(PartialEq, Clone, Copy)]
+pub enum Filter {
+    NoFilter,
+    OnlyNew,
+}
 
 // program structs
 pub trait ToSpans {
@@ -27,6 +35,8 @@ pub struct ChannelList {
 
     #[serde(skip)]
     pub list_state: ListState,
+    #[serde(skip)]
+    backup: Vec<Channel>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -55,6 +65,7 @@ impl ChannelList {
     pub fn new() -> ChannelList {
         ChannelList {
             channels: Vec::new(),
+            backup: Vec::new(),
             list_state: ListState::default(),
         }
     }
@@ -104,6 +115,29 @@ impl ChannelList {
 
     pub fn sort(&mut self) {
         self.channels.sort_by_key(|c| c.name.clone());
+    }
+
+    pub fn filter(&mut self, filter: Filter) {
+        // merge changes to backup
+        let tmp = self.backup.clone();
+        self.backup = self.channels.clone();
+        for chan in tmp.iter() {
+            if !self.backup.iter().any(|c| c.link == chan.link) {
+                self.backup.push(chan.clone());
+            }
+        }
+
+        self.backup.sort_by_key(|c| c.name.clone());
+
+        // aply new changes
+        match filter {
+            NoFilter => {
+                self.channels = self.backup.clone();
+            }
+            OnlyNew => {
+                self.channels = self.backup.iter().cloned().filter(|c| c.videos.iter().any(|v| !v.marked)).collect();
+            }
+        }
     }
 }
 
@@ -156,6 +190,10 @@ impl Channel {
             None => 0,
         };
         self.list_state.select(Some(index));
+    }
+    #[allow(dead_code)]
+    pub fn has_new(&self) -> bool {
+        self.videos.iter().any(|v| !v.marked)
     }
 }
 
