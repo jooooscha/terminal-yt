@@ -20,14 +20,13 @@ use crate::{
     *,
     app::{
         App,
-        Filter,
     },
 };
 
 const INFO_LINE: &str = "q close; o open video/select; Enter/l select; Esc/h go back; m mark; M unmark";
 
 pub fn draw(app: &mut App) {
-    let mut all_chan = app.get_filtered_chan(Filter::Visible).clone();
+    let mut all_chan = app.get_channel_list().clone();
     let mut chan = Vec::new();
     let chan_str: Vec<Spans> = all_chan.channels.iter_mut().map(|e| e.to_spans()).collect();
     for e in chan_str.into_iter() {
@@ -37,7 +36,7 @@ pub fn draw(app: &mut App) {
 
     let i = app.get_current_selected();
 
-    let mut all_vids = match app.get_filtered_chan(Filter::Visible).channels.get(i) {
+    let mut all_vids = match app.get_channel_list().channels.get(i) {
         Some(e) => e.clone(),
         None => Channel::new(),
     };
@@ -56,25 +55,22 @@ pub fn draw(app: &mut App) {
     let (show_second_block, channel_name) = match app.current_screen {
         Channels => (false, String::new()),
         Videos => {
-            let right_title = app.get_filtered_chan(Filter::Visible).channels[i].name.clone();
+            let right_title = app.get_channel_list().channels[i].name.clone();
             (true, right_title)
         }
     };
 
     let title = app.config.app_title.clone();
 
-    let update_line = if app.update_line.is_empty() {
-        String::from(INFO_LINE)
-    } else {
-        app.update_line.clone()
-    };
+    let update_line = app.update_line.clone();
 
     let _res = app.terminal.draw(|f| {
         let vert = Layout::default()
             .direction(Direction::Vertical)
             .margin(0)
             .constraints([
-                Constraint::Percentage(99),
+                Constraint::Percentage(97),
+                Constraint::Percentage(2),
                 Constraint::Percentage(1),
             ])
             .split(f.size());
@@ -109,9 +105,14 @@ pub fn draw(app: &mut App) {
             f.render_stateful_widget(list, chunks[1], vid_state);
         }
 
-        let paragraph = Paragraph::new(Span::from(update_line))
+        let par_1 = Paragraph::new(Span::from(update_line.clone()))
             .style(Style::default())
             .alignment(Alignment::Left);
-        f.render_widget(paragraph, vert[1]);
+        f.render_widget(par_1, vert[1]);
+
+        let par_2 = Paragraph::new(Span::from(INFO_LINE))
+            .style(Style::default())
+            .alignment(Alignment::Left);
+        f.render_widget(par_2, vert[2]);
     });
 }

@@ -1,6 +1,9 @@
-use std::io::{
-    stdout,
-    stdin,
+use std::{
+    io::{
+        stdout,
+        stdin,
+    },
+    cmp,
 };
 use tui::{
     Terminal,
@@ -23,13 +26,17 @@ use Screen::*;
 
 pub struct App {
     pub terminal: Terminal<TermionBackend<termion::screen::AlternateScreen<termion::input::MouseTerminal<termion::raw::RawTerminal<std::io::Stdout>>>>>,
+    /* pub terminal: Terminal<TermionBackend<termion::input::MouseTerminal<termion::raw::RawTerminal<std::io::Stdout>>>>, */
     pub config: Config,
     pub update_line: String,
     pub app_title: String,
+
     pub current_screen: Screen,
+    current_filter: Filter,
     channel_list: ChannelList,
+    current_selected: usize, // channel
+
     backup_list: ChannelList,
-    current_selected: usize,
 }
 
 #[derive(PartialEq)]
@@ -44,10 +51,10 @@ pub enum Action {
     Update,
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone, Copy)]
 pub enum Filter {
     All,
-    Visible,
+    OnlyNew,
 }
 
 #[derive(PartialEq, Clone)]
@@ -57,7 +64,7 @@ pub enum Screen {
 }
 
 impl App {
-    pub fn new_with_channel_list(channel_list: ChannelList) -> App {
+    pub fn new_with_channel_list(mut channel_list: ChannelList) -> App {
         let stdout = stdout().into_raw_mode().unwrap();
         let mouse_terminal = MouseTerminal::from(stdout);
         /* let screen = mouse_terminal; */
@@ -68,28 +75,39 @@ impl App {
 
         let config = Config::read_config_file();
 
-        let mut app = App {
+        let current_filter = if config.show_empty_channels {
+            Filter::All
+        } else {
+            Filter::OnlyNew
+        };
+
+        channel_list.list_state.select(Some(0));
+
+        App {
             terminal,
             config: config.clone(),
             app_title: config.app_title,
             current_screen: Channels,
-            channel_list: ChannelList::new(),
+            channel_list,
             backup_list: ChannelList::new(),
             current_selected: 0,
             update_line: String::new(),
-        };
-        app.set_channel_list(channel_list);
-
-        app
+            current_filter,
+        }
     }
     pub fn action(&mut self, action: Action) {
         match action {
             Mark | Unmark => {
-                let state = action == Mark;
                 if self.current_screen == Videos {
-                    self.get_selected_video().mark(state);
+                    let state = action == Mark;
+                    match self.get_selected_video() {
+                        Some(v) => v.mark(state),
+                        None => return,
+                    }
                     if self.config.down_on_mark {
-                        self.get_selected_channel().next();
+                        if let Some(e) = self.get_selected_channel() {
+                            e.next();
+                        }
                     }
                     self.update();
                     self.save();
@@ -97,50 +115,81 @@ impl App {
             },
             Up => {
                 match self.current_screen {
-                    Channels => self.get_filtered_chan(Filter::Visible).prev(),
-                    Videos => self.get_selected_channel().prev(),
+                    Channels => self.get_channel_list().prev(),
+                    Videos => {
+                        if let Some(c) = self.get_selected_channel() {
+                            c.prev();
+                        }
+                    },
                 }
                 self.update();
             },
             Down => {
                 match self.current_screen {
-                    Channels => self.get_filtered_chan(Filter::Visible).next(),
-                    Videos => self.get_selected_channel().next(),
+                    Channels => self.get_channel_list().next(),
+                    Videos => if let Some(c) = self.get_selected_channel() {
+                        c.next();
+                    },
                 }
                 self.update();
             },
             Enter => {
-                self.current_selected = match self.get_filtered_chan(Filter::Visible).list_state.selected() {
+                self.current_selected = match self.get_channel_list().list_state.selected() {
                     Some(selected) => selected,
                     None => return,
                 };
                 self.current_screen = Videos;
-                self.get_filtered_chan(Filter::Visible).list_state.select(None);
-                self.get_selected_channel().list_state.select(Some(0));
+                self.get_channel_list().list_state.select(None);
+                if let Some(c) = self.get_selected_channel() {
+                    c.list_state.select(Some(0));
+                }
                 self.update();
             },
             Back => {
                 self.current_screen = Channels;
                 let curr_sel = self.current_selected.clone();
-                self.get_filtered_chan(Filter::Visible).list_state.select(Some(curr_sel));
+                let len: usize = cmp::max(0, self.get_channel_list().channels.len() as isize - 1) as usize;
+                let curr_sel = cmp::min(curr_sel, len);
+                self.get_channel_list().list_state.select(Some(curr_sel));
                 self.update();
             },
             Open => {
-                self.get_selected_video().open();
+                if let Some(v) = self.get_selected_video() { v.open() };
             },
             Update => {
                 draw(self)
             },
         }
     }
-    pub fn set_channel_list(&mut self, cl: ChannelList) {
-        self.channel_list = cl;
-        self.channel_list.list_state.select(Some(0));
+    pub fn update_channel_list(&mut self, cl: ChannelList) {
+        self.set_channel_list(cl);
+        self.filter_channel_list(self.current_filter);
     }
-    pub fn get_current_selected(&self) -> usize {
-        self.current_selected
+    fn set_channel_list(&mut self, cl: ChannelList) {
+        match self.current_screen {
+            Channels => {
+                let pos = self.channel_list.list_state.selected();
+                self.channel_list = cl;
+                self.channel_list.list_state.select(pos)
+            },
+            Videos => {
+                let pos_in_chan = if let Some(c) = self.get_selected_channel() {
+                    c.list_state.selected()
+                } else {
+                    return
+                };
+                self.channel_list = cl;
+                match self.get_selected_channel() {
+                    Some(c) => c.list_state.select(pos_in_chan),
+                    None => self.action(Back),
+                };
+            },
+        }
     }
-    pub fn get_filtered_chan(&mut self, filter: Filter) -> &mut ChannelList {
+    pub fn get_channel_list(&mut self) -> &mut ChannelList {
+        &mut self.channel_list
+    }
+    pub fn filter_channel_list(&mut self, filter: Filter) {
 
         // base list
         let backup = &self.backup_list;
@@ -161,31 +210,42 @@ impl App {
         self.backup_list = new.clone();
 
         // filter channels that have only marked videos
-        if filter == Filter::Visible && self.current_screen == Channels { // only filter if on channel screen
-            if !self.config.show_empty_channels {
-                new.channels = new.channels.into_iter().filter(|c| c.videos.iter().any(|v| !v.marked)).collect();
+        /* if self.current_screen == Channels { // only filter if on channel screen */
+            self.current_filter = filter;
+            if filter == Filter::OnlyNew {
+                if !self.config.show_empty_channels {
+                    new.channels = new.channels.into_iter().filter(|c| c.videos.iter().any(|v| !v.marked)).collect();
+                }
             }
-        }
+        /* } */
 
-        self.channel_list = new;
-
-        &mut self.channel_list
+        /* self.channel_list = new; */
+        self.set_channel_list(new);
+    }
+    pub fn get_current_selected(&self) -> usize {
+        self.current_selected
     }
     fn update(&mut self) {
         draw(self);
     }
     //--------------
-    fn get_selected_channel(&mut self) -> &mut Channel {
+    fn get_selected_channel(&mut self) -> Option<&mut Channel> {
         let i = self.current_selected;
-        &mut self.channel_list.channels[i]
+        self.channel_list.channels.get_mut(i)
     }
-    fn get_selected_video(&mut self) -> &mut Video {
-        let c = self.get_selected_channel();
+    fn get_selected_video(&mut self) -> Option<&mut Video> {
+        let c = match self.get_selected_channel() {
+            Some(c) => c,
+            None => return None
+        };
         let i = c.list_state.selected().unwrap();
-        &mut c.videos[i]
+        c.videos.get_mut(i)
     }
     //---------------
     fn save(&mut self) {
-        write_history(self.get_filtered_chan(Filter::All));
+        let f = self.current_filter;
+        self.filter_channel_list(Filter::All);
+        write_history(self.get_channel_list());
+        self.filter_channel_list(f);
     }
 }

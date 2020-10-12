@@ -32,13 +32,14 @@ use app::{
     Action::*,
     App,
     Screen,
+    Filter,
 };
 
 fn update_channel_list(result_sender: Sender<ChannelList>, url_sender: Sender<String>) {
     thread::spawn(move|| {
-        let new_chan = fetch_new_videos(url_sender);
-        result_sender.send(new_chan.clone()).unwrap();
-        write_history(&new_chan);
+        let new_chan_list = fetch_new_videos(url_sender);
+        result_sender.send(new_chan_list.clone()).unwrap();
+        write_history(&new_chan_list);
     });
 
 }
@@ -64,7 +65,7 @@ fn main() {
         let event = events.next();
 
         for c in result_receiver.try_iter() {
-            app.set_channel_list(c);
+            app.update_channel_list(c);
 
             app.action(Update);
         }
@@ -117,15 +118,17 @@ fn main() {
                     app.action(Back);
                 }
                 Key::Char('t') => {
-                    app.config.show_empty_channels = !app.config.show_empty_channels
+                    app.config.show_empty_channels = !app.config.show_empty_channels;
+                    app.filter_channel_list(Filter::OnlyNew);
                 }
                 _ => {}
             }
             Event::Tick => {
-                app.update_line = match url_receiver.try_recv() {
-                    Ok(v) => v,
-                    Err(_) => String::new(),
-                };
+                for v in url_receiver.try_iter() {
+                    app.update_line = v;
+                    app.action(Update);
+                }
+                app.update_line = String::new();
                 app.action(Update);
             }
 

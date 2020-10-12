@@ -176,30 +176,6 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
                 }
             }
 
-/*             let mut channel = Channel::new();
- *             channel.name = fetched_channel.name;
- *             channel.link = fetched_channel.link;
- *
- *             for h in history.channels.iter() {
- *                 // match channel links
- *                 if h.link == channel.link && h.name == channel.name {
- *                     // copy old video elements
- *                     channel.videos = h.videos.clone();
- *
- *                     break
- *                 }
- *             }
- *
- *             insert videos from feed, if not already in list
- *             for vid in fetched_channel.videos.into_iter() {
- *                 if !channel.videos.iter().any(|video| video.link == vid.link) {
- *                     channel.videos.push(
- *                         vid
- *                     );
- *                 }
- *             } */
-
-
             channel.videos.sort_by_key(|video| video.pub_date.clone());
             channel.videos.reverse();
 
