@@ -102,7 +102,7 @@ impl App {
                         Some(v) => v.mark(state),
                         None => return,
                     }
-                    if !self.get_selected_channel().unwrap().has_new() {
+                    if !self.get_selected_channel().unwrap().has_new() && self.filter == Filter::OnlyNew {
                         self.action(Back);
                     } else if self.config.down_on_mark {
                         if let Some(e) = self.get_selected_channel() {
