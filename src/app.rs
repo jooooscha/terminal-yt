@@ -168,14 +168,15 @@ impl App {
 
     pub fn set_channel_list(&mut self, mut new_cl: ChannelList) {
 
-        // copy old filter
+        // apply current filter
         new_cl.filter(self.filter);
 
-        // use correct selection
+        // keep current selection based on currend focused screen
         match self.current_screen {
             Channels => {
-                // let len: usize = cmp::max(0, new_cl.channels.len() as isize - 1) as usize;
-                let len: usize = new_cl.channels.len();
+
+                let len: usize = cmp::max(0, new_cl.channels.len() as isize - 1) as usize;
+                // let len: usize = new_cl.channels.len();
                 let selected = self.channel_list.list_state.selected(); // type: Option<usize>
 
                 self.channel_list = new_cl;
@@ -202,50 +203,22 @@ impl App {
     pub fn get_channel_list(&mut self) -> &mut ChannelList {
         &mut self.channel_list
     }
-/*     pub fn filter_channel_list(&mut self, filter: Filter) {
- *
- *         // base list
- *         let backup = &self.backup_list;
- *
- *         // start new with current list (may be filtered)
- *         let mut new = self.channel_list.clone();
- *
- *         // add all channels that are not in the list
- *         for chan in backup.channels.iter() {
- *             if !new.channels.iter().any(|c| c.link == chan.link) {
- *                 new.channels.push(chan.clone());
- *             }
- *         }
- *
- *         new.sort();
- *
- *         // save as new base list
- *         self.backup_list = new.clone();
- *
- *         // filter channels that have only marked videos
- *         [> if self.current_screen == Channels { // only filter if on channel screen <]
- *             self.current_filter = filter;
- *             if filter == Filter::OnlyNew {
- *                 if !self.config.show_empty_channels {
- *                     new.channels = new.channels.into_iter().filter(|c| c.videos.iter().any(|v| !v.marked)).collect();
- *                 }
- *             }
- *         [> } <]
- *
- *         [> self.channel_list = new; <]
- *         self.set_channel_list(new);
- *     } */
+
     pub fn get_current_selected(&self) -> usize {
         self.current_selected
     }
+
     fn update(&mut self) {
         draw(self);
     }
+
     //--------------
+
     fn get_selected_channel(&mut self) -> Option<&mut Channel> {
         let i = self.current_selected;
         self.channel_list.channels.get_mut(i)
     }
+
     fn get_selected_video(&mut self) -> Option<&mut Video> {
         let c = match self.get_selected_channel() {
             Some(c) => c,
