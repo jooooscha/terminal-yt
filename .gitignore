@@ -2,3 +2,4 @@ target
 Cargo.lock
 .gitignore
 uml_diagram
+uml_diagram/*

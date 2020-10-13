@@ -80,6 +80,7 @@ impl App {
         };
 
         channel_list.list_state.select(Some(0));
+        channel_list.filter(filter);
 
         App {
             terminal,
