@@ -176,7 +176,6 @@ impl App {
             Channels => {
 
                 let len: usize = cmp::max(0, new_cl.channels.len() as isize - 1) as usize;
-                // let len: usize = new_cl.channels.len();
                 let selected = self.channel_list.list_state.selected(); // type: Option<usize>
 
                 self.channel_list = new_cl;
