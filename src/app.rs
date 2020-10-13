@@ -174,23 +174,26 @@ impl App {
         // use correct selection
         match self.current_screen {
             Channels => {
-                let len: usize = cmp::max(0, new_cl.channels.len() as isize - 1) as usize;
-                let selected = new_cl.list_state.selected();
+                // let len: usize = cmp::max(0, new_cl.channels.len() as isize - 1) as usize;
+                let len: usize = new_cl.channels.len();
+                let selected = self.channel_list.list_state.selected(); // type: Option<usize>
 
                 self.channel_list = new_cl;
 
                 let selected = cmp::min(selected, Some(len));
-                self.channel_list.list_state.select(selected)
+                self.channel_list.list_state.select(selected);
             },
             Videos => {
-                let pos_in_chan = if let Some(c) = self.get_selected_channel() {
-                    c.list_state.selected()
-                } else {
-                    return
+                let selected_video = match self.get_selected_channel() {
+                    Some(c) => c.list_state.selected(),
+                    None => return,
                 };
+
+                new_cl.list_state.select(None);
                 self.channel_list = new_cl;
+                
                 match self.get_selected_channel() {
-                    Some(c) => c.list_state.select(pos_in_chan),
+                    Some(c) => c.list_state.select(selected_video),
                     None => self.action(Back),
                 };
             },
