@@ -39,7 +39,6 @@ pub struct App {
     current_selected: usize, // channel
 
     channel_list: ChannelList,
-    /* backup_list: ChannelList, */
 }
 
 #[derive(PartialEq)]
@@ -88,7 +87,6 @@ impl App {
             app_title: config.app_title,
             current_screen: Channels,
             channel_list,
-            /* backup_list: ChannelList::new(), */
             current_selected: 0,
             update_line: String::new(),
             filter,
@@ -162,10 +160,6 @@ impl App {
             },
         }
     }
-    /* pub fn update_channel_list(&mut self, cl: ChannelList) {
-     *     self.set_channel_list(cl);
-     *     self.filter_channel_list(self.current_filter);
-     * } */
 
     pub fn set_filter(&mut self, filter: Filter) {
         self.filter = filter;

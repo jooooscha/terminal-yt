@@ -53,6 +53,8 @@ fn main() {
     let mut app = App::new_with_channel_list(history);
 
     let events = Events::new();
+    let tick_counter_limit = 10;
+    let mut tick_counter = 0;
 
     let (result_sender, result_receiver) = channel();
     let (url_sender, url_receiver) = channel();
@@ -128,11 +130,15 @@ fn main() {
                 _ => {}
             }
             Event::Tick => {
+                tick_counter += 1;
                 for v in url_receiver.try_iter() {
                     app.update_line = v;
                     app.action(Update);
                 }
-                app.update_line = String::new();
+                if tick_counter == tick_counter_limit {
+                    tick_counter = 0;
+                    app.update_line = String::new();
+                }
                 app.action(Update);
             }
 
