@@ -25,6 +25,8 @@ Build with [tui](https://github.com/fdehau/tui-rs) and termion as backend.
 | unmark                                                  | M           |
 | update                                                  | r           |
 | show/hide channels that have no new videso (see config) | t           |
+| copy video url                                          | c           |
+
 
 ## Config
 

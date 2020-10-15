@@ -23,6 +23,10 @@ use data_types::{
         Filter,
     },
 };
+use clipboard::{
+    ClipboardProvider,
+    ClipboardContext,
+};
 mod draw;
 mod events;
 mod app;
@@ -126,6 +130,16 @@ fn main() {
                         Filter::OnlyNew => Filter::NoFilter,
                     };
                     app.set_filter(new_filter);
+                }
+                Key::Char('c') => {
+                    match app.current_screen {
+                        Channels => (),
+                        Videos => {
+                            let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
+                            let link = app.get_selected_video_link();
+                            ctx.set_contents(link).unwrap();
+                        }
+                    }
                 }
                 _ => {}
             }

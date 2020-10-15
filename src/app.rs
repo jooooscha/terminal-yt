@@ -207,6 +207,13 @@ impl App {
         self.current_selected
     }
 
+    pub fn get_selected_video_link(&mut self) -> String {
+        match self.get_selected_video() {
+            Some(v) => v.link.clone(),
+            None => String::from("none"),
+        }
+    }
+
     fn update(&mut self) {
         draw(self);
     }
@@ -223,7 +230,10 @@ impl App {
             Some(c) => c,
             None => return None
         };
-        let i = c.list_state.selected().unwrap();
+        let i = match c.list_state.selected() {
+            Some(i) => i,
+            None => return None
+        };
         c.videos.get_mut(i)
     }
     //---------------
