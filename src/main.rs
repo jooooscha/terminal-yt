@@ -3,7 +3,8 @@ use std::{
     sync::mpsc::{
         channel,
         Sender,
-    }
+    },
+    process::Command,
 };
 use tui::widgets::{Block, Borders, List, ListItem};
 use termion::event::Key;
@@ -38,6 +39,10 @@ use app::{
     App,
     Screen,
 };
+
+fn notify_user(msg: &String) {
+    let _ = Command::new("notify-send").arg(msg).output().expect("failed");
+}
 
 fn update_channel_list(result_sender: Sender<ChannelList>, url_sender: Sender<String>) {
     thread::spawn(move|| {
@@ -137,6 +142,7 @@ fn main() {
                         Videos => {
                             let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
                             let link = app.get_selected_video_link();
+                            notify_user(&link);
                             ctx.set_contents(link).unwrap();
                         }
                     }
