@@ -131,8 +131,8 @@ folder data_types {
 	Video o- ToSpans
 }
 
-folder fetch_data {
-	package fetch_dat {
+folder data {
+	package history {
 		class UrlFile {
 			atom: Vec<String>
 			rss: Vec<String>

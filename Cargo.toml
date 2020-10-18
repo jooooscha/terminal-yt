@@ -1,6 +1,6 @@
 [package]
 name = "tyt"
-version = "0.6.9"
+version = "0.7.0"
 authors = ["joooscha <joscha.loos@pm.me>"]
 edition = "2018"
 
@@ -11,3 +11,4 @@ clipboard = "*"
 
 data = { path = "./data" }
 data_types = { path = "./data_types" }
+notification = { path = "./notification" }

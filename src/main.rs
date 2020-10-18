@@ -4,16 +4,17 @@ use std::{
         channel,
         Sender,
     },
-    process::Command,
 };
 use tui::widgets::{Block, Borders, List, ListItem};
 use termion::event::Key;
 use Screen::*;
 use data::{
     history::{
-        fetch_new_videos,
         read_history,
         write_history,
+    },
+    fetch_data::{
+        fetch_new_videos,
     },
 };
 use data_types::{
@@ -39,10 +40,7 @@ use app::{
     App,
     Screen,
 };
-
-fn notify_user(msg: &String) {
-    let _ = Command::new("notify-send").arg(msg).output().expect("failed");
-}
+use notification::notify::notify_user;
 
 fn update_channel_list(result_sender: Sender<ChannelList>, url_sender: Sender<String>) {
     thread::spawn(move|| {

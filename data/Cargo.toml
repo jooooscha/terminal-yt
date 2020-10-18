@@ -1,6 +1,6 @@
 [package]
 name = "data"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["joooscha <joscha.loos@pm.me>"]
 edition = "2018"
 
@@ -15,3 +15,4 @@ dirs = "*"
 threadpool = "*"
 
 data_types = { path = "../data_types" }
+notification = { path = "../notification" }
