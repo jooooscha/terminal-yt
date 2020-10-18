@@ -18,8 +18,8 @@ use data_types::internal::{
     *,
     Filter,
 };
-use fetch_data::{
-    fetch_data::*,
+use data::{
+    history::*,
     config::Config,
 };
 use crate::draw;

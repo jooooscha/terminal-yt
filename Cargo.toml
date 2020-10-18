@@ -1,6 +1,6 @@
 [package]
 name = "tyt"
-version = "0.6.8"
+version = "0.6.9"
 authors = ["joooscha <joscha.loos@pm.me>"]
 edition = "2018"
 
@@ -9,5 +9,5 @@ termion = "*"
 tui = "*"
 clipboard = "*"
 
-fetch_data = { path = "./fetch_data" }
+data = { path = "./data" }
 data_types = { path = "./data_types" }

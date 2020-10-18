@@ -1,49 +1,82 @@
 @startuml
 
-package main {
-	class App {
-		+ terminal: Terminal
-		+ config: Config
-		+ update_line: String
-		+ app_title: String
-		+ current_screen: Screen
-		current_filter: Filter
-		channel_list: ChannelList
-		current_selected: usize
-		backup_list: ChannelList
-		---
-		+ ::new_with_channel_list(ChannelList) -> App
-		+ action(Action)
-		+ update_channel_list(ChannelList)
-		+ set_filter(Filter)
-		+ set_channel_list(ChannelList)
-		+ get_channel_list() -> ChannelList
-		+ get_current_selected() -> usize
-		update()
-		get_selected_channel() -> Options<&mut Channel>
-		get_selected_video() -> Options<&mut Video>
-		save()
+folder src {
+	package app {
+		class App {
+			+ terminal: Terminal
+			+ config: Config
+			+ app_title: String
+			+ current_screen: Screen
+			current_filter: Filter
+			channel_list: ChannelList
+			current_selected: usize
+			backup_list: ChannelList
+			---
+			+ ::new_with_channel_list(ChannelList) -> App
+			+ action(Action)
+			+ update_channel_list(ChannelList)
+			+ set_filter(Filter)
+			+ set_channel_list(ChannelList)
+			+ get_channel_list() -> ChannelList
+			+ get_current_selected() -> usize
+			update()
+			get_selected_channel() -> Options<&mut Channel>
+			get_selected_video() -> Options<&mut Video>
+			save()
+		}
+
+		enum Action {
+			Mark
+			Unmark
+			Up
+			Down
+			Enter
+			Back
+			Open
+			Update
+		}
+
+		enum Filter {
+			All
+			OnlyNew
+		}
+		enum Screen {
+			Channels
+			Videos
+		}
+
+		App o-- Screen
+		App o-- Filter
+
 	}
 
-	enum Action {
-		Mark
-		Unmark
+	package draw {
+		card draw_functions [
+			+ fn draw(&mut App)
+		]
 	}
 
-	enum Filter {
-		All
-		OnlyNew
-	}
-	enum Screen {
-		Channels
-		Videos
+	package events {
+		class Events {
+			rx: mpsc::Receiver<Event<Key>>
+			input_handle: thread::JoinHandle<()>
+			tick_handle: thread::JoinHandle<()>
+			---
+			+ fn ::new() -> Events
+			+ fn next() -> Result<Event<Key>, mpsc::RecvError>
+		}
 	}
 
-	App o-- Screen
-	App o-- Filter
-
+	package main {
+		card main_functions [
+			fn notify_user(&String)
+			fn update_channel_list(Sender<ChannelList>, Sender<String>)
+			fn main()
+		]
+	}
 }
-rectangle {
+
+folder data_types {
 	package internal {
 		enum Filter {
 			NoFilter
@@ -98,8 +131,8 @@ rectangle {
 	Video o- ToSpans
 }
 
-rectangle {
-	package fetch_data {
+folder fetch_data {
+	package fetch_dat {
 		class UrlFile {
 			atom: Vec<String>
 			rss: Vec<String>
@@ -113,14 +146,13 @@ rectangle {
 			Rss(String)
 		}
 
-		object fetch_data_functions {
+		card fetch_data_functions [
 			+ fetch_new_videos(Sender<String>) -> ChannelList
 			+ write_history(&ChannelList)
 			+ read_history() -> Option<ChannelList>
 			notify_user(String)
 			read_urls_file() -> UrlFile
-			
-		}
+		]
 	}
 
 	UrlFile o-- FeedType
@@ -141,7 +173,7 @@ rectangle {
 }
 
 App o-- Config
-App o- ChannelList
+App <- ChannelList
 fetch_data_functions o- ChannelList
 
 @enduml

@@ -9,8 +9,8 @@ use std::{
 use tui::widgets::{Block, Borders, List, ListItem};
 use termion::event::Key;
 use Screen::*;
-use fetch_data::{
-    fetch_data::{
+use data::{
+    history::{
         fetch_new_videos,
         read_history,
         write_history,
