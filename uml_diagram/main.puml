@@ -1,29 +1,123 @@
 @startuml
 
-folder src {
-	package app {
-		class App {
-			+ terminal: Terminal
-			+ config: Config
-			+ app_title: String
-			+ current_screen: Screen
-			current_filter: Filter
-			channel_list: ChannelList
-			current_selected: usize
-			backup_list: ChannelList
-			---
-			+ ::new_with_channel_list(ChannelList) -> App
-			+ action(Action)
-			+ update_channel_list(ChannelList)
-			+ set_filter(Filter)
-			+ set_channel_list(ChannelList)
-			+ get_channel_list() -> ChannelList
-			+ get_current_selected() -> usize
-			update()
-			get_selected_channel() -> Options<&mut Channel>
-			get_selected_video() -> Options<&mut Video>
-			save()
+folder data {
+	file fetch_data {
+		enum FeedType {
+			Atom(String)
+			Rss(String)
 		}
+
+		class UrlFile {
+			atom: Vec<String>
+			rss: Vec<String>
+			---
+			fn len -> usize
+			fn get_mixed -> Vec<FeedType>
+		}
+
+		UrlFile o-- FeedType
+
+		card fetch_data_card [
+			pub fetch_new_videos(Sender<String>) -> ChannelList
+			read_urls_file() -> UrlFile
+		]
+
+		fetch_data_card o-- ChannelList
+		fetch_data_card o-- UrlFile
+	}
+
+	file history {
+		card history_card [
+			const HISTORY_FILE_PATH: &str
+			pub fn write_history(&ChannelList)
+			pub fn read_history() -> Option<ChannelList>
+		]
+
+		history_card o-- ChannelList
+	}
+
+	file config {
+		class Config {
+			show_empty_channels: bool
+			mark_on_open: bool
+			down_on_mark: bool
+			app_title: String
+			update_at_start: bool
+			---
+			::default -> Self
+			::read_config_file -> Self
+		}
+
+		card config_card [
+			const CONFIG_FILE_PATH: &str
+		]
+	}
+}
+
+folder data_types {
+	file internal {
+		enum Filter {
+			NoFilter
+			OnlyNew
+		}
+
+		interface ToSpans {
+			fn to_spans() -> Spans
+		}
+
+		class Video {
+			+ title: String
+			+ link: String
+			+ pub_date: String
+			+ marked: bool
+			---
+			+ fn ::new() -> Self
+			+ fn mark(bool)
+			+ fn open()
+			===
+			impl ToSpan
+		}
+
+		Video o-- ToSpans
+
+		class Channel {
+			+ name: String
+			+ link: String
+			+ videso: Vec<Video>
+			+ list_state: ListState
+			---
+			+ fn ::new() -> Self
+			+ fn ::new_with_url(&String) -> Self
+			+ fn next()
+			+ fn prev()
+			+ fn has_new() -> bool
+			===
+			impl ToSpans
+		}
+
+		Channel o-- Video
+		Channel o-- ToSpans
+
+		class ChannelList {
+			+ channels: Vec<Channel>
+			+ list_state: ListState
+			backup: Vec<Channel>
+			---
+			+ fn ::new() -> Self
+			+ fn next()
+			+ fn prev()
+			+ fn get_not_empty() -> ChannelList
+			+ fn sort()
+			+ fn filter(Filter)
+		}
+
+		ChannelList o-- Channel
+		ChannelList o-- Filter
+	}
+}
+
+folder src {
+	file app {
 
 		enum Action {
 			Mark
@@ -45,135 +139,77 @@ folder src {
 			Videos
 		}
 
+		class App {
+			+ terminal: Terminal
+			+ config: Config
+			+ app_title: String
+			+ current_screen: Screen
+			current_filter: Filter
+			channel_list: ChannelList
+			current_selected: usize
+			backup_list: ChannelList
+			---
+			+ ::new_with_channel_list(ChannelList) -> Self
+			+ action(Action)
+			+ update_channel_list(ChannelList)
+			+ set_filter(Filter)
+			+ set_channel_list(ChannelList)
+			+ get_channel_list() -> ChannelList
+			+ get_current_selected() -> usize
+			update()
+			get_selected_channel() -> Options<&mut Channel>
+			get_selected_video() -> Options<&mut Video>
+			save()
+		}
+
+		App o-- Config
+		App o-- ChannelList
 		App o-- Screen
 		App o-- Filter
-
+		App o-- Action
+		App o-- Channel
+		App o-- Video
 	}
 
-	package draw {
-		card draw_functions [
-			+ fn draw(&mut App)
+	file draw {
+		card draw_card [
+			pub fn draw(&mut App)
 		]
+		
+		draw_card o-- App
 	}
 
-	package events {
+	file events {
 		class Events {
 			rx: mpsc::Receiver<Event<Key>>
 			input_handle: thread::JoinHandle<()>
 			tick_handle: thread::JoinHandle<()>
 			---
-			+ fn ::new() -> Events
+			+ fn ::new() -> Self
 			+ fn next() -> Result<Event<Key>, mpsc::RecvError>
 		}
 	}
 
-	package main {
-		card main_functions [
+	file main {
+		card main_card [
 			fn notify_user(&String)
 			fn update_channel_list(Sender<ChannelList>, Sender<String>)
 			fn main()
 		]
-	}
-}
 
-folder data_types {
-	package internal {
-		enum Filter {
-			NoFilter
-			OnlyNew
-		}
-		interface ToSpans {
-			to_spans() -> Spans
-		}
-		class ChannelList {
-			+ channels: Vec<Channel>
-			+ list_state: ListState
-			backup: Vec<Channel>
-			---
-			+ ::new() -> ChannelList
-			+ next()
-			+ prev()
-			+ get_not_empty() -> ChannelList
-			+ sort()
-			+ filter()
-		}
-		class Channel {
-			+ name: String
-			+ link: String
-			+ videso: Vec<Video>
-			+ list_state: ListState
-			---
-			+ ::new() -> Channel
-			+ ::new_with_url(&String) -> Channel
-			+ next()
-			+ prev()
-			+ has_new() -> bool
-			===
-			ToSpans
-		}
-		class Video {
-			+ title: String
-			+ link: String
-			+ pub_date: String
-			+ marked: bool
-			---
-			+ ::new() -> Video
-			+ mark(bool)
-			+ open()
-			===
-			ToSpans
-		}
-	}
-
-	ChannelList o-- Channel
-	Channel o-- Video
-	Channel o- ToSpans
-	Video o- ToSpans
-}
-
-folder data {
-	package history {
-		class UrlFile {
-			atom: Vec<String>
-			rss: Vec<String>
-			---
-			len -> usize
-			get_mixed -> Vec<FeedType>
-		}
-
-		enum FeedType {
-			Atom(String)
-			Rss(String)
-		}
-
-		card fetch_data_functions [
-			+ fetch_new_videos(Sender<String>) -> ChannelList
-			+ write_history(&ChannelList)
-			+ read_history() -> Option<ChannelList>
-			notify_user(String)
-			read_urls_file() -> UrlFile
+		component main [
+			fn main() {
+				Events
+				Config
+			}
 		]
-	}
 
-	UrlFile o-- FeedType
-	fetch_data_functions o- UrlFile
+		main #-- main_card
+		main o- Events
+		main o- Config
 
-	package config {
-		class Config {
-			show_empty_channels
-			mark_on_open
-			down_on_mark
-			app_title
-			update_at_start
-			---
-			::default
-			::read_config_file
-		}
+		main_card o-- ChannelList
 	}
 }
-
-App o-- Config
-App <- ChannelList
-fetch_data_functions o- ChannelList
 
 @enduml

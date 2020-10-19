@@ -1,9 +1,266 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="75px" preserveAspectRatio="none" style="width:81px;height:75px;" version="1.1" viewBox="0 0 81 75" width="81px" zoomAndPan="magnify"><defs><filter height="300%" id="f17c6ev845xet8" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><rect fill="#FEFECE" filter="url(#f17c6ev845xet8)" height="49.25" style="stroke: #A80036; stroke-width: 1.5;" width="55" x="7" y="7"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="24" x="22.5" y="20.1387">App</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="8" x2="61" y1="24.9688" y2="24.9688"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacingAndGlyphs" textLength="43" x="13" y="38.251">terminal,</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacingAndGlyphs" textLength="29" x="13" y="49.8916">config</text><!--MD5=[db2941c2720b6afe344a38b41c5a4074]
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="1692px" preserveAspectRatio="none" style="width:3057px;height:1692px;" version="1.1" viewBox="0 0 3057 1692" width="3057px" zoomAndPan="magnify"><defs><filter height="300%" id="f1xdhuggeaovuh" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><!--MD5=[dce4c2b5694dd28223e7b1d160ba96c4]
+cluster data--><polygon fill="#FFFFFF" filter="url(#f1xdhuggeaovuh)" points="1192,578,1232,578,1239,600.2969,2615,600.2969,2615,1286,1192,1286,1192,578" style="stroke: #000000; stroke-width: 1.5;"/><line style="stroke: #000000; stroke-width: 1.5;" x1="1192" x2="1239" y1="600.2969" y2="600.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="34" x="1196" y="592.9951">data</text><!--MD5=[3f95fe24ee8b224be742ff67adb1c162]
+cluster fetch_data--><polygon fill="#FFFFFF" filter="url(#f1xdhuggeaovuh)" points="2106,670.5,2106,1262,2591,1262,2591,680.5,2581,670.5,2106,670.5" style="stroke: #000000; stroke-width: 1.5;"/><path d="M2581,670.5 L2581,680.5 L2591,680.5 " fill="#FFFFFF" style="stroke: #000000; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="82" x="2307.5" y="685.4951">fetch_data</text><!--MD5=[e9bc0c51b658fb5eb34c81e089537184]
+cluster history--><polygon fill="#FFFFFF" filter="url(#f1xdhuggeaovuh)" points="1712,662.5,1712,768.5,2082,768.5,2082,672.5,2072,662.5,1712,662.5" style="stroke: #000000; stroke-width: 1.5;"/><path d="M2072,662.5 L2072,672.5 L2082,672.5 " fill="#FFFFFF" style="stroke: #000000; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="55" x="1869.5" y="677.4951">history</text><!--MD5=[77140a42179fe8241cde5d77dd05aadc]
+cluster config--><polygon fill="#FFFFFF" filter="url(#f1xdhuggeaovuh)" points="1216,621,1216,810,1688,810,1688,631,1678,621,1216,621" style="stroke: #000000; stroke-width: 1.5;"/><path d="M1678,621 L1678,631 L1688,631 " fill="#FFFFFF" style="stroke: #000000; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="49" x="1427.5" y="635.9951">config</text><!--MD5=[cb0f8cb112921ac8373811eca235218c]
+cluster data_types--><polygon fill="#FFFFFF" filter="url(#f1xdhuggeaovuh)" points="2639,1039,2730,1039,2737,1061.2969,3035,1061.2969,3035,1680,2639,1680,2639,1039" style="stroke: #000000; stroke-width: 1.5;"/><line style="stroke: #000000; stroke-width: 1.5;" x1="2639" x2="2737" y1="1061.2969" y2="1061.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="85" x="2643" y="1053.9951">data_types</text><!--MD5=[c27d767109b3913d4718b358a17ad24a]
+cluster internal--><polygon fill="#FFFFFF" filter="url(#f1xdhuggeaovuh)" points="2663,1082,2663,1656,3011,1656,3011,1092,3001,1082,2663,1082" style="stroke: #000000; stroke-width: 1.5;"/><path d="M3001,1082 L3001,1092 L3011,1092 " fill="#FFFFFF" style="stroke: #000000; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="60" x="2807" y="1096.9951">internal</text><!--MD5=[c60679dfbe80eab0cae5e3add7b10464]
+cluster src--><polygon fill="#FFFFFF" filter="url(#f1xdhuggeaovuh)" points="16,6,47,6,54,28.2969,1168,28.2969,1168,840,16,840,16,6" style="stroke: #000000; stroke-width: 1.5;"/><line style="stroke: #000000; stroke-width: 1.5;" x1="16" x2="54" y1="28.2969" y2="28.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="25" x="20" y="20.9951">src</text><!--MD5=[d5ac3844f66b12d9e08170e47495e096]
+cluster app--><polygon fill="#FFFFFF" filter="url(#f1xdhuggeaovuh)" points="648,236,648,816,1002,816,1002,246,992,236,648,236" style="stroke: #000000; stroke-width: 1.5;"/><path d="M992,236 L992,246 L1002,246 " fill="#FFFFFF" style="stroke: #000000; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="29" x="810.5" y="250.9951">app</text><!--MD5=[b4ad4898268678f15fc8d4512d654a18]
+cluster draw--><polygon fill="#FFFFFF" filter="url(#f1xdhuggeaovuh)" points="930,94,930,167,1144,167,1144,104,1134,94,930,94" style="stroke: #000000; stroke-width: 1.5;"/><path d="M1134,94 L1134,104 L1144,104 " fill="#FFFFFF" style="stroke: #000000; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="40" x="1017" y="108.9951">draw</text><!--MD5=[8d74b40516bd265adb19f202ab81f40d]
+cluster events--><polygon fill="#FFFFFF" filter="url(#f1xdhuggeaovuh)" points="556,49,556,212,906,212,906,59,896,49,556,49" style="stroke: #000000; stroke-width: 1.5;"/><path d="M896,49 L896,59 L906,59 " fill="#FFFFFF" style="stroke: #000000; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="54" x="704" y="63.9951">events</text><!--MD5=[a70b0d373322012744ecc119c63f921b]
+cluster main--><polygon fill="#FFFFFF" filter="url(#f1xdhuggeaovuh)" points="40,57.5,40,460,532,460,532,67.5,522,57.5,40,57.5" style="stroke: #000000; stroke-width: 1.5;"/><path d="M522,57.5 L522,67.5 L532,67.5 " fill="#FFFFFF" style="stroke: #000000; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="37" x="267.5" y="72.4951">main</text><!--MD5=[d8e673d9814a83444e61c07041b24c1e]
+class FeedType--><rect fill="#FEFECE" filter="url(#f1xdhuggeaovuh)" height="73.6094" id="FeedType" style="stroke: #A80036; stroke-width: 1.5;" width="92" x="2430" y="1172"/><ellipse cx="2445" cy="1188" fill="#EB937F" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/><path d="M2448.4844,1194.5 L2440.7969,1194.5 L2440.7969,1181.6719 L2448.4844,1181.6719 L2448.4844,1183.7188 L2443.0313,1183.7188 L2443.0313,1186.7969 L2448.1563,1186.7969 L2448.1563,1188.8281 L2443.0313,1188.8281 L2443.0313,1192.4531 L2448.4844,1192.4531 L2448.4844,1194.5 Z "/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="60" x="2459" y="1192.1543">FeedType</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="2431" x2="2521" y1="1204" y2="1204"/><line style="stroke: #A80036; stroke-width: 1.5;" x1="2431" x2="2521" y1="1212" y2="1212"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="71" x="2436" y="1226.2104">Atom(String)</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="63" x="2436" y="1239.0151">Rss(String)</text><!--MD5=[ccd0fd271d554a837deb84b06df98296]
+class UrlFile--><rect fill="#FEFECE" filter="url(#f1xdhuggeaovuh)" height="99.2188" id="UrlFile" style="stroke: #A80036; stroke-width: 1.5;" width="198" x="2377" y="892"/><ellipse cx="2452.75" cy="908" fill="#ADD1B2" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/><path d="M2456.2656,912.0313 L2456.2656,914.0625 Q2454.7813,914.6719 2452.9531,914.6719 Q2450.2344,914.6719 2448.7813,912.9375 Q2447.3281,911.1875 2447.3281,908.0781 Q2447.3281,905.0781 2448.9063,903.2969 Q2450.4844,901.5 2453.2031,901.5 Q2455.1094,901.5 2456.8438,902.4219 L2455.8906,904.3281 Q2454.3906,903.5469 2453.2031,903.5469 Q2451.5938,903.5469 2450.6094,904.7656 Q2449.6406,905.9688 2449.6406,908.0938 Q2449.6406,910.3438 2450.5469,911.4844 Q2451.4688,912.625 2453.2031,912.625 Q2454.2344,912.625 2456.2656,912.0313 Z "/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="38" x="2473.25" y="912.1543">UrlFile</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="2378" x2="2574" y1="924" y2="924"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="109" x="2383" y="938.2104">atom: Vec&lt;String&gt;</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="99" x="2383" y="951.0151">rss: Vec&lt;String&gt;</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="2378" x2="2574" y1="957.6094" y2="957.6094"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="82" x="2383" y="971.8198">fn len -&gt; usize</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="186" x="2383" y="984.6245">fn get_mixed -&gt; Vec&lt;FeedType&gt;</text><!--MD5=[cfa4f186be87f37c1eb4d6a5fd7a5cdb]
+entity fetch_data_card--><rect fill="#FEFECE" filter="url(#f1xdhuggeaovuh)" height="38.5938" style="stroke: #000000; stroke-width: 1.5;" width="403" x="2146.5" y="705.5"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="383" x="2156.5" y="721.4951">pub fetch_new_videos(Sender&lt;String&gt;) -&gt; ChannelList</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="165" x="2156.5" y="737.792">read_urls_file() -&gt; UrlFile</text><!--MD5=[571bd61fe20f93242edd2060953a76de]
+class ChannelList--><rect fill="#FEFECE" filter="url(#f1xdhuggeaovuh)" height="163.2422" id="ChannelList" style="stroke: #A80036; stroke-width: 1.5;" width="219" x="2122.5" y="860"/><ellipse cx="2191.75" cy="876" fill="#ADD1B2" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/><path d="M2195.2656,880.0313 L2195.2656,882.0625 Q2193.7813,882.6719 2191.9531,882.6719 Q2189.2344,882.6719 2187.7813,880.9375 Q2186.3281,879.1875 2186.3281,876.0781 Q2186.3281,873.0781 2187.9063,871.2969 Q2189.4844,869.5 2192.2031,869.5 Q2194.1094,869.5 2195.8438,870.4219 L2194.8906,872.3281 Q2193.3906,871.5469 2192.2031,871.5469 Q2190.5938,871.5469 2189.6094,872.7656 Q2188.6406,873.9688 2188.6406,876.0938 Q2188.6406,878.3438 2189.5469,879.4844 Q2190.4688,880.625 2192.2031,880.625 Q2193.2344,880.625 2195.2656,880.0313 Z "/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="72" x="2212.25" y="880.1543">ChannelList</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="2123.5" x2="2340.5" y1="892" y2="892"/><ellipse cx="2133.5" cy="903" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="143" x="2142.5" y="906.2104">channels: Vec&lt;Channel&gt;</text><ellipse cx="2133.5" cy="915.8047" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="110" x="2142.5" y="919.0151">list_state: ListState</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="132" x="2142.5" y="931.8198">backup: Vec&lt;Channel&gt;</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="2123.5" x2="2340.5" y1="938.4141" y2="938.4141"/><ellipse cx="2133.5" cy="949.4141" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="97" x="2142.5" y="952.6245">fn ::new() -&gt; Self</text><ellipse cx="2133.5" cy="962.2188" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="47" x="2142.5" y="965.4292">fn next()</text><ellipse cx="2133.5" cy="975.0234" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="48" x="2142.5" y="978.2339">fn prev()</text><ellipse cx="2133.5" cy="987.8281" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="193" x="2142.5" y="991.0386">fn get_not_empty() -&gt; ChannelList</text><ellipse cx="2133.5" cy="1000.6328" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="46" x="2142.5" y="1003.8433">fn sort()</text><ellipse cx="2133.5" cy="1013.4375" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="77" x="2142.5" y="1016.6479">fn filter(Filter)</text><!--MD5=[20dfadbc4fd1535ceb9276ba737355cc]
+entity history_card--><rect fill="#FEFECE" filter="url(#f1xdhuggeaovuh)" height="54.8906" style="stroke: #000000; stroke-width: 1.5;" width="337" x="1728.5" y="697.5"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="221" x="1738.5" y="713.4951">const HISTORY_FILE_PATH: &amp;str</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="236" x="1738.5" y="729.792">pub fn write_history(&amp;ChannelList)</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="317" x="1738.5" y="746.0889">pub fn read_history() -&gt; Option&lt;ChannelList&gt;</text><!--MD5=[4bf8aff396996fef456cd268939daa24]
+class Config--><rect fill="#FEFECE" filter="url(#f1xdhuggeaovuh)" height="137.6328" id="Config" style="stroke: #A80036; stroke-width: 1.5;" width="172" x="1500" y="656"/><ellipse cx="1562.25" cy="672" fill="#ADD1B2" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/><path d="M1565.7656,676.0313 L1565.7656,678.0625 Q1564.2813,678.6719 1562.4531,678.6719 Q1559.7344,678.6719 1558.2813,676.9375 Q1556.8281,675.1875 1556.8281,672.0781 Q1556.8281,669.0781 1558.4063,667.2969 Q1559.9844,665.5 1562.7031,665.5 Q1564.6094,665.5 1566.3438,666.4219 L1565.3906,668.3281 Q1563.8906,667.5469 1562.7031,667.5469 Q1561.0938,667.5469 1560.1094,668.7656 Q1559.1406,669.9688 1559.1406,672.0938 Q1559.1406,674.3438 1560.0469,675.4844 Q1560.9688,676.625 1562.7031,676.625 Q1563.7344,676.625 1565.7656,676.0313 Z "/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="39" x="1582.75" y="676.1543">Config</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="1501" x2="1671" y1="688" y2="688"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="160" x="1506" y="702.2104">show_empty_channels: bool</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="115" x="1506" y="715.0151">mark_on_open: bool</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="117" x="1506" y="727.8198">down_on_mark: bool</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="90" x="1506" y="740.6245">app_title: String</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="121" x="1506" y="753.4292">update_at_start: bool</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="1501" x2="1671" y1="760.0234" y2="760.0234"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="90" x="1506" y="774.2339">::default -&gt; Self</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="140" x="1506" y="787.0386">::read_config_file -&gt; Self</text><!--MD5=[ab4f949468fd04bb322ea9767f053d07]
+entity config_card--><rect fill="#FEFECE" filter="url(#f1xdhuggeaovuh)" height="22.2969" style="stroke: #000000; stroke-width: 1.5;" width="233" x="1231.5" y="714"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="213" x="1241.5" y="729.9951">const CONFIG_FILE_PATH: &amp;str</text><!--MD5=[bddb511951cf0a1d6a79f67b0c2ed87d]
+class Filter--><rect fill="#FEFECE" filter="url(#f1xdhuggeaovuh)" height="99.2188" id="Filter" style="stroke: #A80036; stroke-width: 1.5;" width="63" x="2679.5" y="1159.5"/><ellipse cx="2694.5" cy="1175.5" fill="#EB937F" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/><path d="M2697.9844,1182 L2690.2969,1182 L2690.2969,1169.1719 L2697.9844,1169.1719 L2697.9844,1171.2188 L2692.5313,1171.2188 L2692.5313,1174.2969 L2697.6563,1174.2969 L2697.6563,1176.3281 L2692.5313,1176.3281 L2692.5313,1179.9531 L2697.9844,1179.9531 L2697.9844,1182 Z "/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="31" x="2708.5" y="1179.6543">Filter</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="2680.5" x2="2741.5" y1="1191.5" y2="1191.5"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="43" x="2685.5" y="1205.7104">NoFilter</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="49" x="2685.5" y="1218.5151">OnlyNew</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="13" x="2685.5" y="1231.3198">All</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="49" x="2685.5" y="1244.1245">OnlyNew</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="2680.5" x2="2741.5" y1="1250.7188" y2="1250.7188"/><!--MD5=[a3ee8ab0aef00744bbae3deab1c4d361]
+class ToSpans--><rect fill="#FEFECE" filter="url(#f1xdhuggeaovuh)" height="60.8047" id="ToSpans" style="stroke: #A80036; stroke-width: 1.5;" width="144" x="2765" y="1579"/><ellipse cx="2806.55" cy="1595" fill="#B4A7E5" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/><path d="M2810.05,1601.5 L2802.925,1601.5 L2802.925,1599.8125 L2805.3625,1599.6406 L2805.3625,1590.5313 L2802.925,1590.375 L2802.925,1588.6719 L2810.05,1588.6719 L2810.05,1590.375 L2807.6125,1590.5313 L2807.6125,1599.6406 L2810.05,1599.8125 L2810.05,1601.5 Z "/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="53" x="2826.45" y="1599.1543">ToSpans</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="2766" x2="2908" y1="1611" y2="1611"/><line style="stroke: #A80036; stroke-width: 1.5;" x1="2766" x2="2908" y1="1619" y2="1619"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="132" x="2771" y="1633.2104">fn to_spans() -&gt; Spans</text><!--MD5=[166247bf81aba95c770c3b8fd8e3cb19]
+class Video--><rect fill="#FEFECE" filter="url(#f1xdhuggeaovuh)" height="158.4375" id="Video" style="stroke: #A80036; stroke-width: 1.5;" width="123" x="2726.5" y="1361"/><ellipse cx="2766.7" cy="1377" fill="#ADD1B2" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/><path d="M2770.2156,1381.0313 L2770.2156,1383.0625 Q2768.7313,1383.6719 2766.9031,1383.6719 Q2764.1844,1383.6719 2762.7313,1381.9375 Q2761.2781,1380.1875 2761.2781,1377.0781 Q2761.2781,1374.0781 2762.8563,1372.2969 Q2764.4344,1370.5 2767.1531,1370.5 Q2769.0594,1370.5 2770.7938,1371.4219 L2769.8406,1373.3281 Q2768.3406,1372.5469 2767.1531,1372.5469 Q2765.5438,1372.5469 2764.5594,1373.7656 Q2763.5906,1374.9688 2763.5906,1377.0938 Q2763.5906,1379.3438 2764.4969,1380.4844 Q2765.4188,1381.625 2767.1531,1381.625 Q2768.1844,1381.625 2770.2156,1381.0313 Z "/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="35" x="2786.3" y="1381.1543">Video</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="2727.5" x2="2848.5" y1="1393" y2="1393"/><ellipse cx="2737.5" cy="1404" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="63" x="2746.5" y="1407.2104">title: String</text><ellipse cx="2737.5" cy="1416.8047" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="61" x="2746.5" y="1420.0151">link: String</text><ellipse cx="2737.5" cy="1429.6094" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="94" x="2746.5" y="1432.8198">pub_date: String</text><ellipse cx="2737.5" cy="1442.4141" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="75" x="2746.5" y="1445.6245">marked: bool</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="2727.5" x2="2848.5" y1="1452.2188" y2="1452.2188"/><ellipse cx="2737.5" cy="1463.2188" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="97" x="2746.5" y="1466.4292">fn ::new() -&gt; Self</text><ellipse cx="2737.5" cy="1476.0234" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="76" x="2746.5" y="1479.2339">fn mark(bool)</text><ellipse cx="2737.5" cy="1488.8281" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="51" x="2746.5" y="1492.0386">fn open()</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="2727.5" x2="2848.5" y1="1498.6328" y2="1498.6328"/><line style="stroke: #A80036; stroke-width: 1.0;" x1="2727.5" x2="2848.5" y1="1500.6328" y2="1500.6328"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="71" x="2732.5" y="1512.8433">impl ToSpan</text><!--MD5=[1e4e6ac1845d89d680410515caa0c0ac]
+class Channel--><rect fill="#FEFECE" filter="url(#f1xdhuggeaovuh)" height="184.0469" id="Channel" style="stroke: #A80036; stroke-width: 1.5;" width="217" x="2777.5" y="1117"/><ellipse cx="2856.25" cy="1133" fill="#ADD1B2" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/><path d="M2859.7656,1137.0313 L2859.7656,1139.0625 Q2858.2813,1139.6719 2856.4531,1139.6719 Q2853.7344,1139.6719 2852.2813,1137.9375 Q2850.8281,1136.1875 2850.8281,1133.0781 Q2850.8281,1130.0781 2852.4063,1128.2969 Q2853.9844,1126.5 2856.7031,1126.5 Q2858.6094,1126.5 2860.3438,1127.4219 L2859.3906,1129.3281 Q2857.8906,1128.5469 2856.7031,1128.5469 Q2855.0938,1128.5469 2854.1094,1129.7656 Q2853.1406,1130.9688 2853.1406,1133.0938 Q2853.1406,1135.3438 2854.0469,1136.4844 Q2854.9688,1137.625 2856.7031,1137.625 Q2857.7344,1137.625 2859.7656,1137.0313 Z "/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="51" x="2876.75" y="1137.1543">Channel</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="2778.5" x2="2993.5" y1="1149" y2="1149"/><ellipse cx="2788.5" cy="1160" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="74" x="2797.5" y="1163.2104">name: String</text><ellipse cx="2788.5" cy="1172.8047" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="61" x="2797.5" y="1176.0151">link: String</text><ellipse cx="2788.5" cy="1185.6094" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="114" x="2797.5" y="1188.8198">videso: Vec&lt;Video&gt;</text><ellipse cx="2788.5" cy="1198.4141" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="110" x="2797.5" y="1201.6245">list_state: ListState</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="2778.5" x2="2993.5" y1="1208.2188" y2="1208.2188"/><ellipse cx="2788.5" cy="1219.2188" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="97" x="2797.5" y="1222.4292">fn ::new() -&gt; Self</text><ellipse cx="2788.5" cy="1232.0234" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="191" x="2797.5" y="1235.2339">fn ::new_with_url(&amp;String) -&gt; Self</text><ellipse cx="2788.5" cy="1244.8281" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="47" x="2797.5" y="1248.0386">fn next()</text><ellipse cx="2788.5" cy="1257.6328" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="48" x="2797.5" y="1260.8433">fn prev()</text><ellipse cx="2788.5" cy="1270.4375" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="118" x="2797.5" y="1273.6479">fn has_new() -&gt; bool</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="2778.5" x2="2993.5" y1="1280.2422" y2="1280.2422"/><line style="stroke: #A80036; stroke-width: 1.0;" x1="2778.5" x2="2993.5" y1="1282.2422" y2="1282.2422"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="78" x="2783.5" y="1294.4526">impl ToSpans</text><!--MD5=[f8e7078f77c005d15b486c0c98deb1e6]
+class Action--><rect fill="#FEFECE" filter="url(#f1xdhuggeaovuh)" height="150.4375" id="Action" style="stroke: #A80036; stroke-width: 1.5;" width="71" x="843.5" y="650"/><ellipse cx="858.5" cy="666" fill="#EB937F" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/><path d="M861.9844,672.5 L854.2969,672.5 L854.2969,659.6719 L861.9844,659.6719 L861.9844,661.7188 L856.5313,661.7188 L856.5313,664.7969 L861.6563,664.7969 L861.6563,666.8281 L856.5313,666.8281 L856.5313,670.4531 L861.9844,670.4531 L861.9844,672.5 Z "/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="39" x="872.5" y="670.1543">Action</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="844.5" x2="913.5" y1="682" y2="682"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="27" x="849.5" y="696.2104">Mark</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="44" x="849.5" y="709.0151">Unmark</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="15" x="849.5" y="721.8198">Up</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="31" x="849.5" y="734.6245">Down</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="30" x="849.5" y="747.4292">Enter</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="27" x="849.5" y="760.2339">Back</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="30" x="849.5" y="773.0386">Open</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="40" x="849.5" y="785.8433">Update</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="844.5" x2="913.5" y1="792.4375" y2="792.4375"/><!--MD5=[463c45b1df3dbfe1c2134e01e0a41cde]
+class Screen--><rect fill="#FEFECE" filter="url(#f1xdhuggeaovuh)" height="73.6094" id="Screen" style="stroke: #A80036; stroke-width: 1.5;" width="76" x="732" y="688"/><ellipse cx="747" cy="704" fill="#EB937F" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/><path d="M750.4844,710.5 L742.7969,710.5 L742.7969,697.6719 L750.4844,697.6719 L750.4844,699.7188 L745.0313,699.7188 L745.0313,702.7969 L750.1563,702.7969 L750.1563,704.8281 L745.0313,704.8281 L745.0313,708.4531 L750.4844,708.4531 L750.4844,710.5 Z "/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="44" x="761" y="708.1543">Screen</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="733" x2="807" y1="720" y2="720"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="53" x="738" y="734.2104">Channels</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="38" x="738" y="747.0151">Videos</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="733" x2="807" y1="753.6094" y2="753.6094"/><!--MD5=[335f4d9be48430461c68bf6d6fdba145]
+class App--><rect fill="#FEFECE" filter="url(#f1xdhuggeaovuh)" height="291.2891" id="App" style="stroke: #A80036; stroke-width: 1.5;" width="321" x="664.5" y="271"/><ellipse cx="808.75" cy="287" fill="#ADD1B2" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/><path d="M812.2656,291.0313 L812.2656,293.0625 Q810.7813,293.6719 808.9531,293.6719 Q806.2344,293.6719 804.7813,291.9375 Q803.3281,290.1875 803.3281,287.0781 Q803.3281,284.0781 804.9063,282.2969 Q806.4844,280.5 809.2031,280.5 Q811.1094,280.5 812.8438,281.4219 L811.8906,283.3281 Q810.3906,282.5469 809.2031,282.5469 Q807.5938,282.5469 806.6094,283.7656 Q805.6406,284.9688 805.6406,287.0938 Q805.6406,289.3438 806.5469,290.4844 Q807.4688,291.625 809.2031,291.625 Q810.2344,291.625 812.2656,291.0313 Z "/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="24" x="829.25" y="291.1543">App</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="665.5" x2="984.5" y1="303" y2="303"/><ellipse cx="675.5" cy="314" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="105" x="684.5" y="317.2104">terminal: Terminal</text><ellipse cx="675.5" cy="326.8047" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="78" x="684.5" y="330.0151">config: Config</text><ellipse cx="675.5" cy="339.6094" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="90" x="684.5" y="342.8198">app_title: String</text><ellipse cx="675.5" cy="352.4141" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="134" x="684.5" y="355.6245">current_screen: Screen</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="109" x="684.5" y="368.4292">current_filter: Filter</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="141" x="684.5" y="381.2339">channel_list: ChannelList</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="132" x="684.5" y="394.0386">current_selected: usize</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="137" x="684.5" y="406.8433">backup_list: ChannelList</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="665.5" x2="984.5" y1="413.4375" y2="413.4375"/><ellipse cx="675.5" cy="424.4375" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="250" x="684.5" y="427.6479">::new_with_channel_list(ChannelList) -&gt; Self</text><ellipse cx="675.5" cy="437.2422" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="76" x="684.5" y="440.4526">action(Action)</text><ellipse cx="675.5" cy="450.0469" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="186" x="684.5" y="453.2573">update_channel_list(ChannelList)</text><ellipse cx="675.5" cy="462.8516" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="86" x="684.5" y="466.062">set_filter(Filter)</text><ellipse cx="675.5" cy="475.6563" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="165" x="684.5" y="478.8667">set_channel_list(ChannelList)</text><ellipse cx="675.5" cy="488.4609" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="186" x="684.5" y="491.6714">get_channel_list() -&gt; ChannelList</text><ellipse cx="675.5" cy="501.2656" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="177" x="684.5" y="504.4761">get_current_selected() -&gt; usize</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="47" x="684.5" y="517.2808">update()</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="295" x="684.5" y="530.0854">get_selected_channel() -&gt; Options&lt;&amp;mut Channel&gt;</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="266" x="684.5" y="542.8901">get_selected_video() -&gt; Options&lt;&amp;mut Video&gt;</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="35" x="684.5" y="555.6948">save()</text><!--MD5=[9359d2309c1b801bae1fd487bb69b0f8]
+entity draw_card--><rect fill="#FEFECE" filter="url(#f1xdhuggeaovuh)" height="22.2969" style="stroke: #000000; stroke-width: 1.5;" width="181" x="946.5" y="129"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="161" x="956.5" y="144.9951">pub fn draw(&amp;mut App)</text><!--MD5=[55d4ff87441f71cb92c304f4365a4235]
+class Events--><rect fill="#FEFECE" filter="url(#f1xdhuggeaovuh)" height="112.0234" id="Events" style="stroke: #A80036; stroke-width: 1.5;" width="318" x="572" y="84"/><ellipse cx="705.75" cy="100" fill="#ADD1B2" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/><path d="M709.2656,104.0313 L709.2656,106.0625 Q707.7813,106.6719 705.9531,106.6719 Q703.2344,106.6719 701.7813,104.9375 Q700.3281,103.1875 700.3281,100.0781 Q700.3281,97.0781 701.9063,95.2969 Q703.4844,93.5 706.2031,93.5 Q708.1094,93.5 709.8438,94.4219 L708.8906,96.3281 Q707.3906,95.5469 706.2031,95.5469 Q704.5938,95.5469 703.6094,96.7656 Q702.6406,97.9688 702.6406,100.0938 Q702.6406,102.3438 703.5469,103.4844 Q704.4688,104.625 706.2031,104.625 Q707.2344,104.625 709.2656,104.0313 Z "/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="42" x="726.25" y="104.1543">Events</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="573" x2="889" y1="116" y2="116"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="193" x="578" y="130.2104">rx: mpsc::Receiver&lt;Event&lt;Key&gt;&gt;</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="210" x="578" y="143.0151">input_handle: thread::JoinHandle&lt;()&gt;</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="201" x="578" y="155.8198">tick_handle: thread::JoinHandle&lt;()&gt;</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="573" x2="889" y1="162.4141" y2="162.4141"/><ellipse cx="583" cy="173.4141" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="97" x="592" y="176.6245">fn ::new() -&gt; Self</text><ellipse cx="583" cy="186.2188" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="292" x="592" y="189.4292">fn next() -&gt; Result&lt;Event&lt;Key&gt;, mpsc::RecvError&gt;</text><!--MD5=[56665596d9aba9671ea0becc4d9b8fa1]
+entity main_card--><rect fill="#FEFECE" filter="url(#f1xdhuggeaovuh)" height="54.8906" style="stroke: #000000; stroke-width: 1.5;" width="460" x="56" y="389"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="154" x="66" y="404.9951">fn notify_user(&amp;String)</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="440" x="66" y="421.292">fn update_channel_list(Sender&lt;ChannelList&gt;, Sender&lt;String&gt;)</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="60" x="66" y="437.5889">fn main()</text><!--MD5=[53ccf4b3ee6cf4337a0ab93ac09644f3]
+entity main--><rect fill="#FEFECE" filter="url(#f1xdhuggeaovuh)" height="95.1875" style="stroke: #A80036; stroke-width: 1.5;" width="113" x="402.5" y="92.5"/><rect fill="#FEFECE" height="10" style="stroke: #A80036; stroke-width: 1.5;" width="15" x="495.5" y="97.5"/><rect fill="#FEFECE" height="2" style="stroke: #A80036; stroke-width: 1.5;" width="4" x="493.5" y="99.5"/><rect fill="#FEFECE" height="2" style="stroke: #A80036; stroke-width: 1.5;" width="4" x="493.5" y="103.5"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="73" x="417.5" y="125.4951">fn main() {</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="47" x="417.5" y="141.792">Events</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="44" x="417.5" y="158.0889">Config</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="9" x="417.5" y="174.3857">}</text><!--MD5=[dc96523950f433e29d08d02025c64fa5]
+reverse link UrlFile to FeedType--><path d="M2476,1004.28 C2476,1056.31 2476,1128.94 2476,1171.96 " fill="none" id="UrlFile&lt;-FeedType" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="2476,991.2,2472,997.2,2476,1003.2,2480,997.2,2476,991.2" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[21b2e896132b9fb6cde61b500feb60a2]
+reverse link fetch_data_card to ChannelList--><path d="M2331.59,756.34 C2317.05,783.23 2295.15,823.73 2275.58,859.91 " fill="none" id="fetch_data_card&lt;-ChannelList" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="2337.91,744.66,2331.538,748.036,2332.2035,755.2163,2338.5755,751.8403,2337.91,744.66" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[a7e7665e1cb1754825cdf1df54f7c8fe]
+reverse link fetch_data_card to UrlFile--><path d="M2365.94,756.07 C2386.96,791.29 2422.07,850.12 2446.97,891.86 " fill="none" id="fetch_data_card&lt;-UrlFile" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="2359.14,744.66,2358.7861,751.8624,2365.2984,754.9592,2365.6523,747.7568,2359.14,744.66" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[b3de461903f93968cf62f646434476da]
+reverse link history_card to ChannelList--><path d="M1949.65,759.71 C1995.81,789.27 2064.42,833.2 2122.45,870.35 " fill="none" id="history_card&lt;-ChannelList" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="1938.41,752.52,1941.3028,759.1254,1948.5127,758.9958,1945.6199,752.3903,1938.41,752.52" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[6efd411b2da4534d78b898cf980c5c80]
+reverse link Video to ToSpans--><path d="M2814.69,1532.23 C2819.6,1549.03 2824.4,1565.42 2828.28,1578.68 " fill="none" id="Video&lt;-ToSpans" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="2810.92,1519.36,2808.7679,1526.2425,2814.2932,1530.8762,2816.4453,1523.9937,2810.92,1519.36" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[69797863e4abceaa86b33575d1b5669c]
+reverse link Channel to Video--><path d="M2841.8,1313.27 C2834.99,1329.21 2828.04,1345.43 2821.51,1360.7 " fill="none" id="Channel&lt;-Video" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="2846.99,1301.16,2840.951,1305.1009,2842.2662,1312.1911,2848.3051,1308.2502,2846.99,1301.16" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[1f574f8b0a014b616418d275f14bea06]
+reverse link Channel to ToSpans--><path d="M2886.36,1314.04 C2884.9,1374.38 2880.14,1451.54 2867,1519 C2863.02,1539.43 2855.61,1561.61 2849.14,1578.79 " fill="none" id="Channel&lt;-ToSpans" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="2886.63,1301.04,2882.5056,1306.9552,2886.3795,1313.0374,2890.5039,1307.1222,2886.63,1301.04" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[84ad16d13f3a6ecc05d56ae2895ecf5c]
+reverse link ChannelList to Channel--><path d="M2353.94,1021.06 C2355.96,1021.75 2357.98,1022.4 2360,1023 C2381.29,1029.37 2740.35,1020.62 2760,1031 C2795.52,1049.77 2823.29,1083.55 2843.62,1116.61 " fill="none" id="ChannelList&lt;-Channel" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="2341.59,1016.41,2345.7922,1022.2702,2352.8178,1020.6452,2348.6156,1014.785,2341.59,1016.41" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[534c190f8e2b0fe4f1320d73ba2246b3]
+reverse link ChannelList to Filter--><path d="M2353.95,1021.02 C2355.97,1021.72 2357.98,1022.38 2360,1023 C2384.55,1030.54 2568.52,1018.58 2591,1031 C2641.04,1058.65 2674.3,1117.09 2692.86,1159.26 " fill="none" id="ChannelList&lt;-Filter" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="2341.62,1016.3,2345.7897,1022.1833,2352.8242,1020.5971,2348.6545,1014.7138,2341.62,1016.3" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[2da1f497eee95d52c0dd60d84b58c430]
+reverse link App to Config--><path d="M998.08,483.63 C1083.45,513.16 1188.73,545.08 1286,562 C1307.47,565.74 1462.97,559.38 1482,570 C1515.81,588.86 1540.77,623.88 1557.76,655.76 " fill="none" id="App&lt;-Config" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="985.64,479.29,989.9856,485.0446,996.969,483.2466,992.6233,477.492,985.64,479.29" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[fa5751143a568316dd2dd1c355b3d784]
+reverse link App to ChannelList--><path d="M998.54,561.3 C1035.69,566.16 1122.43,561.64 1133,570 C1234.14,649.98 1116.2,766.35 1216,848 C1285.01,904.46 1874.12,929.33 2122.39,937.38 " fill="none" id="App&lt;-ChannelList" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="985.71,558.46,990.7025,563.6634,997.4258,561.0562,992.4333,555.8528,985.71,558.46" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[974bf29f155ba6326ac4c660c4625f09]
+reverse link App to Screen--><path d="M796.72,575.08 C789.11,617.5 781.58,659.47 776.46,687.99 " fill="none" id="App&lt;-Screen" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="799.03,562.22,794.0365,567.4224,796.9182,574.0327,801.9117,568.8303,799.03,562.22" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[40095da7ea63397dde74482e52daa88c]
+reverse link App to Filter--><path d="M999.06,420.77 C1421.42,430.35 2474.58,464.65 2591,570 C2761.69,724.46 2736.4,1038.58 2719.2,1159.26 " fill="none" id="App&lt;-Filter" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="985.83,420.48,991.7407,424.6109,997.8271,420.7437,991.9164,416.6128,985.83,420.48" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[376c2db7bb61b74a119f40bacbecd946]
+reverse link App to Action--><path d="M852.76,575.05 C857.36,601.19 861.94,627.15 865.95,649.91 " fill="none" id="App&lt;-Action" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="850.5,562.22,847.6027,568.8235,852.5839,574.0377,855.4812,567.4342,850.5,562.22" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[0228b54ce5c23f021986118a5b0b75f7]
+reverse link App to Channel--><path d="M998.87,420.93 C1435.21,431.04 2550.99,466.8 2681,570 C2848.78,703.18 2881.26,974.82 2886.27,1116.86 " fill="none" id="App&lt;-Channel" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="985.85,420.63,991.756,424.7675,997.8468,420.9072,991.9408,416.7696,985.85,420.63" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[121f76976e966d21a6d9a234112be722]
+reverse link App to Video--><path d="M934.27,573.22 C1020.08,695.34 1125.68,845.23 1129,848 C1643.26,1276.83 2491.75,1404.47 2726.28,1432.41 " fill="none" id="App&lt;-Video" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="926.56,562.24,926.7336,569.449,933.4548,572.0615,933.2812,564.8525,926.56,562.24" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[d217adc52e7333120a01c92836437727]
+reverse link draw_card to App--><path d="M1021.03,161.68 C1002.44,185.75 970.03,227.71 936.85,270.67 " fill="none" id="draw_card&lt;-App" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="1029.2,151.1,1022.3649,153.3981,1021.8574,160.5914,1028.6925,158.2932,1029.2,151.1" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[353a92f7ff71906912180da50a14339a]
+reverse link main to main_card--><path d="M426.83,192.04 C390.14,250.26 331.53,343.25 302.88,388.72 " fill="none" id="main&lt;-main_card" style="stroke: #A80036; stroke-width: 1.0;"/><rect fill="#FFFFFF" height="10" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="424.65" y="182.57"/><!--MD5=[dd7cc1f3b9f7ccb1dcf14b9fb9419766]
+reverse link main to Events--><path d="M528.79,140 C543.18,140 557.57,140 571.96,140 " fill="none" id="main&lt;-Events" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="515.58,140,521.58,144,527.58,140,521.58,136,515.58,140" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[64e12fc563f856b3d5b65e980eeee0a4]
+reverse link main to Config--><path d="M514.19,196.18 C526.96,205.87 541.18,214.58 556,220 C602.55,237.03 954.93,212.48 1002,228 C1250.77,310.03 1299.12,382.47 1482,570 C1506.78,595.41 1529.46,627.41 1547.28,655.66 " fill="none" id="main&lt;-Config" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="503.83,187.86,505.9999,194.7369,513.1824,195.3788,511.0125,188.502,503.83,187.86" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[6a109351a0bcfbf6735441919af20689]
+reverse link main_card to ChannelList--><path d="M347.48,449.96 C417.86,485.21 537.69,539.5 648,562 C667.27,565.93 985.64,559.08 1002,570 C1114.39,644.99 1014.94,769.63 1125,848 C1205.02,904.98 1858.9,929.86 2122.48,937.63 " fill="none" id="main_card&lt;-ChannelList" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="335.77,444.04,339.3169,450.3185,346.4766,449.4592,342.9297,443.1807,335.77,444.04" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[82e371dcc0fb5bfe0f0767a862997640]
 @startuml
 
-object App {
-	terminal,
-	config
+folder data {
+	file fetch_data {
+		enum FeedType {
+			Atom(String)
+			Rss(String)
+		}
+
+		class UrlFile {
+			atom: Vec<String>
+			rss: Vec<String>
+			- - -
+			fn len -> usize
+			fn get_mixed -> Vec<FeedType>
+		}
+
+		UrlFile o- - FeedType
+
+		card fetch_data_card [
+			pub fetch_new_videos(Sender<String>) -> ChannelList
+			read_urls_file() -> UrlFile
+		]
+
+		fetch_data_card o- - ChannelList
+		fetch_data_card o- - UrlFile
+	}
+
+	file history {
+		card history_card [
+			const HISTORY_FILE_PATH: &str
+			pub fn write_history(&ChannelList)
+			pub fn read_history() -> Option<ChannelList>
+		]
+
+		history_card o- - ChannelList
+	}
+
+	file config {
+		class Config {
+			show_empty_channels: bool
+			mark_on_open: bool
+			down_on_mark: bool
+			app_title: String
+			update_at_start: bool
+			- - -
+			::default -> Self
+			::read_config_file -> Self
+		}
+
+		card config_card [
+			const CONFIG_FILE_PATH: &str
+		]
+	}
+}
+
+folder data_types {
+	file internal {
+		enum Filter {
+			NoFilter
+			OnlyNew
+		}
+
+		interface ToSpans {
+			fn to_spans() -> Spans
+		}
+
+		class Video {
+			+ title: String
+			+ link: String
+			+ pub_date: String
+			+ marked: bool
+			- - -
+			+ fn ::new() -> Self
+			+ fn mark(bool)
+			+ fn open()
+			===
+			impl ToSpan
+		}
+
+		Video o- - ToSpans
+
+		class Channel {
+			+ name: String
+			+ link: String
+			+ videso: Vec<Video>
+			+ list_state: ListState
+			- - -
+			+ fn ::new() -> Self
+			+ fn ::new_with_url(&String) -> Self
+			+ fn next()
+			+ fn prev()
+			+ fn has_new() -> bool
+			===
+			impl ToSpans
+		}
+
+		Channel o- - Video
+		Channel o- - ToSpans
+
+		class ChannelList {
+			+ channels: Vec<Channel>
+			+ list_state: ListState
+			backup: Vec<Channel>
+			- - -
+			+ fn ::new() -> Self
+			+ fn next()
+			+ fn prev()
+			+ fn get_not_empty() -> ChannelList
+			+ fn sort()
+			+ fn filter(Filter)
+		}
+
+		ChannelList o- - Channel
+		ChannelList o- - Filter
+	}
+}
+
+folder src {
+	file app {
+
+		enum Action {
+			Mark
+			Unmark
+			Up
+			Down
+			Enter
+			Back
+			Open
+			Update
+		}
+
+		enum Filter {
+			All
+			OnlyNew
+		}
+		enum Screen {
+			Channels
+			Videos
+		}
+
+		class App {
+			+ terminal: Terminal
+			+ config: Config
+			+ app_title: String
+			+ current_screen: Screen
+			current_filter: Filter
+			channel_list: ChannelList
+			current_selected: usize
+			backup_list: ChannelList
+			- - -
+			+ ::new_with_channel_list(ChannelList) -> Self
+			+ action(Action)
+			+ update_channel_list(ChannelList)
+			+ set_filter(Filter)
+			+ set_channel_list(ChannelList)
+			+ get_channel_list() -> ChannelList
+			+ get_current_selected() -> usize
+			update()
+			get_selected_channel() -> Options<&mut Channel>
+			get_selected_video() -> Options<&mut Video>
+			save()
+		}
+
+		App o- - Config
+		App o- - ChannelList
+		App o- - Screen
+		App o- - Filter
+		App o- - Action
+		App o- - Channel
+		App o- - Video
+	}
+
+	file draw {
+		card draw_card [
+			pub fn draw(&mut App)
+		]
+		
+		draw_card o- - App
+	}
+
+	file events {
+		class Events {
+			rx: mpsc::Receiver<Event<Key>>
+			input_handle: thread::JoinHandle<()>
+			tick_handle: thread::JoinHandle<()>
+			- - -
+			+ fn ::new() -> Self
+			+ fn next() -> Result<Event<Key>, mpsc::RecvError>
+		}
+	}
+
+	file main {
+		card main_card [
+			fn notify_user(&String)
+			fn update_channel_list(Sender<ChannelList>, Sender<String>)
+			fn main()
+		]
+
+		component main [
+			fn main() {
+				Events
+				Config
+			}
+		]
+
+		main #- - main_card
+		main o- Events
+		main o- Config
+
+		main_card o- - ChannelList
+	}
 }
 
 @enduml
