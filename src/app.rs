@@ -61,7 +61,7 @@ pub enum Screen {
 }
 
 impl App {
-    pub fn new_with_channel_list(mut channel_list: ChannelList) -> App {
+    pub fn new_with_channel_list(mut channel_list: ChannelList) -> Self {
         let stdout = stdout().into_raw_mode().unwrap();
         let mouse_terminal = MouseTerminal::from(stdout);
         /* let screen = mouse_terminal; */

@@ -62,7 +62,7 @@ pub struct Video {
 
 impl ChannelList {
     #[allow(dead_code)]
-    pub fn new() -> ChannelList {
+    pub fn new() -> Self {
         ChannelList {
             channels: Vec::new(),
             backup: Vec::new(),
@@ -145,7 +145,7 @@ impl ChannelList {
 
 impl Channel {
     #[allow(dead_code)]
-    pub fn new() -> Channel {
+    pub fn new() -> Self {
         Channel {
             name: String::from("New Channel"),
             link: String::new(),
@@ -217,7 +217,7 @@ impl ToSpans for Channel {
 
 impl Video {
     #[allow(dead_code)]
-    pub fn new() -> Video {
+    pub fn new() -> Self {
         Video {
             title: String::from("VideoTitle"),
             link: String::from("video_link"),

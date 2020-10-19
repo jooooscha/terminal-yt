@@ -29,7 +29,7 @@ use notification::notify::notify_user;
 const URLS_FILE_PATH: &str = ".config/tyt/urls";
 
 #[derive(Clone)]
-pub enum FeedType {
+enum FeedType {
     Atom(String),
     Rss(String),
 }

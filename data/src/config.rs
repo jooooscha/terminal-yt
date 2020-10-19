@@ -8,6 +8,8 @@ use std::{
 };
 use dirs::home_dir;
 
+const CONFIG_FILE_PATH: &str = ".config/tyt/config";
+
 #[allow(dead_code)]
 #[derive(Clone, Deserialize, Serialize)]
 pub struct Config {
@@ -45,7 +47,7 @@ impl Config {
         }
     }
 
-    pub fn read_config_file() -> Config {
+    pub fn read_config_file() -> Self {
         let mut path = home_dir().unwrap();
         path.push(CONFIG_FILE_PATH);
 
@@ -77,5 +79,3 @@ impl Config {
         }
     }
 }
-
-const CONFIG_FILE_PATH: &str = ".config/tyt/config";
