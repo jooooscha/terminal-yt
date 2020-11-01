@@ -244,7 +244,7 @@ impl ToSpans for Video {
     fn to_spans(&mut self) -> Spans {
         let d = DateTime::parse_from_rfc3339(&self.pub_date).unwrap();
 
-        let date = format!("{:>4} - ", &d.format("%d.%m"));
+        let date = format!("{:>4} - ", &d.format("%d.%m.%y"));
         let title = format!("{}", &self.title);
 
         let style = match self.marked {
