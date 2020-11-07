@@ -151,14 +151,24 @@ impl App {
                 self.get_channel_list().list_state.select(Some(curr_sel));
             },
             NextChannel => {
-                self.action(Back);
-                self.action(Down);
-                self.action(Enter);
+                match self.current_screen {
+                    Channels => {},
+                    Videos => {
+                        self.action(Back);
+                        self.action(Down);
+                        self.action(Enter);
+                    }
+                }
             }
             PrevChannel => {
-                self.action(Back);
-                self.action(Up);
-                self.action(Enter);
+                match self.current_screen {
+                    Channels => {},
+                    Videos => {
+                        self.action(Back);
+                        self.action(Up);
+                        self.action(Enter);
+                    }
+                }
             }
             Open => {
                 if let Some(v) = self.get_selected_video() { v.open() };
