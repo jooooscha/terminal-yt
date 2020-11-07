@@ -123,7 +123,6 @@ impl App {
                         }
                     },
                 }
-                /* self.update(); */
             },
             Down => {
                 match self.current_screen {
@@ -132,7 +131,6 @@ impl App {
                         c.next();
                     },
                 }
-                /* self.update(); */
             },
             Enter => {
                 self.current_selected = match self.get_channel_list().list_state.selected() {
@@ -140,11 +138,10 @@ impl App {
                     None => return,
                 };
                 self.current_screen = Videos;
-                self.get_channel_list().list_state.select(None);
+                /* self.get_channel_list().list_state.select(None); */
                 if let Some(c) = self.get_selected_channel() {
                     c.list_state.select(Some(0));
                 }
-                /* self.update(); */
             },
             Back => {
                 self.current_screen = Channels;
@@ -152,7 +149,6 @@ impl App {
                 let len: usize = cmp::max(0, self.get_channel_list().channels.len() as isize - 1) as usize;
                 let curr_sel = cmp::min(curr_sel, len);
                 self.get_channel_list().list_state.select(Some(curr_sel));
-                /* self.update(); */
             },
             NextChannel => {
                 self.action(Back);

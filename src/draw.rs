@@ -86,10 +86,15 @@ pub fn draw(app: &mut App) {
             .borders(Borders::ALL)
             .border_type(BorderType::Rounded);
 
+        let symbol = match show_second_block {
+            true => "-",
+            false => ">>",
+        };
+
         let list = List::new(chan.clone())
             .block(block)
             .highlight_style(Style::default())
-            .highlight_symbol(">> ");
+            .highlight_symbol(symbol);
         f.render_stateful_widget(list, chunks[0], chan_state);
 
         if show_second_block {
