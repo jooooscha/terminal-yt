@@ -105,6 +105,12 @@ fn main() {
                         Videos => {}
                     }
                 },
+                Key::Char('n') => {
+                    app.action(NextChannel);
+                }
+                Key::Char('p') => {
+                    app.action(PrevChannel);
+                }
                 Key::Char('o') => {
                     match app.current_screen {
                         Channels => app.action(Enter),
@@ -159,7 +165,7 @@ fn main() {
                 }
                 app.action(Update);
             }
-
         }
+        app.update();
     }
 }
