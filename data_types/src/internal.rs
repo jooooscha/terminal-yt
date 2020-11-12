@@ -58,6 +58,12 @@ pub struct Video {
     pub marked: bool,
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MinimalVideo {
+    pub title: String,
+    pub pub_date: String,
+}
+
 //----------------------------------
 
 impl ChannelList {
@@ -238,19 +244,50 @@ impl Video {
         Command::new("notify-send").arg("Open video").arg(&self.title).stderr(Stdio::null()).spawn().expect("failed");
         Command::new("setsid").arg("-f").arg("umpv").arg(link).stderr(Stdio::null()).spawn().expect("umpv stating failed");
     }
+    #[allow(dead_code)]
+    pub fn to_minimal(&self) -> MinimalVideo {
+        MinimalVideo {
+            title: self.title.clone(),
+            pub_date: self.pub_date.clone(),
+        }
+    }
+
 }
 
 impl ToSpans for Video {
     fn to_spans(&mut self) -> Spans {
-        let d = DateTime::parse_from_rfc3339(&self.pub_date).unwrap();
+        /* let d = match DateTime::parse_from_rfc3339(&self.pub_date); */
+        let date = if let Ok(date_) = DateTime::parse_from_rfc3339(&self.pub_date) {
+            format!("{:>4} - ", &date_.format("%d.%m.%y"))
+        } else {
+            String::from("NODATE - ")
+        };
 
-        let date = format!("{:>4} - ", &d.format("%d.%m.%y"));
         let title = format!("{}", &self.title);
 
         let style = match self.marked {
             true => Style::default().fg(Color::DarkGray),
             false => Style::default().fg(Color::Yellow),
         };
+        Spans::from(vec![
+            Span::styled(date, style),
+            Span::styled(title, style.add_modifier(Modifier::ITALIC))
+        ])
+    }
+}
+impl ToSpans for MinimalVideo {
+    fn to_spans(&mut self) -> Spans {
+        /* let d = match DateTime::parse_from_rfc3339(&self.pub_date); */
+        let date = if let Ok(date_) = DateTime::parse_from_rfc3339(&self.pub_date) {
+            format!("{:>4} - ", &date_.format("%d.%m.%y"))
+        } else {
+            String::from("NODATE - ")
+        };
+
+        let title = format!("{}", &self.title);
+
+        let style = Style::default().fg(Color::DarkGray);
+
         Spans::from(vec![
             Span::styled(date, style),
             Span::styled(title, style.add_modifier(Modifier::ITALIC))
