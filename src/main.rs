@@ -1,3 +1,6 @@
+#[doc = "
+This is the main module
+"]
 use std::{
     thread,
     sync::mpsc::{
