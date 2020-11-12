@@ -27,18 +27,17 @@ use crate::draw;
 use Action::*;
 use Screen::*;
 
+// The main struct containing everything important
 pub struct App {
     pub terminal: Terminal<TermionBackend<termion::screen::AlternateScreen<termion::input::MouseTerminal<termion::raw::RawTerminal<std::io::Stdout>>>>>,
-    /* pub terminal: Terminal<TermionBackend<termion::input::MouseTerminal<termion::raw::RawTerminal<std::io::Stdout>>>>, */
     pub config: Config,
     pub update_line: String,
     pub app_title: String,
-
     pub current_screen: Screen,
     pub filter: Filter,
     current_selected: usize, // channel
-
     channel_list: ChannelList,
+    pub playback_history: Vec<MinimalVideo>,
 }
 
 #[derive(PartialEq)]
@@ -72,6 +71,7 @@ impl App {
         let backend = TermionBackend::new(screen);
         let terminal = Terminal::new(backend).unwrap();
 
+        // ------------------------------------------
         let config = Config::read_config_file();
 
         let filter = if config.show_empty_channels {
@@ -80,8 +80,16 @@ impl App {
             Filter::OnlyNew
         };
 
+        // ------------------------------------------
+
+        let playback_history = read_playback_history();
+
+        // ------------------------------------------
+
         channel_list.list_state.select(Some(0));
         channel_list.filter(filter);
+
+        // ------------------------------------------
 
         App {
             terminal,
@@ -92,8 +100,11 @@ impl App {
             current_selected: 0,
             update_line: String::new(),
             filter,
+            playback_history,
         }
     }
+
+    #[doc = "Contains every possible action possible."]
     pub fn action(&mut self, action: Action) {
         match action {
             Mark | Unmark => {
@@ -103,6 +114,7 @@ impl App {
                         Some(v) => v.mark(state),
                         None => return,
                     }
+
                     if !self.get_selected_channel().unwrap().has_new() && self.filter == Filter::OnlyNew {
                         self.action(Back);
                     } else if self.config.down_on_mark {
@@ -110,7 +122,7 @@ impl App {
                             e.next();
                         }
                     }
-                    /* self.update(); */
+
                     self.save();
                 }
             },
@@ -171,7 +183,24 @@ impl App {
                 }
             }
             Open => {
-                if let Some(v) = self.get_selected_video() { v.open() };
+                let video = match self.get_selected_video() {
+                    Some(v) => v.clone(),
+                    None => return
+                };
+
+                let history_video = video.to_minimal();
+
+
+                for i in 0..self.playback_history.len() {
+                    if self.playback_history[i] == history_video {
+                        self.playback_history.remove(i);
+                        break
+                    }
+                }
+                self.playback_history.push(history_video);
+
+                write_playback_history(&self.playback_history);
+                video.open();
             },
             Update => {
                 draw(self)
@@ -179,11 +208,13 @@ impl App {
         }
     }
 
+    #[doc = "Select the filter to use."]
     pub fn set_filter(&mut self, filter: Filter) {
         self.filter = filter;
         self.set_channel_list(self.channel_list.clone());
     }
 
+    #[doc = "Update the list of channels."]
     pub fn set_channel_list(&mut self, mut new_cl: ChannelList) {
 
         // apply current filter
@@ -232,17 +263,20 @@ impl App {
         }
     }
 
+    #[doc = "draw the screen."]
     pub fn update(&mut self) {
         draw(self);
     }
 
     //--------------
 
+    #[doc = "returns the currently selected channel."]
     fn get_selected_channel(&mut self) -> Option<&mut Channel> {
         let i = self.current_selected;
         self.channel_list.channels.get_mut(i)
     }
 
+    #[doc = "returns the currently selected Video."]
     fn get_selected_video(&mut self) -> Option<&mut Video> {
         let c = match self.get_selected_channel() {
             Some(c) => c,

@@ -26,6 +26,39 @@ use crate::{
 const INFO_LINE: &str = "q close; o open video/select; Enter/l select; Esc/h go back; m mark; M unmark";
 
 pub fn draw(app: &mut App) {
+
+    // -------------- Visuals/Data ---------------
+    let title = app.config.app_title.clone();
+
+    let update_line = app.update_line.clone();
+
+    let current_selected = app.get_current_selected();
+
+    let (show_second_block, channel_name) = match app.current_screen {
+        Channels => (false, String::new()),
+        Videos => {
+            let right_title = app.get_channel_list().channels[current_selected].name.clone();
+            (true, right_title)
+        }
+    };
+
+    let mut block = Block::default()
+        .title(title)
+        .borders(Borders::ALL)
+        .border_type(BorderType::Rounded);
+
+    let symbol = match show_second_block {
+        true => "-",
+        false => ">>",
+    };
+
+    let constraints = match app.current_screen {
+        Channels =>  [ Constraint::Percentage(100) ].as_ref(),
+        Videos => [ Constraint::Percentage(35), Constraint::Percentage(65) ].as_ref(),
+    };
+    // -------------------------------------------
+
+    // all channels - left
     let mut all_chan = app.get_channel_list().clone();
     let mut chan = Vec::new();
     let chan_str: Vec<Spans> = all_chan.channels.iter_mut().map(|e| e.to_spans()).collect();
@@ -34,9 +67,9 @@ pub fn draw(app: &mut App) {
     }
     let chan_state = &mut all_chan.list_state;
 
-    let i = app.get_current_selected();
 
-    let mut all_vids = match app.get_channel_list().channels.get(i) {
+    // all videos - right
+    let mut all_vids = match app.get_channel_list().channels.get(current_selected) {
         Some(e) => e.clone(),
         None => Channel::new(),
     };
@@ -47,25 +80,17 @@ pub fn draw(app: &mut App) {
     }
     let vid_state = &mut all_vids.list_state;
 
-    let constraints = match app.current_screen {
-        Channels =>  [ Constraint::Percentage(100) ].as_ref(),
-        Videos => [ Constraint::Percentage(35), Constraint::Percentage(65) ].as_ref(),
-    };
-
-    let (show_second_block, channel_name) = match app.current_screen {
-        Channels => (false, String::new()),
-        Videos => {
-            let right_title = app.get_channel_list().channels[i].name.clone();
-            (true, right_title)
-        }
-    };
-
-    let title = app.config.app_title.clone();
-
-    let update_line = app.update_line.clone();
+    // playback history - far right
+    let mut playback_history = Vec::new();
+    let playback_history_spans: Vec<Spans> = app.playback_history.iter_mut().rev().map(|v| v.to_spans()).collect();
+    for e in playback_history_spans.into_iter() {
+        playback_history.push(ListItem::new(e));
+    }
 
     let _res = app.terminal.draw(|f| {
-        let vert = Layout::default()
+
+        // --------------------------
+        let main_structure = Layout::default()
             .direction(Direction::Vertical)
             .margin(0)
             .constraints([
@@ -75,49 +100,54 @@ pub fn draw(app: &mut App) {
             ])
             .split(f.size());
 
-        let chunks = Layout::default()
+        // --------------------------
+        let new_and_playback = Layout::default()
             .direction(Direction::Horizontal)
-            .margin(1)
+            .margin(0)
+            .constraints([
+                Constraint::Percentage(70),
+                Constraint::Percentage(30),
+            ])
+            .split(main_structure[0]);
+
+        // --------------------------
+        let channel_and_video = Layout::default()
+            .direction(Direction::Horizontal)
+            .margin(0)
             .constraints(constraints)
-            .split(vert[0]);
-
-        let block = Block::default()
-            .title(title)
-            .borders(Borders::ALL)
-            .border_type(BorderType::Rounded);
-
-        let symbol = match show_second_block {
-            true => "-",
-            false => ">>",
-        };
+            .split(new_and_playback[0]);
 
         let list = List::new(chan.clone())
-            .block(block)
+            .block(block.clone())
             .highlight_style(Style::default())
             .highlight_symbol(symbol);
-        f.render_stateful_widget(list, chunks[0], chan_state);
+        f.render_stateful_widget(list, channel_and_video[0], chan_state);
 
         if show_second_block {
-            let block = Block::default()
-                .title(channel_name)
-                .borders(Borders::ALL)
-                .border_type(BorderType::Rounded);
+            block = block.title(channel_name);
 
             let list = List::new(vid.clone())
-                .block(block)
+                .block(block.clone())
                 .highlight_style(Style::default())
                 .highlight_symbol(">> ");
-            f.render_stateful_widget(list, chunks[1], vid_state);
+            f.render_stateful_widget(list, channel_and_video[1], vid_state);
         }
+
+        block = block.title(" Playback History ");
+        let playback_history = List::new(playback_history)
+            .block(block.clone())
+            .highlight_style(Style::default())
+            .highlight_symbol(symbol);
+        f.render_widget(playback_history, new_and_playback[1]);
 
         let par_1 = Paragraph::new(Span::from(update_line.clone()))
             .style(Style::default())
             .alignment(Alignment::Left);
-        f.render_widget(par_1, vert[1]);
+        f.render_widget(par_1, main_structure[1]);
 
         let par_2 = Paragraph::new(Span::from(INFO_LINE))
             .style(Style::default())
             .alignment(Alignment::Left);
-        f.render_widget(par_2, vert[2]);
+        f.render_widget(par_2, main_structure[2]);
     });
 }
