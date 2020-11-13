@@ -124,7 +124,7 @@ pub fn draw(app: &mut App) {
         f.render_stateful_widget(list, channel_and_video[0], chan_state);
 
         if show_second_block {
-            block = block.title(channel_name);
+            block = block.title(format!(" {} ", channel_name));
 
             let list = List::new(vid.clone())
                 .block(block.clone())
