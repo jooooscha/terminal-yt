@@ -102,19 +102,13 @@ fn main() {
                 Key::Char('k') | Key::Up => {
                     app.action(Up);
                 },
-                Key::Char('\n') | Key::Char('l') | Key::Right => {  // ----------- open ---------------
-                    match app.current_screen {
-                        Channels => app.action(Enter),
-                        Videos => {}
-                    }
-                },
                 Key::Char('n') => {
                     app.action(NextChannel);
                 }
                 Key::Char('p') => {
                     app.action(PrevChannel);
                 }
-                Key::Char('o') => {
+                Key::Char('\n') | Key::Char('l') | Key::Right | Key::Char('o') => {
                     match app.current_screen {
                         Channels => app.action(Enter),
                         Videos => {
