@@ -188,8 +188,12 @@ impl App {
                     None => return
                 };
 
-                let history_video = video.to_minimal();
+                let channel = match self.get_selected_channel() {
+                    Some(c) => c.name.clone(),
+                    None => String::new(),
+                };
 
+                let history_video = video.to_minimal(channel);
 
                 for i in 0..self.playback_history.len() {
                     if self.playback_history[i] == history_video {

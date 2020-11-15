@@ -63,7 +63,8 @@ pub struct Video {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MinimalVideo {
     pub title: String,
-    pub pub_date: String,
+    /* pub pub_date: String, */
+    pub channel: String,
 }
 
 fn empty_string() -> String {
@@ -266,10 +267,10 @@ impl Video {
         Command::new("setsid").arg("-f").arg("umpv").arg(link).stderr(Stdio::null()).spawn().expect("umpv stating failed");
     }
     #[allow(dead_code)]
-    pub fn to_minimal(&self) -> MinimalVideo {
+    pub fn to_minimal(&self, channel: String) -> MinimalVideo {
         MinimalVideo {
             title: self.title.clone(),
-            pub_date: self.pub_date.clone(),
+            channel
         }
     }
 
@@ -298,19 +299,20 @@ impl ToSpans for Video {
 }
 impl ToSpans for MinimalVideo {
     fn to_spans(&mut self) -> Spans {
-        /* let d = match DateTime::parse_from_rfc3339(&self.pub_date); */
-        let date = if let Ok(date_) = DateTime::parse_from_rfc3339(&self.pub_date) {
-            format!("{:>4} - ", &date_.format("%d.%m.%y"))
-        } else {
-            String::from("NODATE - ")
-        };
+/*         let date = if let Ok(date_) = DateTime::parse_from_rfc3339(&self.pub_date) {
+ *             format!("{:>4} - ", &date_.format("%d.%m.%y"))
+ *         } else {
+ *             String::from("NODATE - ")
+ *         };
+ *  */
 
+        let channel = format!("{} - ", &self.channel);
         let title = format!("{}", &self.title);
 
         let style = Style::default().fg(Color::DarkGray);
 
         Spans::from(vec![
-            Span::styled(date, style),
+            Span::styled(channel, style),
             Span::styled(title, style.add_modifier(Modifier::ITALIC))
         ])
     }
