@@ -96,7 +96,7 @@ struct Video {
 }
 
 fn date_always() -> Vec<Date> {
-    vec![Date::Never]
+    vec![Date::Always]
 }
 
 fn name_default() -> String {
