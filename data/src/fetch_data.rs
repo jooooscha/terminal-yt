@@ -13,6 +13,8 @@ use std::{
 use threadpool::ThreadPool;
 use dirs::home_dir;
 
+use chrono::prelude::*;
+
 use data_types::{
     internal::{
         ChannelList,
@@ -26,40 +28,94 @@ use crate::history::{
 };
 use notification::notify::notify_user;
 
-const URLS_FILE_PATH: &str = ".config/tyt/urls";
+const URLS_FILE_PATH: &str = ".config/tyt/urls.yaml";
 
-#[derive(Clone)]
+#[derive(Clone, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
 enum FeedType {
-    Atom(String),
-    Rss(String),
+    Atom,
+    Rss,
 }
 
-#[derive(Serialize, Deserialize)]
-struct UrlFile {
-    atom: Vec<String>,
-    rss: Vec<String>,
+#[derive(Clone, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
+enum Date {
+    Mon,
+    Tue,
+    Wed,
+    Thu,
+    Fri,
+    Sat,
+    Sun,
+    Workday,
+    Weekend,
+    Always,
+    Never,
 }
 
-impl UrlFile {
+impl Date {
+    fn eq_to(&self, other: &Weekday) -> bool {
+        match (self, other) {
+            (Date::Mon, Weekday::Mon) | 
+            (Date::Tue, Weekday::Tue) |
+            (Date::Wed, Weekday::Wed) |
+            (Date::Thu, Weekday::Thu) |
+            (Date::Fri, Weekday::Fri) |
+            (Date::Sat, Weekday::Sat) |
+            (Date::Sun, Weekday::Sun) |
+
+            (Date::Workday, Weekday::Mon) | 
+            (Date::Workday, Weekday::Tue) |
+            (Date::Workday, Weekday::Wed) |
+            (Date::Workday, Weekday::Thu) |
+            (Date::Workday, Weekday::Fri) |
+
+            (Date::Weekend, Weekday::Sat) |
+            (Date::Weekend, Weekday::Sun) |
+
+            (Date::Always, _) => true,
+
+            _ => false
+        }
+    }
+}
+
+#[derive(Deserialize, Serialize)]
+struct Videos {
+    videos: Vec<Video>,
+}
+
+#[derive(Clone, Deserialize, Serialize)]
+struct Video {
+    url: String,
+    feed_type: FeedType,
+    #[serde(default = "name_default")]
+    name: String,
+    #[serde(default = "date_always")]
+    update_on: Vec<Date>,
+}
+
+fn date_always() -> Vec<Date> {
+    vec![Date::Never]
+}
+
+fn name_default() -> String {
+    String::new()
+}
+
+
+// impl UrlFile {
+impl Videos {
     fn len(&self) -> usize {
-        self.atom.len() + self.rss.len()
+        self.videos.len()
     }
-    fn get_mixed(&self) -> Vec<FeedType> {
-        let mut arr: Vec<FeedType> = Vec::new();
-        for url in self.atom.iter() {
-            arr.push(FeedType::Atom(url.clone()));
-        }
-        for url in self.rss.iter() {
-            arr.push(FeedType::Rss(url.clone()));
-        }
-
-        arr
-    }
-
 }
 
 #[allow(dead_code)]
 pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
+
+    let today = Local::now().weekday();
+
     let client = Client::builder().build().ok().unwrap();
 
     let urls = read_urls_file();
@@ -77,11 +133,12 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
 
     let (tx, rx) = channel();
 
-    for item in urls.get_mixed() {
-        let url = match item.clone() {
-            FeedType::Atom(s) => s,
-            FeedType::Rss(s) => s,
-        };
+    for item in urls.videos {
+        if !item.update_on.iter().any(|w| w.eq_to(&today)) {
+            continue
+        }
+
+        let url = item.url.clone();
 
         let tx = tx.clone();
         let sender = sender.clone();
@@ -105,19 +162,19 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
             let fetched_channel: Option<Channel>;
 
             if let Some(body) = response {
-                match item {
-                    FeedType::Atom(_) => {
+                match item.feed_type {
+                    FeedType::Atom => {
                         let atom_feed: atom::Feed = match from_str(&body) {
                             Ok(feed) => feed,
                             Err(e) => {
-                                notify_user(&format!("could not paarse atom feed: {}", e));
+                                notify_user(&format!("could not parse atom feed: {}", e));
                                 tx.send(None).unwrap();
                                 return
                             }
                         };
                         fetched_channel = Some(atom_feed.to_internal_channel());
                     },
-                    FeedType::Rss(_) => {
+                    FeedType::Rss => {
                         let rss_feed: rss::Feed = match from_str(&body) {
                             Ok(feed) => feed,
                             Err(e) => {
@@ -137,8 +194,12 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
 
             match fetched_channel {
                 Some(content) => {
-                    channel.name = content.name;
-                    /* channel.link = content.link; */
+                    // prefer name from url file
+                    channel.name = if item.name == String::new() {
+                        content.name
+                    } else {
+                        item.name
+                    };
 
                     for h in history.channels.iter() {
                         // match channel links
@@ -197,7 +258,8 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
     channel_list
 }
 
-fn read_urls_file() -> UrlFile {
+// fn read_urls_file() -> UrlFile {
+fn read_urls_file() -> Videos {
     let mut path = home_dir().unwrap();
     path.push(URLS_FILE_PATH);
 
@@ -205,20 +267,21 @@ fn read_urls_file() -> UrlFile {
         Ok(mut file) => {
             let mut reader = String::new();
             file.read_to_string(&mut reader).unwrap();
-            let urls: UrlFile = match toml::from_str(&reader) {
+            let urls: Vec<Video> = match serde_yaml::from_str(&reader) {
                 Ok(file) => file,
-                Err(e) => panic!("could not parse url file: {}", e),
+                Err(e) => panic!("could nor parse yaml url-file: {}", e),
+            };
+
+            let urls = Videos {
+                videos: urls,
             };
 
             urls
         }
         Err(_) => {
             let mut file = File::create(path).unwrap();
-            let url_file = UrlFile {
-                atom: Vec::new(),
-                rss: Vec::new(),
-            };
-            let string = toml::to_string(&url_file).unwrap();
+            let videos: Vec<Video> = Vec::new();
+            let string = serde_yaml::to_string(&videos).unwrap();
             match file.write_all(string.as_bytes()) {
                 Ok(_) => read_urls_file(),
                 Err(e) => panic!("{}", e),
