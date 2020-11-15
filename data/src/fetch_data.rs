@@ -89,17 +89,19 @@ struct Videos {
 struct Video {
     url: String,
     feed_type: FeedType,
-    #[serde(default = "name_default")]
+    #[serde(default = "empty_string")]
     name: String,
     #[serde(default = "date_always")]
     update_on: Vec<Date>,
+    #[serde(default = "empty_string")]
+    tag: String,
 }
 
 fn date_always() -> Vec<Date> {
     vec![Date::Always]
 }
 
-fn name_default() -> String {
+fn empty_string() -> String {
     String::new()
 }
 
@@ -200,6 +202,7 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
                     } else {
                         item.name
                     };
+                    channel.tag = item.tag;
 
                     for h in history.channels.iter() {
                         // match channel links

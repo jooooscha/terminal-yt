@@ -44,6 +44,8 @@ pub struct Channel {
     pub name: String,
     pub link: String,
     pub videos: Vec<Video>,
+    #[serde(default = "empty_string")]
+    pub tag: String,
 
     #[serde(skip)]
     pub list_state: ListState,
@@ -62,6 +64,10 @@ pub struct Video {
 pub struct MinimalVideo {
     pub title: String,
     pub pub_date: String,
+}
+
+fn empty_string() -> String {
+    String::new()
 }
 
 //----------------------------------
@@ -157,6 +163,7 @@ impl Channel {
             link: String::new(),
             videos: Vec::new(),
             list_state: ListState::default(),
+            tag: String::new(),
         }
     }
 
@@ -167,6 +174,7 @@ impl Channel {
             link: url.clone(),
             videos: Vec::new(),
             list_state: ListState::default(),
+            tag: String::new(),
         }
     }
 
@@ -206,14 +214,24 @@ impl Channel {
 impl ToSpans for Channel {
     fn to_spans(&mut self) -> Spans {
         let num_marked = &self.videos.clone().into_iter().filter(|video| !video.marked).collect::<Vec<Video>>().len();
+
         let num = format!("{:>3}/{:<4}|  ", num_marked, &self.videos.len());
         let name = format!("{}", &self.name);
+        let tag = if self.tag.is_empty() {
+            String::new()
+        } else {
+            format!("[{}] ", &self.tag)
+        };
+
         let style = match num_marked {
             0 => Style::default().fg(Color::DarkGray),
             _ => Style::default().fg(Color::Yellow)
         };
+        let tag_style = Style::default().fg(Color::Blue);
+
         Spans::from(vec![
                 Span::styled(num, style),
+                Span::styled(tag, tag_style),
                 Span::styled(name, style.add_modifier(Modifier::ITALIC))
         ])
     }
