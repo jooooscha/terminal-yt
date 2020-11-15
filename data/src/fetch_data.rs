@@ -255,7 +255,6 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
         }
     }
 
-    channel_list.sort();
     channel_list.list_state.select(Some(0));
 
     channel_list
