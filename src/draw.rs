@@ -102,11 +102,11 @@ pub fn draw(app: &mut App) {
 
         // --------------------------
         let new_and_playback = Layout::default()
-            .direction(Direction::Horizontal)
+            .direction(Direction::Vertical)
             .margin(0)
             .constraints([
-                Constraint::Percentage(70),
-                Constraint::Percentage(30),
+                Constraint::Percentage(80),
+                Constraint::Percentage(20),
             ])
             .split(main_structure[0]);
 
