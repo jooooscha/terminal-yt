@@ -22,6 +22,8 @@ pub struct Config {
     pub app_title: String,
     #[serde(default = "default_bool_true")]
     pub update_at_start: bool,
+    #[serde(default = "default_bool_false")]
+    pub sort_by_tag: bool,
 }
 
 fn default_title() -> String {
@@ -32,9 +34,9 @@ fn default_bool_true() -> bool {
     true
 }
 
-/* fn default_bool_false() -> bool {
- *     true
- * } */
+fn default_bool_false() -> bool {
+    false
+}
 
 impl Config {
     pub fn default() -> Self {
@@ -43,7 +45,8 @@ impl Config {
             mark_on_open: true,
             down_on_mark: true,
             app_title: String::from("TYT"),
-            update_at_start: true
+            update_at_start: true,
+            sort_by_tag: false,
         }
     }
 
