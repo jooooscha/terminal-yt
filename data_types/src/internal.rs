@@ -136,16 +136,17 @@ impl ChannelList {
             }
         }
 
+        // sort
         if sort_by_tag {
             self.backup.sort_by_key(|c| 
                 if c.tag.is_empty() {
-                    String::from("z") // lowercase z because lowercase is sorted after uppercase
+                    c.name.clone().to_lowercase() // lowercase is sorted adter uppercase
                 } else {
-                    c.tag.clone().to_uppercase()
+                    format!("{}{}", c.tag.clone().to_uppercase(), c.name.clone().to_uppercase())
                 }
             ); 
         } else {
-            self.backup.sort_by_key(|c| c.name.clone() );
+            self.backup.sort_by_key(|c| c.name.clone().to_lowercase() );
         }
 
         // aply new changes
