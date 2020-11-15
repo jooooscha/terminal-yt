@@ -87,7 +87,7 @@ impl App {
         // ------------------------------------------
 
         channel_list.list_state.select(Some(0));
-        channel_list.filter(filter);
+        channel_list.filter(filter, config.sort_by_tag);
 
         // ------------------------------------------
 
@@ -222,7 +222,7 @@ impl App {
     pub fn set_channel_list(&mut self, mut new_cl: ChannelList) {
 
         // apply current filter
-        new_cl.filter(self.filter);
+        new_cl.filter(self.filter, self.config.sort_by_tag);
 
         // keep current selection based on currend focused screen
         match self.current_screen {

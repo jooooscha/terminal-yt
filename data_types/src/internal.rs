@@ -126,11 +126,7 @@ impl ChannelList {
         }
     }
 
-    pub fn sort(&mut self) {
-        self.channels.sort_by_key(|c| c.name.clone());
-    }
-
-    pub fn filter(&mut self, filter: Filter) {
+    pub fn filter(&mut self, filter: Filter, sort_by_tag: bool) {
         // merge changes to backup
         let tmp = self.backup.clone();
         self.backup = self.channels.clone();
@@ -140,7 +136,17 @@ impl ChannelList {
             }
         }
 
-        self.backup.sort_by_key(|c| c.name.clone());
+        if sort_by_tag {
+            self.backup.sort_by_key(|c| 
+                if c.tag.is_empty() {
+                    String::from("z") // lowercase z because lowercase is sorted after uppercase
+                } else {
+                    c.tag.clone().to_uppercase()
+                }
+            ); 
+        } else {
+            self.backup.sort_by_key(|c| c.name.clone() );
+        }
 
         // aply new changes
         match filter {
