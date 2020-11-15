@@ -227,7 +227,10 @@ impl ToSpans for Channel {
             0 => Style::default().fg(Color::DarkGray),
             _ => Style::default().fg(Color::Yellow)
         };
-        let tag_style = Style::default().fg(Color::Blue);
+        let tag_style = match num_marked {
+            0 => style.clone(),
+            _ => Style::default().fg(Color::Blue),
+        };
 
         Spans::from(vec![
                 Span::styled(num, style),
