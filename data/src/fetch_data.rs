@@ -130,13 +130,14 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
     let mut channel_list = ChannelList::new();
 
     let worker_num = 4;
-    let jobs_num = urls.len();
+    let mut jobs_num = urls.len();
     let pool = ThreadPool::new(worker_num);
 
     let (tx, rx) = channel();
 
     for item in urls.videos {
         if !item.update_on.iter().any(|w| w.eq_to(&today)) {
+            jobs_num -= 1;
             continue
         }
 
@@ -219,6 +220,7 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
                             channel.videos.push(vid);
                         }
                     }
+
                 },
                 None => {
                     let mut found = false;
