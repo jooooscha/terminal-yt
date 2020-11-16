@@ -313,7 +313,7 @@ impl ToSpans for MinimalVideo {
  *         };
  *  */
 
-        let channel = format!("{} - ", &self.channel);
+        let channel = format!("{} {} - ", tui::symbols::DOT, &self.channel);
         let title = format!("{}", &self.title);
 
         let style = Style::default().fg(Color::DarkGray);
