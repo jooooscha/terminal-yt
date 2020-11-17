@@ -46,7 +46,7 @@ If no config file is found, a config file with all options and their default val
 
 The videos are fetched from a list of urls that have to be provided in the ` ~/.config/tyt/urls.yaml ` file.
 
-An example structure is:
+For example:
 
 ``` yaml
 ---
