@@ -52,9 +52,14 @@ For example:
 ---
 - url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A" # feed url
   name: "Tom Scott" # optional
-  feed_type: atom # (atom|rss) case-sensitive 
+  feed_type: atom # (atom|rss) case-sensitive
   tag: FAVORITE # optional
 
 - url: ...
 ```
 
+
+## Installation
+
+- clone repo and `cd tyt`
+- run `cargo build` or `cargo install --path .`
