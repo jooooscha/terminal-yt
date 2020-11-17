@@ -15,16 +15,16 @@ Build with [tui](https://github.com/fdehau/tui-rs) and termion as backend.
 
 ## Usage
 
-|                                                            |             |
-|------------------------------------------------------------|-------------|
-| up, down, left, right                                      | j,k,h,l     |
-| open video                                                 | l, o        |
-| enter                                                      | l           |
-| back                                                       | esc,h,right |
-| mark / unmark                                              | m,M         |
-| update,fetch new videos                                    | r           |
-| show/hide channels that have no unseen videos              | t           |
-| copy video url                                             | c           |
+|                                               |             |
+|-----------------------------------------------|-------------|
+| up, down, left, right                         | j,k,h,l     |
+| open video                                    | l,o,enter   |
+| enter                                         | l,enter     |
+| back                                          | esc,h,right |
+| mark / unmark                                 | m,M         |
+| update,fetch new videos                       | r           |
+| show/hide channels that have no unseen videos | t           |
+| copy video url                                | c           |
 
 
 ## Configuration
@@ -40,7 +40,7 @@ If no config file is found, a config file with all options and their default val
 | down_on_mark        | true    | bool | Move pointer one down if a video is marked    |
 | app_title           | "TYT"   | str  | The title of the left box                     |
 | update_at_start     | true    | bool | Fetch new viedos at start                     |
-| sort_by_tag         | false   | bool | Sort channel by tag or name                   |
+| sort_by_tag         | false   | bool | Sort channels by tag or name                  |
 
 ## Url file
 
