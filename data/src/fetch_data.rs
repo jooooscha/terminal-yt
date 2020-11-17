@@ -56,7 +56,7 @@ enum Date {
 impl Date {
     fn eq_to(&self, other: &Weekday) -> bool {
         match (self, other) {
-            (Date::Mon, Weekday::Mon) | 
+            (Date::Mon, Weekday::Mon) |
             (Date::Tue, Weekday::Tue) |
             (Date::Wed, Weekday::Wed) |
             (Date::Thu, Weekday::Thu) |
@@ -64,7 +64,7 @@ impl Date {
             (Date::Sat, Weekday::Sat) |
             (Date::Sun, Weekday::Sun) |
 
-            (Date::Workday, Weekday::Mon) | 
+            (Date::Workday, Weekday::Mon) |
             (Date::Workday, Weekday::Tue) |
             (Date::Workday, Weekday::Wed) |
             (Date::Workday, Weekday::Thu) |
@@ -209,14 +209,16 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
                         // match channel links
                         if h.link == channel.link && h.name == channel.name {
                             // copy old video elements
+                            
                             channel.videos = h.videos.clone();
 
                             break
                         }
                     }
 
-                    for vid in content.videos.into_iter() {
+                    for mut vid in content.videos.into_iter() {
                         if !channel.videos.iter().any(|video| video.link == vid.link) {
+                            vid.new = true;
                             channel.videos.push(vid);
                         }
                     }

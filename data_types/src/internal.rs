@@ -58,6 +58,9 @@ pub struct Video {
     #[serde(rename = "pubDate")]
     pub pub_date: String,
     pub marked: bool,
+
+    #[serde(skip)]
+    pub new: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -138,13 +141,13 @@ impl ChannelList {
 
         // sort
         if sort_by_tag {
-            self.backup.sort_by_key(|c| 
+            self.backup.sort_by_key(|c|
                 if c.tag.is_empty() {
                     c.name.clone().to_lowercase() // lowercase is sorted adter uppercase
                 } else {
                     format!("{}{}", c.tag.clone().to_uppercase(), c.name.clone().to_uppercase())
                 }
-            ); 
+            );
         } else {
             self.backup.sort_by_key(|c| c.name.clone().to_lowercase() );
         }
@@ -222,28 +225,43 @@ impl Channel {
 impl ToSpans for Channel {
     fn to_spans(&mut self) -> Spans {
         let num_marked = &self.videos.clone().into_iter().filter(|video| !video.marked).collect::<Vec<Video>>().len();
+        let has_new = self.videos.iter().any(|video| video.new);
 
-        let num = format!("{:>3}/{:<4}|  ", num_marked, &self.videos.len());
+        let num = format!("{:>3}/{:<4}", num_marked, &self.videos.len());
+        let bar = String::from(" | ");
+        let new = if has_new {
+            format!("[N] ")
+        } else {
+            String::new()
+        };
         let name = format!("{}", &self.name);
         let tag = if self.tag.is_empty() {
-            String::new()
+            String::from("")
         } else {
             format!("[{}] ", &self.tag)
         };
 
-        let style = match num_marked {
-            0 => Style::default().fg(Color::DarkGray),
-            _ => Style::default().fg(Color::Yellow)
-        };
-        let tag_style = match num_marked {
-            0 => style.clone(),
-            _ => Style::default().fg(Color::Blue),
-        };
+
+        let base_style;
+        let tag_style;
+        let new_style;
+
+        if num_marked > &0 {
+            base_style = Style::default().fg(Color::Yellow);
+            tag_style = Style::default().fg(Color::Blue);
+            new_style = Style::default().fg(Color::LightGreen);
+        } else {
+            base_style = Style::default().fg(Color::DarkGray);
+            new_style = base_style.clone();
+            tag_style = base_style.clone();
+        }
 
         Spans::from(vec![
-                Span::styled(num, style),
+                Span::styled(num, base_style),
+                Span::styled(bar, base_style),
+                Span::styled(new, new_style),
                 Span::styled(tag, tag_style),
-                Span::styled(name, style.add_modifier(Modifier::ITALIC))
+                Span::styled(name, base_style.add_modifier(Modifier::ITALIC))
         ])
     }
 }
@@ -258,6 +276,7 @@ impl Video {
             link: String::from("video_link"),
             pub_date: String::from("DATUM"),
             marked: false,
+            new: true,
         }
     }
 
@@ -286,10 +305,14 @@ impl Video {
 impl ToSpans for Video {
     fn to_spans(&mut self) -> Spans {
         /* let d = match DateTime::parse_from_rfc3339(&self.pub_date); */
-        let date = if let Ok(date_) = DateTime::parse_from_rfc3339(&self.pub_date) {
-            format!("{:>4} - ", &date_.format("%d.%m.%y"))
+        let pre_title = if self.new {
+            String::from("  [NEW]  - ")
         } else {
-            String::from("NODATE - ")
+            if let Ok(date_) = DateTime::parse_from_rfc3339(&self.pub_date) {
+                format!("{:>4} - ", &date_.format("%d.%m.%y"))
+            } else {
+                String::from(" NODATE  - ")
+            }
         };
 
         let title = format!("{}", &self.title);
@@ -299,7 +322,7 @@ impl ToSpans for Video {
             false => Style::default().fg(Color::Yellow),
         };
         Spans::from(vec![
-            Span::styled(date, style),
+            Span::styled(pre_title, style),
             Span::styled(title, style.add_modifier(Modifier::ITALIC))
         ])
     }
