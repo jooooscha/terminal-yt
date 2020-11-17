@@ -1,43 +1,59 @@
 # terminal-yt (alpha)
 
-A small newsboat-inspired terminal youtube viewer written in Rust.
+A small newsboat-inspired youtube viewer written in Rust.
 
-Shows a list of youtube channels and videos that can be opened in mpv (currently [umpv](https://pastebin.com/eAs451QF) only).
+Displays a list of youtube channels and videos that can be opened in mpv (currently [umpv](https://pastebin.com/eAs451QF) only).
 Build with [tui](https://github.com/fdehau/tui-rs) and termion as backend.
 
-## Current features
+## Features
 
-- Load urls from _~/.config/tyt/urls_
-- config in _~/.config/tyt/config_
-- mark/unmark videos as watched
-- support for Atom and RSS (Atom only with youtube)
-
-## Keys
-
-|                                                         |             |
-|---------------------------------------------------------|-------------|
-| up                                                      | k, up       |
-| down                                                    | j, down     |
-| open video                                              | o           |
-| open channel                                            | o,l,right   |
-| back                                                    | esc,h,right |
-| mark                                                    | m           |
-| unmark                                                  | M           |
-| update                                                  | r           |
-| show/hide channels that have no new videso (see config) | t           |
-| copy video url                                          | c           |
+- Fetch video from atom and rss feeds
+- Open videos in a video player (per link only)
+- Mark videos played
+- Filter "empty" channels
 
 
-## Config
+## Usage
 
-The config file is placed at _~/.config/tyt/config_ and is written in the toml file format.
+|                                                            |             |
+|------------------------------------------------------------|-------------|
+| up, down, left, right                                      | j,k,h,l     |
+| open video                                                 | l, o        |
+| enter                                                      | l           |
+| back                                                       | esc,h,right |
+| mark / unmark                                              | m,M         |
+| update,fetch new videos                                    | r           |
+| show/hide channels that have no unseen videos              | t           |
+| copy video url                                             | c           |
+
+
+## Configuration
+
+The config file is placed at ` ~/.config/tyt/config ` and is written in the toml file format.
 
 If no config file is found, a config file with all options and their default values is written at start.
 
-| Name                | Default | Type | Description                                                         |
-|---------------------|---------|------|---------------------------------------------------------------------|
+| Name                | Default | Type | Description                                   |
+|---------------------|---------|------|-----------------------------------------------|
 | show_empty_channels | true    | bool | Show channels that have 0 new unmarked videos |
-| mark_on_open        | true    | bool | Mark a video if opened                                              |
-| down_on_mark        | true    | bool | Move pointer one down if a video is marked                          |
-| app_title           | "TYT"   | str  | The title of the left box                                           |
-| update_at_start     | true    | bool | Fetch new viedos at start                                           |
+| mark_on_open        | true    | bool | Mark a video if opened                        |
+| down_on_mark        | true    | bool | Move pointer one down if a video is marked    |
+| app_title           | "TYT"   | str  | The title of the left box                     |
+| update_at_start     | true    | bool | Fetch new viedos at start                     |
+| sort_by_tag         | false   | bool | Sort channel by tag or name                   |
+
+## Url file
+
+The videos are fetched from a list of urls that have to be provided in the ` ~/.config/tyt/urls.yaml ` file.
+
+An example structure is:
+
+``` yaml
+---
+- url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A" # feed url
+  name: "Tom Scott" # optional
+  feed_type: atom # (atom|rss) case-sensitive 
+  tag: FAVORITE # optional
+
+```
+
