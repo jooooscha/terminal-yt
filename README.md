@@ -1,4 +1,4 @@
-# Terminal-YT (BETA)
+# Terminal-yt(BETA)
 
 A small newsboat-inspired youtube viewer written in Rust.
 
@@ -61,5 +61,5 @@ For example:
 
 ## Installation
 
-- clone repo and `cd tyt`
+- clone repo and `cd terminal-yt`
 - run `cargo build` or `cargo install --path .`
