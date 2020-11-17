@@ -1,4 +1,4 @@
-# terminal-yt (alpha)
+# Terminal-YT (BETA)
 
 A small newsboat-inspired youtube viewer written in Rust.
 
