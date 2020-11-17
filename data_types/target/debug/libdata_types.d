@@ -1,1 +1,0 @@
-/home/joscha/MEGA/programming/rust/tyt/data_types/target/debug/libdata_types.rlib: /home/joscha/MEGA/programming/rust/tyt/data_types/src/atom.rs /home/joscha/MEGA/programming/rust/tyt/data_types/src/internal.rs /home/joscha/MEGA/programming/rust/tyt/data_types/src/lib.rs /home/joscha/MEGA/programming/rust/tyt/data_types/src/rss.rs
