@@ -55,5 +55,6 @@ For example:
   feed_type: atom # (atom|rss) case-sensitive 
   tag: FAVORITE # optional
 
+- url: ...
 ```
 
