@@ -24,6 +24,10 @@ pub struct Config {
     pub update_at_start: bool,
     #[serde(default = "default_bool_false")]
     pub sort_by_tag: bool,
+    #[serde(default = "default_20")]
+    pub message_timeout: u8,
+    #[serde(default = "default_bool_true")]
+    pub use_notify_send: bool,
 }
 
 fn default_title() -> String {
@@ -38,6 +42,10 @@ fn default_bool_false() -> bool {
     false
 }
 
+fn default_20() -> u8 {
+    20
+}
+
 impl Config {
     pub fn default() -> Self {
         Config {
@@ -47,6 +55,8 @@ impl Config {
             app_title: String::from("TYT"),
             update_at_start: true,
             sort_by_tag: false,
+            message_timeout: 20,
+            use_notify_send: true,
         }
     }
 
