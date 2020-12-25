@@ -2,7 +2,7 @@
 
 A small newsboat-inspired youtube viewer written in Rust.
 
-Displays a list of youtube channels and videos that can be opened in mpv (currently [umpv](https://pastebin.com/eAs451QF) only).
+Displays a list of youtube channels and videos that can be opened in mpv (currently [umpv](https://raw.githubusercontent.com/mpv-player/mpv/master/TOOLS/umpv) only).
 Build with [tui](https://github.com/fdehau/tui-rs) and termion as backend.
 
 ## Features
