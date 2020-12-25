@@ -25,12 +25,28 @@ use crate::{
 
 const INFO_LINE: &str = "q close; o open video/select; Enter/l select; Esc/h go back; m mark; M unmark";
 
+static mut MSG_LINE_TIMER: u8 = 1;
+static mut MSG_LINE: String = String::new();
+
 pub fn draw(app: &mut App) {
 
     // -------------- Visuals/Data ---------------
     let title = app.config.app_title.clone();
 
     let update_line = app.update_line.clone();
+
+    unsafe {
+        MSG_LINE_TIMER -= 1;
+        if MSG_LINE_TIMER == 0 {
+            MSG_LINE = if let Some(rec) = app.msg_array.pop() { 
+                MSG_LINE_TIMER = app.config.message_timeout;
+                rec
+            } else {
+                MSG_LINE_TIMER = 1;
+                String::from(INFO_LINE)
+            };
+        }
+    }
 
     let current_selected = app.get_current_selected();
 
@@ -145,9 +161,11 @@ pub fn draw(app: &mut App) {
             .alignment(Alignment::Left);
         f.render_widget(par_1, main_structure[1]);
 
-        let par_2 = Paragraph::new(Span::from(INFO_LINE))
-            .style(Style::default())
-            .alignment(Alignment::Left);
-        f.render_widget(par_2, main_structure[2]);
+        unsafe {
+            let par_2 = Paragraph::new(Span::from(MSG_LINE.clone()))
+                .style(Style::default())
+                .alignment(Alignment::Left);
+            f.render_widget(par_2, main_structure[2]);
+        }
     });
 }
