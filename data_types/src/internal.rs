@@ -11,7 +11,6 @@ use tui::{
     text::{Span, Spans},
 };
 use chrono::DateTime;
-/* use fetch_data::write_history; */
 
 use Filter::*;
 
@@ -129,7 +128,7 @@ impl ChannelList {
         }
     }
 
-    pub fn filter(&mut self, filter: Filter, sort_by_tag: bool) {
+    pub fn filter(&mut self, filter: Filter, sort_by_tag: bool,) {
         // merge changes to backup
         let tmp = self.backup.clone();
         self.backup = self.channels.clone();
@@ -286,11 +285,13 @@ impl Video {
     }
 
     #[allow(dead_code)]
-    pub fn open(&self) {
+    pub fn open(&self) -> Result<(), String> {
         // open with mpv
-        let link = &self.link;
-        Command::new("notify-send").arg("Open video").arg(&self.title).stderr(Stdio::null()).spawn().expect("failed");
-        Command::new("setsid").arg("-f").arg("umpv").arg(link).stderr(Stdio::null()).spawn().expect("umpv stating failed");
+        if let Err(err) = Command::new("setsid").arg("-f").arg("umpv").arg(&self.link).stderr(Stdio::null()).spawn() {
+            return Err(format!("Could not start umpv: {}", err))
+        };
+
+        Ok(())
     }
     #[allow(dead_code)]
     pub fn to_minimal(&self, channel: String) -> MinimalVideo {

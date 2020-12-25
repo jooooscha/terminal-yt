@@ -4,6 +4,10 @@ use std::{
         stdin,
     },
     cmp,
+    process::{
+        Command,
+        Stdio,
+    },
 };
 use tui::{
     Terminal,
@@ -32,6 +36,7 @@ pub struct App {
     pub terminal: Terminal<TermionBackend<termion::screen::AlternateScreen<termion::input::MouseTerminal<termion::raw::RawTerminal<std::io::Stdout>>>>>,
     pub config: Config,
     pub update_line: String,
+    pub msg_array: Vec<String>,
     pub app_title: String,
     pub current_screen: Screen,
     pub filter: Filter,
@@ -99,9 +104,14 @@ impl App {
             channel_list,
             current_selected: 0,
             update_line: String::new(),
+            msg_array: Vec::new(),
             filter,
             playback_history,
         }
+    }
+
+    fn post(&mut self, msg: String) {
+        self.msg_array.push(msg);
     }
 
     #[doc = "Contains every possible action possible."]
@@ -204,7 +214,14 @@ impl App {
                 self.playback_history.push(history_video);
 
                 write_playback_history(&self.playback_history);
-                video.open();
+                if let Err(err) = video.open() {
+                    self.post(err.to_string());
+                };
+                if self.config.use_notify_send {
+                    if let Err(err) = Command::new("notify-send").arg("Open video").arg(video.title).stderr(Stdio::null()).spawn() {
+                        self.post(format!("Could not start notify-send: {}", err))
+                    };
+                }
             },
             Update => {
                 draw(self)
