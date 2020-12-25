@@ -130,16 +130,16 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
     let mut channel_list = ChannelList::new();
 
     let worker_num = 4;
-    let mut jobs_num = urls.len();
+    let jobs_num = urls.len();
     let pool = ThreadPool::new(worker_num);
 
     let (tx, rx) = channel();
 
     for item in urls.videos {
-        if !item.update_on.iter().any(|w| w.eq_to(&today)) {
-            jobs_num -= 1;
-            continue
-        }
+        /* if !item.update_on.iter().any(|w| w.eq_to(&today)) {
+         *     jobs_num -= 1;
+         *     continue
+         * } */
 
         let url = item.url.clone();
 
@@ -149,48 +149,49 @@ pub fn fetch_new_videos(sender: Sender<String>) -> ChannelList {
         let client = client.clone();
 
         pool.execute(move || {
-            sender.send(format!("fetching... {}", url.clone())).unwrap();
+            let mut fetched_channel: Option<Channel> = None;
 
-            let response = match client.get(&url).send() {
-                Ok(r) => match r.text() {
-                    Ok(e) => Some(e),
-                    Err(_) => None,
-                },
-                Err(_) => {
-                    /* notify_user(format!("could not GET url: {}", e)); */
-                    None
-                }
-            };
+            if item.update_on.iter().any(|w| w.eq_to(&today)) {
+                sender.send(format!("fetching... {}", url.clone())).unwrap();
 
-            let fetched_channel: Option<Channel>;
-
-            if let Some(body) = response {
-                match item.feed_type {
-                    FeedType::Atom => {
-                        let atom_feed: atom::Feed = match from_str(&body) {
-                            Ok(feed) => feed,
-                            Err(e) => {
-                                notify_user(&format!("could not parse atom feed: {}", e));
-                                tx.send(None).unwrap();
-                                return
-                            }
-                        };
-                        fetched_channel = Some(atom_feed.to_internal_channel());
+                let response = match client.get(&url).send() {
+                    Ok(r) => match r.text() {
+                        Ok(e) => Some(e),
+                        Err(_) => None,
                     },
-                    FeedType::Rss => {
-                        let rss_feed: rss::Feed = match from_str(&body) {
-                            Ok(feed) => feed,
-                            Err(e) => {
-                                notify_user(&format!("could not parse rss feed: {}", e));
-                                tx.send(None).unwrap();
-                                return
-                            }
-                        };
-                        fetched_channel = Some(rss_feed.to_internal_channel());
+                    Err(_) => {
+                        /* notify_user(format!("could not GET url: {}", e)); */
+                        None
+                    }
+                };
+
+
+                if let Some(body) = response {
+                    match item.feed_type {
+                        FeedType::Atom => {
+                            let atom_feed: atom::Feed = match from_str(&body) {
+                                Ok(feed) => feed,
+                                Err(e) => {
+                                    notify_user(&format!("could not parse atom feed: {}", e));
+                                    tx.send(None).unwrap();
+                                    return
+                                }
+                            };
+                            fetched_channel = Some(atom_feed.to_internal_channel());
+                        },
+                        FeedType::Rss => {
+                            let rss_feed: rss::Feed = match from_str(&body) {
+                                Ok(feed) => feed,
+                                Err(e) => {
+                                    notify_user(&format!("could not parse rss feed: {}", e));
+                                    tx.send(None).unwrap();
+                                    return
+                                }
+                            };
+                            fetched_channel = Some(rss_feed.to_internal_channel());
+                        }
                     }
                 }
-            } else {
-                fetched_channel = None;
             }
 
             let mut channel = Channel::new_with_url(&url);
