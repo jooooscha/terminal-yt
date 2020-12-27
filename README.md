@@ -35,14 +35,16 @@ The config file is placed at ` ~/.config/tyt/config ` and is written in the toml
 
 If no config file is found, a config file with all options and their default values is written at start.
 
-| Name                | Default | Type | Description                                   |
-|---------------------|---------|------|-----------------------------------------------|
-| show_empty_channels | true    | bool | Show channels that have 0 new unmarked videos |
-| mark_on_open        | true    | bool | Mark a video if opened                        |
-| down_on_mark        | true    | bool | Move pointer one down if a video is marked    |
-| app_title           | "TYT"   | str  | The title of the left box                     |
-| update_at_start     | true    | bool | Fetch new viedos at start                     |
-| sort_by_tag         | false   | bool | Sort channels by tag or name                  |
+| Name                | Default | Type | Description                                         |
+|---------------------|---------|------|-----------------------------------------------------|
+| show_empty_channels | true    | bool | Show channels that have 0 new unmarked videos       |
+| mark_on_open        | true    | bool | Mark a video if opened                              |
+| down_on_mark        | true    | bool | Move pointer one down if a video is marked          |
+| app_title           | "TYT"   | str  | The title of the left box                           |
+| update_at_start     | true    | bool | Fetch new viedos at start                           |
+| sort_by_tag         | false   | bool | Sort channels by tag or name                        |
+| message_timeout     | 20      | u8   | Timeout for (error) messages                        |
+| use_notify_send     | true    | bool | if `false` no message with notify-send will be send |
 
 ## Url file
 
