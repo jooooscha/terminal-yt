@@ -2,7 +2,7 @@ use std::{
     fs::File,
     io::prelude::*,
 };
-use dirs::home_dir;
+use dirs_next::home_dir;
 
 use data_types::{
     internal::{

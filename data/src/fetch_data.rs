@@ -11,7 +11,7 @@ use std::{
 };
 
 use threadpool::ThreadPool;
-use dirs::home_dir;
+use dirs_next::home_dir;
 
 use chrono::prelude::*;
 

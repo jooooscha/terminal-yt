@@ -12,7 +12,7 @@ quick-xml = { version = "*", features = ["serialize"] }
 reqwest = { version = "*", features = ["blocking"] }
 toml = "*"
 chrono = "*"
-dirs = "*"
+dirs-next = "*"
 threadpool = "*"
 
 data_types = { path = "../data_types" }

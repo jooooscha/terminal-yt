@@ -6,7 +6,7 @@ use std::{
         Write,
     },
 };
-use dirs::home_dir;
+use dirs_next::home_dir;
 
 const CONFIG_FILE_PATH: &str = ".config/tyt/config";
 
