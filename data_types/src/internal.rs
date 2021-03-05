@@ -192,7 +192,7 @@ impl Channel {
     pub fn next(&mut self) {
         let state = &self.list_state;
         let index = match state.selected() {
-            Some(i) => if i < self.videos.len() -1 {
+            Some(i) => if i < self.videos.len() - 1 {
                 i + 1
             } else {
                 i
