@@ -35,16 +35,16 @@ pub struct Video {
 
 #[allow(dead_code)]
 impl Feed {
-    pub fn to_internal_channel(self) -> internal::Channel {
+    pub fn to_internal_channel(self, original_link: &String) -> internal::Channel {
         let chan = self.channel;
 
         let name = chan.name;
         let link = chan.link;
-        let videos = chan.videos.into_iter().map(|v| v.to_internal_video()).collect();
+        let videos = chan.videos.into_iter().map(|v| v.to_internal_video(original_link)).collect();
 
         internal::Channel {
             name,
-            link,
+            id: link,
             videos,
             ..internal::Channel::new()
         }
@@ -53,7 +53,7 @@ impl Feed {
 
 #[allow(dead_code)]
 impl Video {
-    fn to_internal_video(self) -> internal::Video {
+    fn to_internal_video(self, channel_link: &String) -> internal::Video {
         // let title = self.title.first().unwrap().to_string();
         let title = self.title;
         let link = self.link;
@@ -65,6 +65,7 @@ impl Video {
         internal::Video {
             title,
             link,
+            channel_link: channel_link.clone(),
             pub_date,
             ..internal::Video::new()
         }
