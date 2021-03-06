@@ -41,7 +41,7 @@ pub struct ChannelList {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Channel {
     pub name: String,
-    pub link: String,
+    pub id: String,
     pub videos: Vec<Video>,
     #[serde(default = "empty_string")]
     pub tag: String,
@@ -54,6 +54,7 @@ pub struct Channel {
 pub struct Video {
     pub title: String,
     pub link: String,
+    pub channel_link: String,
     #[serde(rename = "pubDate")]
     pub pub_date: String,
     pub marked: bool,
@@ -133,7 +134,7 @@ impl ChannelList {
         let tmp = self.backup.clone();
         self.backup = self.channels.clone();
         for chan in tmp.iter() {
-            if !self.backup.iter().any(|c| c.link == chan.link) {
+            if !self.backup.iter().any(|c| c.id == chan.id) {
                 self.backup.push(chan.clone());
             }
         }
@@ -170,7 +171,7 @@ impl Channel {
     pub fn new() -> Self {
         Channel {
             name: String::from("New Channel"),
-            link: String::new(),
+            id: String::new(),
             videos: Vec::new(),
             list_state: ListState::default(),
             tag: String::new(),
@@ -178,10 +179,10 @@ impl Channel {
     }
 
     #[allow(dead_code)]
-    pub fn new_with_url(url: &String) -> Channel {
+    pub fn new_with_id(id: &String) -> Channel {
         Channel {
             name: String::from("New Channel"),
-            link: url.clone(),
+            id: id.clone(),
             videos: Vec::new(),
             list_state: ListState::default(),
             tag: String::new(),
@@ -273,6 +274,7 @@ impl Video {
         Video {
             title: String::from("VideoTitle"),
             link: String::from("video_link"),
+            channel_link: String::from("channel_link"),
             pub_date: String::from("DATUM"),
             marked: false,
             new: true,
