@@ -1,6 +1,6 @@
 [package]
 name = "data"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["joooscha <joscha.loos@pm.me>"]
 edition = "2018"
 
