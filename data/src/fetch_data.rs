@@ -81,9 +81,9 @@ impl Date {
 #[derive(Deserialize, Serialize)]
 struct UrlFile {
     #[serde(default = "empty_url_file_channel")]
-    channel: Vec<UrlFileChannel>,
+    channels: Vec<UrlFileChannel>,
     #[serde(default = "empty_url_file_custom_channel")]
-    custom_channel: Vec<UrlFileCustomChannel>,
+    custom_channels: Vec<UrlFileCustomChannel>,
 }
 
 trait UrlFileItem {
