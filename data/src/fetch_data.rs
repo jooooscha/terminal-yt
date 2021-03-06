@@ -81,7 +81,7 @@ impl Date {
 #[derive(Deserialize, Serialize)]
 struct UrlFile {
     #[serde(default = "empty_url_file_channel")]
-    channel: Vec<UrlFileChannel>,
+    channels: Vec<UrlFileChannel>,
     #[serde(default = "empty_url_file_custom_channels")]
     custom_channels: Vec<UrlFileCustomChannel>,
 }
@@ -153,7 +153,7 @@ fn empty_string() -> String { String::new() }
 // impl UrlFile {
 impl UrlFile {
     fn len(&self) -> usize {
-        self.channel.len() + self.custom_channels.len()
+        self.channels.len() + self.custom_channels.len()
     }
 }
 
@@ -181,7 +181,7 @@ pub fn fetch_new_videos(satus_update_sender: Sender<String>) -> ChannelList {
     let (channel_sender, channel_receiver) = channel();
 
     // load "normal" channels
-    for item in url_file_content.channel {
+    for item in url_file_content.channels {
         let channel_sender = channel_sender.clone();
         let history = history.clone();
         let url = item.url.clone();
@@ -230,7 +230,7 @@ fn read_urls_file() -> UrlFile {
         Err(_) => {
             let mut file = File::create(path).unwrap();
             let channel: UrlFile = UrlFile {
-                channel: Vec::new(),
+                channels: Vec::new(),
                 custom_channels: Vec::new(),
             };
             let string = serde_yaml::to_string(&channel).unwrap();
