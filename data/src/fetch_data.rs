@@ -28,7 +28,7 @@ use crate::history::{
 };
 use notification::notify::notify_user;
 
-const URLS_FILE_PATH: &str = ".config/tyt/urls_backup.yaml";
+const URLS_FILE_PATH: &str = ".config/tyt/urls.yaml";
 
 type ChannelId = String;
 type ChannelTag = String;
