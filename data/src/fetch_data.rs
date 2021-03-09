@@ -157,8 +157,7 @@ impl UrlFile {
     }
 }
 
-#[allow(dead_code)]
-pub fn fetch_new_videos(satus_update_sender: Sender<String>) -> ChannelList {
+pub fn fetch_new_videos(status_update_sender: Sender<String>) -> ChannelList {
 
     // load url file
     let url_file_content = read_urls_file();
@@ -198,8 +197,9 @@ pub fn fetch_new_videos(satus_update_sender: Sender<String>) -> ChannelList {
 
         update_videos_from_url(cs, &pool, hc, item, urls);
     }
+
     for (i, chan_opt) in channel_receiver.iter().take(jobs_num).enumerate() {
-        satus_update_sender.send(format!("Updated: {}/{}", i+1, jobs_num)).unwrap();
+        status_update_sender.send(format!("Updated: {}/{}", i+1, jobs_num)).unwrap();
         match chan_opt {
             Some(chan) => channel_list.channels.push(chan),
             None => (),

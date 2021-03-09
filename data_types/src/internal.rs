@@ -141,15 +141,17 @@ impl ChannelList {
 
         // sort
         if sort_by_tag {
-            self.backup.sort_by_key(|c|
-                if c.tag.is_empty() {
-                    c.name.clone().to_lowercase() // lowercase is sorted adter uppercase
+            self.backup.sort_by_key(|channel|
+                if channel.tag.is_empty() {
+                    channel.name.clone().to_lowercase() // lowercase is sorted after uppercase
+                /* if channel.has_new() {
+                 *     channel.name.clone().to_lowercase() // lowercase is sorted after uppercase */
                 } else {
-                    format!("{}{}", c.tag.clone().to_uppercase(), c.name.clone().to_uppercase())
+                    format!("{}{}", channel.tag.clone().to_uppercase(), channel.name.clone().to_uppercase())
                 }
             );
         } else {
-            self.backup.sort_by_key(|c| c.name.clone().to_lowercase() );
+            self.backup.sort_by_key(|channel| channel.name.clone().to_lowercase() );
         }
 
         // aply new changes
