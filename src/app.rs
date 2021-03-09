@@ -27,6 +27,7 @@ use data::{
     config::Config,
 };
 use crate::draw;
+use notification::notify::notify_user;
 
 use Action::*;
 use Screen::*;
@@ -57,6 +58,7 @@ pub enum Action {
     PrevChannel,
     Open,
     Update,
+    Delete,
 }
 
 
@@ -226,6 +228,21 @@ impl App {
             Update => {
                 draw(self)
             },
+            Delete => {
+/*                 let current_selected_channel_id = match self.get_selected_channel() {
+ *                     Some(channel) => channel.id.clone(),
+ *                     None => return,
+ *                 };
+ *
+ *                 let channels = self.channel_list.channels.clone();
+ *                 let position = channels.iter().position(|ch| ch.id == current_selected_channel_id);
+ *                 match position {
+ *                     Some(i) => {
+ *                         let _ = self.channel_list.channels.remove(i);
+ *                     }
+ *                     None => notify_user(&String::from("Error deleting channel")),
+ *                 } */
+            }
         }
     }
 
@@ -235,8 +252,7 @@ impl App {
         self.set_channel_list(self.channel_list.clone());
     }
 
-    #[doc = "Update the list of channels."]
-    pub fn set_channel_list(&mut self, mut new_cl: ChannelList) {
+    fn set_channel_list(&mut self, mut new_cl: ChannelList) {
 
         // apply current filter
         new_cl.filter(self.filter, self.config.sort_by_tag);
@@ -261,7 +277,7 @@ impl App {
 
                 new_cl.list_state.select(None);
                 self.channel_list = new_cl;
-                
+
                 match self.get_selected_channel() {
                     Some(c) => c.list_state.select(selected_video),
                     None => self.action(Back),
@@ -269,6 +285,21 @@ impl App {
             },
         }
     }
+
+    #[doc = "Update the list of channels."]
+    pub fn update_channel_from_list(&mut self, new_channel: Channel) {
+        let mut channel_list = self.get_channel_list().clone();
+
+        for (i, channel) in channel_list.channels.iter().enumerate() {
+            if channel.id == new_channel.id {
+                channel_list.channels[i] = new_channel;
+                break
+            }
+        }
+
+        self.set_channel_list(channel_list);
+    }
+
     pub fn get_channel_list(&mut self) -> &mut ChannelList {
         &mut self.channel_list
     }

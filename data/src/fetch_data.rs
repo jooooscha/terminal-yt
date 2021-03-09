@@ -157,7 +157,7 @@ impl UrlFile {
     }
 }
 
-pub fn fetch_new_videos(status_update_sender: Sender<String>) -> ChannelList {
+pub fn fetch_new_videos(status_update_sender: Sender<String>, channel_update_sender: Sender<Channel>) {
 
     // load url file
     let url_file_content = read_urls_file();
@@ -169,7 +169,7 @@ pub fn fetch_new_videos(status_update_sender: Sender<String>) -> ChannelList {
     };
 
     // prepare new channel list
-    let mut channel_list = ChannelList::new();
+    /* let mut channel_list = ChannelList::new(); */
 
     // prepate threads
     let worker_num = 4;
@@ -185,7 +185,7 @@ pub fn fetch_new_videos(status_update_sender: Sender<String>) -> ChannelList {
         let history = history.clone();
         let url = item.url.clone();
 
-        update_videos_from_url(channel_sender, &pool, history.channels, item.clone(), vec![url]);
+        update_videos_from_url(channel_sender, &pool, history.channels, item.clone(), vec![url]); // updates will be send with `channel_sender`
     }
 
     // load custom channels
@@ -195,20 +195,24 @@ pub fn fetch_new_videos(status_update_sender: Sender<String>) -> ChannelList {
         let item = item.clone();
         let urls = item.urls.clone();
 
-        update_videos_from_url(cs, &pool, hc, item, urls);
+        update_videos_from_url(cs, &pool, hc, item, urls); // updates will be send with `channel_sender`
     }
 
+    // receive channels from `update_video_from_url`
     for (i, chan_opt) in channel_receiver.iter().take(jobs_num).enumerate() {
+
         status_update_sender.send(format!("Updated: {}/{}", i+1, jobs_num)).unwrap();
+
         match chan_opt {
-            Some(chan) => channel_list.channels.push(chan),
+            // Some(chan) => channel_list.channels.push(chan),
+            Some(chan) => channel_update_sender.send(chan).unwrap(),
             None => (),
         }
     }
 
-    channel_list.list_state.select(Some(0));
-
-    channel_list
+/*     channel_list.list_state.select(Some(0));
+ *
+ *     channel_list */
 }
 
 // fn read_urls_file() -> UrlFile {

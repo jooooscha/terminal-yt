@@ -45,11 +45,13 @@ use app::{
 };
 use notification::notify::notify_user;
 
-fn update_channel_list(result_sender: Sender<ChannelList>, url_sender: Sender<String>) {
+fn update_channel_list(status_update_sender: Sender<String>, channel_update_sender: Sender<Channel>) {
     thread::spawn(move|| {
-        let new_chan_list = fetch_new_videos(url_sender);
-        result_sender.send(new_chan_list.clone()).unwrap();
-        write_history(&new_chan_list);
+        /* let new_chan_list = fetch_new_videos(url_sender);
+         * result_sender.send(new_chan_list.clone()).unwrap();
+         * write_history(&new_chan_list); */
+
+        fetch_new_videos(status_update_sender, channel_update_sender);
     });
 
 }
@@ -66,18 +68,22 @@ fn main() {
     let tick_counter_limit = 10;
     let mut tick_counter = 0;
 
-    let (result_sender, result_receiver) = channel();
-    let (url_sender, url_receiver) = channel();
+    /* let (result_sender, result_receiver) = channel(); */
+    let (status_update_sender, status_update_reveiver) = channel();
+    let (channel_update_sender, channel_update_receiver) = channel();
 
     if app.config.update_at_start {
-        update_channel_list(result_sender.clone(), url_sender.clone());
+        // update_channel_list(result_sender.clone(), status_update_sender.clone());
+        update_channel_list(status_update_sender.clone(), channel_update_sender.clone());
     }
 
     loop {
         let event = events.next();
 
-        for c in result_receiver.try_iter() {
-            app.set_channel_list(c);
+        for c in channel_update_receiver.try_iter() {
+            // app.set_channel_list(c);
+            app.update_channel_from_list(c);
+            write_history(&app.get_channel_list());
 
             app.action(Update);
         }
@@ -126,7 +132,8 @@ fn main() {
                     app.action(Unmark);
                 },
                 Key::Char('r') => {
-                    update_channel_list(result_sender.clone(), url_sender.clone());
+                    // update_channel_list(result_sender.clone(), status_update_sender.clone());
+                    update_channel_list(status_update_sender.clone(), channel_update_sender.clone());
                     app.action(Back);
                 }
                 Key::Char('t') => {
@@ -148,11 +155,14 @@ fn main() {
                         }
                     }
                 }
+                Key::Char('d') => {
+                    app.action(Delete);
+                }
                 _ => {}
             }
             Event::Tick => {
                 tick_counter += 1;
-                for v in url_receiver.try_iter() {
+                for v in status_update_reveiver.try_iter() {
                     app.update_line = v;
                     app.action(Update);
                 }
