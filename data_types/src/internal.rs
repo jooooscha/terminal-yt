@@ -181,10 +181,10 @@ impl Channel {
     }
 
     #[allow(dead_code)]
-    pub fn new_with_id(id: &String) -> Channel {
+    pub fn new_with_id(id: String) -> Channel {
         Channel {
             name: String::from("New Channel"),
-            id: id.clone(),
+            id: id,
             videos: Vec::new(),
             list_state: ListState::default(),
             tag: String::new(),
