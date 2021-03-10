@@ -39,8 +39,8 @@ pub struct App {
     pub msg_array: Vec<String>,
     pub app_title: String,
     pub current_screen: Screen,
-    pub filter: Filter,
-    current_selected: usize, // channel
+    pub current_filter: Filter,
+    currently_opened_channel: usize, // channel
     channel_list: ChannelList,
     pub playback_history: Vec<MinimalVideo>,
 }
@@ -67,7 +67,7 @@ pub enum Screen {
 }
 
 impl App {
-    pub fn new_with_channel_list(mut channel_list: ChannelList) -> Self {
+    pub fn new_from_channel_list(mut channel_list: ChannelList) -> Self {
         let stdout = stdout().into_raw_mode().unwrap();
         let mouse_terminal = MouseTerminal::from(stdout);
         /* let screen = mouse_terminal; */
@@ -79,7 +79,7 @@ impl App {
         // ------------------------------------------
         let config = Config::read_config_file();
 
-        let filter = if config.show_empty_channels {
+        let current_filter = if config.show_empty_channels {
             Filter::NoFilter
         } else {
             Filter::OnlyNew
@@ -92,7 +92,7 @@ impl App {
         // ------------------------------------------
 
         channel_list.list_state.select(Some(0));
-        channel_list.filter(filter, config.sort_by_tag);
+        channel_list.filter(current_filter, config.sort_by_tag);
 
         // ------------------------------------------
 
@@ -102,10 +102,10 @@ impl App {
             app_title: config.app_title,
             current_screen: Channels,
             channel_list,
-            current_selected: 0,
+            currently_opened_channel: 0,
             update_line: String::new(),
             msg_array: Vec::new(),
-            filter,
+            current_filter,
             playback_history,
         }
     }
@@ -125,7 +125,7 @@ impl App {
                         None => return,
                     }
 
-                    if !self.get_selected_channel().unwrap().has_new() && self.filter == Filter::OnlyNew {
+                    if !self.get_selected_channel().unwrap().has_new() && self.current_filter == Filter::OnlyNew {
                         self.action(Back);
                     } else if self.config.down_on_mark {
                         if let Some(e) = self.get_selected_channel() {
@@ -138,7 +138,7 @@ impl App {
             },
             Up => {
                 match self.current_screen {
-                    Channels => self.get_channel_list().prev(),
+                    Channels => self.get_filtered_channel_list().prev(),
                     Videos => {
                         if let Some(c) = self.get_selected_channel() {
                             c.prev();
@@ -148,14 +148,14 @@ impl App {
             },
             Down => {
                 match self.current_screen {
-                    Channels => self.get_channel_list().next(),
+                    Channels => self.get_filtered_channel_list().next(),
                     Videos => if let Some(c) = self.get_selected_channel() {
                         c.next();
                     },
                 }
             },
             Enter => {
-                self.current_selected = match self.get_channel_list().list_state.selected() {
+                self.currently_opened_channel = match self.get_filtered_channel_list().list_state.selected() {
                     Some(selected) => selected,
                     None => return,
                 };
@@ -167,10 +167,10 @@ impl App {
             },
             Back => {
                 self.current_screen = Channels;
-                let curr_sel = self.current_selected.clone();
-                let len: usize = cmp::max(0, self.get_channel_list().channels.len() as isize - 1) as usize;
+                let curr_sel = self.currently_opened_channel.clone();
+                let len: usize = cmp::max(0, self.get_filtered_channel_list().channels.len() as isize - 1) as usize;
                 let curr_sel = cmp::min(curr_sel, len);
-                self.get_channel_list().list_state.select(Some(curr_sel));
+                self.get_filtered_channel_list().list_state.select(Some(curr_sel));
             },
             NextChannel => {
                 match self.current_screen {
@@ -231,14 +231,14 @@ impl App {
 
     #[doc = "Select the filter to use."]
     pub fn set_filter(&mut self, filter: Filter) {
-        self.filter = filter;
+        self.current_filter = filter;
         self.set_channel_list(self.channel_list.clone());
     }
 
     fn set_channel_list(&mut self, mut new_cl: ChannelList) {
 
         // apply current filter
-        new_cl.filter(self.filter, self.config.sort_by_tag);
+        new_cl.filter(self.current_filter, self.config.sort_by_tag);
 
         // keep current selection based on currend focused screen
         match self.current_screen {
@@ -271,14 +271,7 @@ impl App {
 
     #[doc = "Update the list of channels."]
     pub fn update_channel_list(&mut self, updated_channel: Channel) {
-        let mut channel_list = self.get_channel_list().clone();
-
-        /* for (i, channel) in channel_list.channels.iter().enumerate() {
-         *     if channel.id == updated_channel.id {
-         *         channel_list.channels[i] = updated_channel;
-         *         break
-         *     }
-         * } */
+        let mut channel_list = self.get_filtered_channel_list().clone();
 
         let position: Option<usize> = channel_list.channels.iter().position(|channel| channel.id == updated_channel.id);
 
@@ -290,12 +283,12 @@ impl App {
         self.set_channel_list(channel_list);
     }
 
-    pub fn get_channel_list(&mut self) -> &mut ChannelList {
+    pub fn get_filtered_channel_list(&mut self) -> &mut ChannelList {
         &mut self.channel_list
     }
 
     pub fn get_current_selected(&self) -> usize {
-        self.current_selected
+        self.currently_opened_channel
     }
 
     pub fn get_selected_video_link(&mut self) -> String {
@@ -314,7 +307,7 @@ impl App {
 
     #[doc = "returns the currently selected channel."]
     fn get_selected_channel(&mut self) -> Option<&mut Channel> {
-        let i = self.current_selected;
+        let i = self.currently_opened_channel;
         self.channel_list.channels.get_mut(i)
     }
 
@@ -331,10 +324,10 @@ impl App {
         c.videos.get_mut(i)
     }
     //---------------
-    fn save(&mut self) {
-        let f = self.filter;
+    pub fn save(&mut self) {
+        let f = self.current_filter;
         self.set_filter(Filter::NoFilter);
-        write_history(self.get_channel_list());
+        write_history(self.get_filtered_channel_list());
         self.set_filter(f);
     }
 }
