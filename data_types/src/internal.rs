@@ -232,7 +232,7 @@ impl ToSpans for Channel {
         let num = format!("{:>3}/{:<4}", num_marked, &self.videos.len());
         let bar = String::from(" | ");
         let new = if has_new {
-            format!("[N] ")
+            format!(" new")
         } else {
             String::new()
         };
@@ -261,9 +261,9 @@ impl ToSpans for Channel {
         Spans::from(vec![
                 Span::styled(num, base_style),
                 Span::styled(bar, base_style),
-                Span::styled(new, new_style),
                 Span::styled(tag, tag_style),
-                Span::styled(name, base_style.add_modifier(Modifier::ITALIC))
+                Span::styled(name, base_style.add_modifier(Modifier::ITALIC)),
+                Span::styled(new, new_style),
         ])
     }
 }
@@ -310,8 +310,8 @@ impl Video {
 impl ToSpans for Video {
     fn to_spans(&mut self) -> Spans {
         /* let d = match DateTime::parse_from_rfc3339(&self.pub_date); */
-        let pre_title = if self.new {
-            String::from("  [NEW]  - ")
+        let pre_title = if self.new && !self.marked {
+            String::from(" new ")
         } else {
             if let Ok(date_) = DateTime::parse_from_rfc3339(&self.pub_date) {
                 format!("{:>4} - ", &date_.format("%d.%m.%y"))
@@ -322,24 +322,25 @@ impl ToSpans for Video {
 
         let title = format!("{}", &self.title);
 
-        let style = match self.marked {
-            true => Style::default().fg(Color::DarkGray),
-            false => Style::default().fg(Color::Yellow),
-        };
+        let title_style;
+        let new_style;
+
+        if self.marked {
+            title_style = Style::default().fg(Color::DarkGray);
+            new_style = title_style.clone();
+        } else {
+            title_style = Style::default().fg(Color::Yellow);
+            new_style = Style::default().fg(Color::LightGreen);
+        }
+
         Spans::from(vec![
-            Span::styled(pre_title, style),
-            Span::styled(title, style.add_modifier(Modifier::ITALIC))
+            Span::styled(pre_title, new_style),
+            Span::styled(title, title_style.add_modifier(Modifier::ITALIC))
         ])
     }
 }
 impl ToSpans for MinimalVideo {
     fn to_spans(&mut self) -> Spans {
-/*         let date = if let Ok(date_) = DateTime::parse_from_rfc3339(&self.pub_date) {
- *             format!("{:>4} - ", &date_.format("%d.%m.%y"))
- *         } else {
- *             String::from("NODATE - ")
- *         };
- *  */
 
         let channel = format!("{} {} - ", tui::symbols::DOT, &self.channel);
         let title = format!("{}", &self.title);
