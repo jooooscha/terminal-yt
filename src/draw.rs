@@ -38,7 +38,7 @@ pub fn draw(app: &mut App) {
     unsafe {
         MSG_LINE_TIMER -= 1;
         if MSG_LINE_TIMER == 0 {
-            MSG_LINE = if let Some(rec) = app.msg_array.pop() { 
+            MSG_LINE = if let Some(rec) = app.msg_array.pop() {
                 MSG_LINE_TIMER = app.config.message_timeout;
                 rec
             } else {
@@ -53,7 +53,7 @@ pub fn draw(app: &mut App) {
     let (show_second_block, channel_name) = match app.current_screen {
         Channels => (false, String::new()),
         Videos => {
-            let right_title = app.get_channel_list().channels[current_selected].name.clone();
+            let right_title = app.get_filtered_channel_list().channels[current_selected].name.clone();
             (true, right_title)
         }
     };
@@ -75,7 +75,7 @@ pub fn draw(app: &mut App) {
     // -------------------------------------------
 
     // all channels - left
-    let mut all_chan = app.get_channel_list().clone();
+    let mut all_chan = app.get_filtered_channel_list().clone();
     let mut chan = Vec::new();
     let chan_str: Vec<Spans> = all_chan.channels.iter_mut().map(|e| e.to_spans()).collect();
     for e in chan_str.into_iter() {
@@ -85,7 +85,7 @@ pub fn draw(app: &mut App) {
 
 
     // all videos - right
-    let mut all_vids = match app.get_channel_list().channels.get(current_selected) {
+    let mut all_vids = match app.get_filtered_channel_list().channels.get(current_selected) {
         Some(e) => e.clone(),
         None => Channel::new(),
     };

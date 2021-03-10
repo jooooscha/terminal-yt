@@ -14,7 +14,6 @@ use Screen::*;
 use data::{
     history::{
         read_history,
-        write_history,
     },
     fetch_data::{
         fetch_new_videos,
@@ -68,18 +67,16 @@ fn main() {
     ).collect();
 
 
-    let mut app = App::new_with_channel_list(history);
+    let mut app = App::new_from_channel_list(history);
 
     let events = Events::new();
     let tick_counter_limit = 10;
     let mut tick_counter = 0;
 
-    /* let (result_sender, result_receiver) = channel(); */
     let (status_update_sender, status_update_reveiver) = channel();
     let (channel_update_sender, channel_update_receiver) = channel();
 
     if app.config.update_at_start {
-        // update_channel_list(result_sender.clone(), status_update_sender.clone());
         update_channel_list(status_update_sender.clone(), channel_update_sender.clone());
     }
 
@@ -87,9 +84,8 @@ fn main() {
         let event = events.next();
 
         for c in channel_update_receiver.try_iter() {
-            // app.set_channel_list(c);
             app.update_channel_list(c);
-            write_history(&app.get_channel_list());
+            app.save();
 
             app.action(Update);
         }
@@ -138,13 +134,12 @@ fn main() {
                     app.action(Unmark);
                 },
                 Key::Char('r') => {
-                    // update_channel_list(result_sender.clone(), status_update_sender.clone());
                     update_channel_list(status_update_sender.clone(), channel_update_sender.clone());
                     app.action(Back);
                 }
                 Key::Char('t') => {
                     app.config.show_empty_channels = !app.config.show_empty_channels;
-                    let new_filter = match app.filter {
+                    let new_filter = match app.current_filter {
                         Filter::NoFilter => Filter::OnlyNew,
                         Filter::OnlyNew => Filter::NoFilter,
                     };
@@ -160,9 +155,6 @@ fn main() {
                             ctx.set_contents(link).unwrap();
                         }
                     }
-                }
-                Key::Char('d') => {
-                    app.action(Delete);
                 }
                 _ => {}
             }
