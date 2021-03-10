@@ -19,6 +19,7 @@ use data::{
     fetch_data::{
         fetch_new_videos,
     },
+    url_file::*,
 };
 use data_types::{
     internal::{
@@ -47,20 +48,25 @@ use notification::notify::notify_user;
 
 fn update_channel_list(status_update_sender: Sender<String>, channel_update_sender: Sender<Channel>) {
     thread::spawn(move|| {
-        /* let new_chan_list = fetch_new_videos(url_sender);
-         * result_sender.send(new_chan_list.clone()).unwrap();
-         * write_history(&new_chan_list); */
-
         fetch_new_videos(status_update_sender, channel_update_sender);
     });
-
 }
 
 fn main() {
-    let history = match read_history() {
-        Some(con) => con,
+    let mut history = match read_history() {
+        Some(h) => h,
         None => ChannelList::new(),
     };
+
+    let url_file_content = read_urls_file();
+
+    history.channels = history.channels.into_iter().filter(|channel|
+        {
+            url_file_content.channels.iter().any(|url_channel| url_channel.id() == channel.id) ||
+                url_file_content.channels.iter().any(|url_channel| url_channel.id() == channel.id)
+        }
+    ).collect();
+
 
     let mut app = App::new_with_channel_list(history);
 
@@ -82,7 +88,7 @@ fn main() {
 
         for c in channel_update_receiver.try_iter() {
             // app.set_channel_list(c);
-            app.update_channel_from_list(c);
+            app.update_channel_list(c);
             write_history(&app.get_channel_list());
 
             app.action(Update);

@@ -27,7 +27,6 @@ use data::{
     config::Config,
 };
 use crate::draw;
-use notification::notify::notify_user;
 
 use Action::*;
 use Screen::*;
@@ -58,7 +57,6 @@ pub enum Action {
     PrevChannel,
     Open,
     Update,
-    Delete,
 }
 
 
@@ -228,21 +226,6 @@ impl App {
             Update => {
                 draw(self)
             },
-            Delete => {
-/*                 let current_selected_channel_id = match self.get_selected_channel() {
- *                     Some(channel) => channel.id.clone(),
- *                     None => return,
- *                 };
- *
- *                 let channels = self.channel_list.channels.clone();
- *                 let position = channels.iter().position(|ch| ch.id == current_selected_channel_id);
- *                 match position {
- *                     Some(i) => {
- *                         let _ = self.channel_list.channels.remove(i);
- *                     }
- *                     None => notify_user(&String::from("Error deleting channel")),
- *                 } */
-            }
         }
     }
 
@@ -287,14 +270,21 @@ impl App {
     }
 
     #[doc = "Update the list of channels."]
-    pub fn update_channel_from_list(&mut self, new_channel: Channel) {
+    pub fn update_channel_list(&mut self, updated_channel: Channel) {
         let mut channel_list = self.get_channel_list().clone();
 
-        for (i, channel) in channel_list.channels.iter().enumerate() {
-            if channel.id == new_channel.id {
-                channel_list.channels[i] = new_channel;
-                break
-            }
+        /* for (i, channel) in channel_list.channels.iter().enumerate() {
+         *     if channel.id == updated_channel.id {
+         *         channel_list.channels[i] = updated_channel;
+         *         break
+         *     }
+         * } */
+
+        let position: Option<usize> = channel_list.channels.iter().position(|channel| channel.id == updated_channel.id);
+
+        match position {
+            Some(i) => channel_list.channels[i] = updated_channel,
+            None => channel_list.channels.push(updated_channel),
         }
 
         self.set_channel_list(channel_list);
