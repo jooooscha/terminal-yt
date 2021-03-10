@@ -40,9 +40,6 @@ pub fn fetch_new_videos(status_update_sender: Sender<String>, channel_update_sen
         None => ChannelList::new(),
     };
 
-    // prepare new channel list
-    /* let mut channel_list = ChannelList::new(); */
-
     // prepate threads
     let worker_num = 4;
     let jobs_num = url_file_content.len();
