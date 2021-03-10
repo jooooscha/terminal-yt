@@ -1,6 +1,6 @@
 [package]
 name = "data_types"
-version = "0.1.8"
+version = "0.1.9"
 authors = ["joooscha <joscha.loos@pm.me>"]
 edition = "2018"
 
