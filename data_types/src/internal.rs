@@ -322,20 +322,23 @@ impl ToSpans for Video {
 
         let title = format!("{}", &self.title);
 
-        let title_style;
-        let new_style;
+        let style_title;
+        let style_new;
 
         if self.marked {
-            title_style = Style::default().fg(Color::DarkGray);
-            new_style = title_style.clone();
+            style_title = Style::default().fg(Color::DarkGray);
+            style_new = style_title.clone();
+        } else if self.new {
+            style_title = Style::default().fg(Color::Yellow);
+            style_new = Style::default().fg(Color::LightGreen);
         } else {
-            title_style = Style::default().fg(Color::Yellow);
-            new_style = Style::default().fg(Color::LightGreen);
+            style_title = Style::default().fg(Color::Yellow);
+            style_new = style_title.clone();
         }
 
         Spans::from(vec![
-            Span::styled(pre_title, new_style),
-            Span::styled(title, title_style.add_modifier(Modifier::ITALIC))
+            Span::styled(pre_title, style_new),
+            Span::styled(title, style_title.add_modifier(Modifier::ITALIC))
         ])
     }
 }
