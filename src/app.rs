@@ -249,7 +249,14 @@ impl App {
             .position(|channel| channel.id == updated_channel.id);
 
         match position {
-            Some(i) => channel_list.channels[i] = updated_channel,
+            Some(i) => {
+                /* channel_list.channels[i] = updated_channel; */
+                for new_video in updated_channel.videos.into_iter() {
+                    if channel_list.channels[i].videos.iter().all(|video| video.link != new_video.link) {
+                        channel_list.channels[i].videos.push(new_video);
+                    }
+                }
+            }
             None => channel_list.channels.push(updated_channel),
         }
 
