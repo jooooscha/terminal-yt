@@ -8,6 +8,7 @@ edition = "2018"
 termion = "*"
 tui = "*"
 clipboard = "*"
+rand = "*"
 
 data = { path = "./data" }
 data_types = { path = "./data_types" }

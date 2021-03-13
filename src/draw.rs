@@ -48,7 +48,7 @@ pub fn draw(app: &mut App) {
         }
     }
 
-    let current_selected = app.get_current_selected();
+    let current_selected = app.get_selected_channel_index();
 
     let (show_second_block, channel_name) = match app.current_screen {
         Channels => (false, String::new()),

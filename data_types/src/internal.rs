@@ -90,7 +90,7 @@ impl ChannelList {
     pub fn next(&mut self) {
         let state = &self.list_state;
         let index = match state.selected() {
-            Some(i) => if i < self.channels.len() -1 {
+            Some(i) => if i + 1 < self.channels.len() {
                 i + 1
             } else {
                 i
@@ -173,7 +173,7 @@ impl Channel {
     pub fn new() -> Self {
         Channel {
             name: String::from("New Channel"),
-            id: String::new(),
+            id: String::from("placeholder_id"),
             videos: Vec::new(),
             list_state: ListState::default(),
             tag: String::new(),
@@ -195,7 +195,7 @@ impl Channel {
     pub fn next(&mut self) {
         let state = &self.list_state;
         let index = match state.selected() {
-            Some(i) => if i < self.videos.len() - 1 {
+            Some(i) => if i + 1< self.videos.len() {
                 i + 1
             } else {
                 i
@@ -311,7 +311,7 @@ impl ToSpans for Video {
     fn to_spans(&mut self) -> Spans {
         /* let d = match DateTime::parse_from_rfc3339(&self.pub_date); */
         let pre_title = if self.new && !self.marked {
-            String::from(" new ")
+            String::from("   new   - ")
         } else {
             if let Ok(date_) = DateTime::parse_from_rfc3339(&self.pub_date) {
                 format!("{:>4} - ", &date_.format("%d.%m.%y"))

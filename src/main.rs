@@ -1,57 +1,42 @@
-#[doc = "
-This is the main module
-"]
+use clipboard::{ClipboardContext, ClipboardProvider};
+use data::{fetch_data::fetch_new_videos, history::read_history, url_file::*};
+use data_types::internal::{Channel, ChannelList, Filter, ToSpans};
 use std::{
+    sync::mpsc::{channel, Sender},
     thread,
-    sync::mpsc::{
-        channel,
-        Sender,
-    },
 };
-use tui::widgets::{Block, Borders, List, ListItem};
 use termion::event::Key;
+use tui::widgets::{Block, Borders, List, ListItem};
 use Screen::*;
-use data::{
-    history::{
-        read_history,
-    },
-    fetch_data::{
-        fetch_new_videos,
-    },
-    url_file::*,
-};
-use data_types::{
-    internal::{
-        ChannelList,
-        Channel,
-        ToSpans,
-        Filter,
-    },
-};
-use clipboard::{
-    ClipboardProvider,
-    ClipboardContext,
-};
+mod app;
 mod draw;
 mod events;
-mod app;
 
+use app::{Action::*, App, Screen};
 use draw::draw;
 use events::*;
-use app::{
-    Action::*,
-    App,
-    Screen,
-};
 use notification::notify::notify_user;
 
-fn update_channel_list(status_update_sender: Sender<String>, channel_update_sender: Sender<Channel>) {
-    thread::spawn(move|| {
+fn update_channel_list(
+    status_update_sender: Sender<String>,
+    channel_update_sender: Sender<Channel>,
+) {
+    thread::spawn(move || {
         fetch_new_videos(status_update_sender, channel_update_sender);
     });
 }
 
 fn main() {
+    let result = std::panic::catch_unwind(|| {
+        run();
+    });
+
+    if let Err(error_text) = result {
+        panic!(error_text);
+    }
+}
+
+fn run() {
     let mut history = match read_history() {
         Some(h) => h,
         None => ChannelList::new(),
@@ -59,13 +44,20 @@ fn main() {
 
     let url_file_content = read_urls_file();
 
-    history.channels = history.channels.into_iter().filter(|channel|
-        {
-            url_file_content.channels.iter().any(|url_channel| url_channel.id() == channel.id) ||
-                url_file_content.channels.iter().any(|url_channel| url_channel.id() == channel.id)
-        }
-    ).collect();
-
+    history.channels = history
+        .channels
+        .into_iter()
+        .filter(|channel| {
+            url_file_content
+                .channels
+                .iter()
+                .any(|url_channel| url_channel.id() == channel.id)
+                || url_file_content
+                    .channels
+                    .iter()
+                    .any(|url_channel| url_channel.id() == channel.id)
+        })
+        .collect();
 
     let mut app = App::new_from_channel_list(history);
 
@@ -92,24 +84,27 @@ fn main() {
 
         match event.unwrap() {
             Event::Input(input) => match input {
-                Key::Char('q') => { // ----------------- close -----------------------
+                Key::Char('q') => {
+                    // ----------------- close -----------------------
                     match app.current_screen {
                         Channels => break,
-                        Videos => app.action(Back),
-                    }
-                },
-                Key::Esc | Key::Char('h') | Key::Left => { // ---------------------- back --------------
-                    match app.current_screen {
-                        Channels => {},
-                        Videos => app.action(Back),
+                        Videos => app.action(Leave),
                     }
                 }
-                Key::Char('j') | Key::Down => { // ---------------------- Down ---------------------
+                Key::Esc | Key::Char('h') | Key::Left => {
+                    // ---------------------- back --------------
+                    match app.current_screen {
+                        Channels => {}
+                        Videos => app.action(Leave),
+                    }
+                }
+                Key::Char('j') | Key::Down => {
+                    // ---------------------- Down ---------------------
                     app.action(Down);
-                },
+                }
                 Key::Char('k') | Key::Up => {
                     app.action(Up);
-                },
+                }
                 Key::Char('n') => {
                     app.action(NextChannel);
                 }
@@ -124,18 +119,23 @@ fn main() {
                             if app.config.mark_on_open {
                                 app.action(Mark);
                             }
-                        },
+                        }
                     }
                 }
-                Key::Char('m') => { // ----------- mark ---------------
+                Key::Char('m') => {
+                    // ----------- mark ---------------
                     app.action(Mark);
-                },
-                Key::Char('M') => { // ----------- unmark -------------
+                }
+                Key::Char('M') => {
+                    // ----------- unmark -------------
                     app.action(Unmark);
-                },
+                }
                 Key::Char('r') => {
-                    update_channel_list(status_update_sender.clone(), channel_update_sender.clone());
-                    app.action(Back);
+                    update_channel_list(
+                        status_update_sender.clone(),
+                        channel_update_sender.clone(),
+                    );
+                    app.action(Leave);
                 }
                 Key::Char('t') => {
                     app.config.show_empty_channels = !app.config.show_empty_channels;
@@ -145,19 +145,17 @@ fn main() {
                     };
                     app.set_filter(new_filter);
                 }
-                Key::Char('c') => {
-                    match app.current_screen {
-                        Channels => (),
-                        Videos => {
-                            let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
-                            let link = app.get_selected_video_link();
-                            notify_user(&link);
-                            ctx.set_contents(link).unwrap();
-                        }
+                Key::Char('c') => match app.current_screen {
+                    Channels => (),
+                    Videos => {
+                        let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
+                        let link = app.get_selected_video_link();
+                        notify_user(&link);
+                        ctx.set_contents(link).unwrap();
                     }
-                }
+                },
                 _ => {}
-            }
+            },
             Event::Tick => {
                 tick_counter += 1;
                 for v in status_update_reveiver.try_iter() {
