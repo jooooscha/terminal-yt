@@ -1,11 +1,7 @@
-use serde::{Deserialize, Serialize};
-use std::{
-    fs::File,
-};
-use std::{
-    io::prelude::*,
-};
 use chrono::prelude::*;
+use serde::{Deserialize, Serialize};
+use std::fs::File;
+use std::io::prelude::*;
 
 use dirs_next::home_dir;
 
@@ -32,26 +28,23 @@ pub enum Date {
 impl Date {
     pub fn eq_to(&self, other: &Weekday) -> bool {
         match (self, other) {
-            (Date::Mon, Weekday::Mon) |
-            (Date::Tue, Weekday::Tue) |
-            (Date::Wed, Weekday::Wed) |
-            (Date::Thu, Weekday::Thu) |
-            (Date::Fri, Weekday::Fri) |
-            (Date::Sat, Weekday::Sat) |
-            (Date::Sun, Weekday::Sun) |
+            (Date::Mon, Weekday::Mon)
+            | (Date::Tue, Weekday::Tue)
+            | (Date::Wed, Weekday::Wed)
+            | (Date::Thu, Weekday::Thu)
+            | (Date::Fri, Weekday::Fri)
+            | (Date::Sat, Weekday::Sat)
+            | (Date::Sun, Weekday::Sun)
+            | (Date::Workday, Weekday::Mon)
+            | (Date::Workday, Weekday::Tue)
+            | (Date::Workday, Weekday::Wed)
+            | (Date::Workday, Weekday::Thu)
+            | (Date::Workday, Weekday::Fri)
+            | (Date::Weekend, Weekday::Sat)
+            | (Date::Weekend, Weekday::Sun)
+            | (Date::Always, _) => true,
 
-            (Date::Workday, Weekday::Mon) |
-            (Date::Workday, Weekday::Tue) |
-            (Date::Workday, Weekday::Wed) |
-            (Date::Workday, Weekday::Thu) |
-            (Date::Workday, Weekday::Fri) |
-
-            (Date::Weekend, Weekday::Sat) |
-            (Date::Weekend, Weekday::Sun) |
-
-            (Date::Always, _) => true,
-
-            _ => false
+            _ => false,
         }
     }
 }
@@ -126,10 +119,18 @@ impl UrlFileItem for UrlFileCustomChannel {
     }
 }
 
-fn empty_url_file_channel() -> Vec<UrlFileChannel> { Vec::new() }
-fn empty_url_file_custom_channels() -> Vec<UrlFileCustomChannel> { Vec::new() }
-fn date_always() -> Vec<Date> { vec![Date::Always] }
-fn empty_string() -> String { String::new() }
+fn empty_url_file_channel() -> Vec<UrlFileChannel> {
+    Vec::new()
+}
+fn empty_url_file_custom_channels() -> Vec<UrlFileCustomChannel> {
+    Vec::new()
+}
+fn date_always() -> Vec<Date> {
+    vec![Date::Always]
+}
+fn empty_string() -> String {
+    String::new()
+}
 
 // impl UrlFile {
 impl UrlFile {
