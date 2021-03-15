@@ -1,6 +1,6 @@
 use clipboard::{ClipboardContext, ClipboardProvider};
-use data::{fetch_data::fetch_new_videos, history::read_history, url_file::*};
-use data_types::internal::{Channel, ChannelList, Filter, ToSpans};
+use data::{fetch_data::fetch_new_videos, history::read_history};
+use data::internal::{Channel, ChannelList, Filter, ToSpans};
 use std::{
     sync::mpsc::{channel, Sender},
     thread,
@@ -37,27 +37,10 @@ fn main() {
 }
 
 fn run() {
-    let mut history = match read_history() {
+    let history = match read_history() {
         Some(h) => h,
         None => ChannelList::new(),
     };
-
-    let url_file_content = read_urls_file();
-
-    history.channels = history
-        .channels
-        .into_iter()
-        .filter(|channel| {
-            url_file_content
-                .channels
-                .iter()
-                .any(|url_channel| url_channel.id() == channel.id)
-                || url_file_content
-                    .channels
-                    .iter()
-                    .any(|url_channel| url_channel.id() == channel.id)
-        })
-        .collect();
 
     let mut app = App::new_from_channel_list(history);
 
@@ -76,7 +59,7 @@ fn run() {
         let event = events.next();
 
         for c in channel_update_receiver.try_iter() {
-            app.update_channel_list(c);
+            app.update_channel(c);
             app.save();
 
             app.action(Update);

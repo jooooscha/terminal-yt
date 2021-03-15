@@ -4,11 +4,9 @@ use std::{
 };
 use dirs_next::home_dir;
 
-use data_types::{
-    internal::{
-        ChannelList,
-        MinimalVideo,
-    },
+use crate::internal::{
+    ChannelList,
+    MinimalVideo,
 };
 
 const HISTORY_FILE_PATH: &str = ".config/tyt/history.json";
@@ -35,10 +33,12 @@ pub fn read_history() -> Option<ChannelList> {
         Ok(mut file) => {
             let mut reader = String::new();
             file.read_to_string(&mut reader).unwrap();
-            let channel_list: ChannelList = match serde_json::from_str(&reader) {
+            let mut channel_list: ChannelList = match serde_json::from_str(&reader) {
                 Ok(channels) => channels,
                 Err(e) => panic!("could not read history file: {}", e),
             };
+
+            channel_list.remove_old();
 
             // return
             Some(channel_list)

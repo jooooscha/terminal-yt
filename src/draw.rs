@@ -53,7 +53,7 @@ pub fn draw(app: &mut App) {
     let (show_second_block, channel_name) = match app.current_screen {
         Channels => (false, String::new()),
         Videos => {
-            let right_title = app.get_filtered_channel_list().channels[current_selected].name.clone();
+            let right_title = app.get_filtered_channel_list().get(current_selected).unwrap().name.clone();
             (true, right_title)
         }
     };
@@ -75,26 +75,33 @@ pub fn draw(app: &mut App) {
     // -------------------------------------------
 
     // all channels - left
-    let mut all_chan = app.get_filtered_channel_list().clone();
+    let all_chan = app.get_filtered_channel_list().clone();
+
+    // let chan_state = &mut all_chan.list_state;
+    let mut chan_state = all_chan.state();
+
     let mut chan = Vec::new();
-    let chan_str: Vec<Spans> = all_chan.channels.iter_mut().map(|e| e.to_spans()).collect();
+
+    let chan_str = all_chan.get_spans_list();
+
     for e in chan_str.into_iter() {
         chan.push(ListItem::new(e));
     }
-    let chan_state = &mut all_chan.list_state;
-
 
     // all videos - right
-    let mut all_vids = match app.get_filtered_channel_list().channels.get(current_selected) {
+    let all_vids = match app.get_filtered_channel_list().get(current_selected) {
         Some(e) => e.clone(),
         None => Channel::new(),
     };
+
+    // let vid_state = &mut all_vids.list_state;
+    let mut vid_state = all_vids.state();
+
     let mut vid = Vec::new();
-    let vid_str: Vec<Spans> = all_vids.videos.iter_mut().map(|e| e.to_spans()).collect();
+    let vid_str = all_vids.get_spans_list();
     for e in vid_str.into_iter() {
         vid.push(ListItem::new(e));
     }
-    let vid_state = &mut all_vids.list_state;
 
     // playback history - far right
     let mut playback_history = Vec::new();
@@ -137,7 +144,7 @@ pub fn draw(app: &mut App) {
             .block(block.clone())
             .highlight_style(Style::default())
             .highlight_symbol(symbol);
-        f.render_stateful_widget(list, channel_and_video[0], chan_state);
+        f.render_stateful_widget(list, channel_and_video[0], &mut chan_state);
 
         if show_second_block {
             block = block.title(format!(" {} ", channel_name));
@@ -146,7 +153,7 @@ pub fn draw(app: &mut App) {
                 .block(block.clone())
                 .highlight_style(Style::default())
                 .highlight_symbol(">> ");
-            f.render_stateful_widget(list, channel_and_video[1], vid_state);
+            f.render_stateful_widget(list, channel_and_video[1], &mut vid_state);
         }
 
         block = block.title(" Playback History ");

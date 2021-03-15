@@ -11,20 +11,20 @@ use threadpool::ThreadPool;
 
 use chrono::prelude::*;
 
-use data_types::{
-    internal::{
-        ChannelList,
-        Channel,
-    },
+use feed_types::{
     rss,
     atom,
+};
+use crate:: internal::{
+    ChannelList,
+    Channel,
 };
 use crate::history::{
     read_history,
 };
 use crate::url_file::{
     UrlFileItem,
-    ChannelId,
+    /* ChannelId, */
     read_urls_file,
 };
 
@@ -51,20 +51,21 @@ pub fn fetch_new_videos(status_update_sender: Sender<String>, channel_update_sen
     // load "normal" channels
     for item in url_file_content.channels {
         let channel_sender = channel_sender.clone();
-        let history = history.clone();
-        let url = item.url.clone();
+        let hc = history.clone();
+        let item = item.clone();
+        let urls = vec![item.url.clone()];
 
-        update_videos_from_url(channel_sender, &pool, history.channels, item.clone(), vec![url]); // updates will be send with `channel_sender`
+        update_videos_from_url(channel_sender, &pool, hc, item, urls); // updates will be send with `channel_sender`
     }
 
     // load custom channels
     for item in url_file_content.custom_channels {
-        let cs = channel_sender.clone();
-        let hc = history.channels.clone();
+        let channel_sender = channel_sender.clone();
+        let hc = history.clone();
         let item = item.clone();
         let urls = item.urls.clone();
 
-        update_videos_from_url(cs, &pool, hc, item, urls); // updates will be send with `channel_sender`
+        update_videos_from_url(channel_sender, &pool, hc, item, urls); // updates will be send with `channel_sender`
     }
 
     // receive channels from `update_video_from_url`
@@ -78,16 +79,12 @@ pub fn fetch_new_videos(status_update_sender: Sender<String>, channel_update_sen
             None => (),
         }
     }
-
-/*     channel_list.list_state.select(Some(0));
- *
- *     channel_list */
 }
 
 fn update_videos_from_url<T: 'static + UrlFileItem + std::marker::Send>(
          channel_sender: Sender<Option<Channel>>,
          pool: &ThreadPool,
-         history_channels: Vec<Channel>,
+         history: ChannelList,
          item: T,
          urls: Vec<String>
     ) {
@@ -98,34 +95,23 @@ fn update_videos_from_url<T: 'static + UrlFileItem + std::marker::Send>(
         let mut channel: Option<Channel>;
 
         if item.update_on().iter().any(|w| w.eq_to(&today)) {
-
             channel = match download_channel_updates(&urls) {
                 Ok(channel_updates) => {
-                    let merged_channel = update_channel(&item, channel_updates, &history_channels);
+                    let merged_channel = merge_with_history(&item, channel_updates, &history);
                     Some(merged_channel)
-                }
+                },
                 Err(err_text) => {
-                    notify_user(&format!("Could not update channel: {}", &err_text));
-                    get_channel_from_history(&item.id(), &history_channels)
+                    notify_user(&format!("Could not update {}: {}", &item.id(), &err_text));
+                    history.get_by_id(&item.id()).cloned()
                 }
             }
 
         } else {
-            channel = get_channel_from_history(&item.id(), &history_channels);
+            channel = history.get_by_id(&item.id()).cloned()
         };
 
-        if channel.is_some() {
-            let mut ch = channel.unwrap();
-
-            // filter videos from removed urls in custom channel
-            ch.videos = ch.videos.into_iter().filter(
-                |video| urls.iter().any(
-                    |url| url == &video.channel_link
-                )
-            ).collect();
-
-            ch.videos.sort_by_key(|video| video.pub_date.clone());
-            ch.videos.reverse();
+        if let Some(mut ch) = channel {
+            ch.sort();
             channel = Some(ch);
         }
 
@@ -147,7 +133,7 @@ fn download_channel_updates(urls: &Vec<String>) -> Result<Channel, String> {
             }
         };
 
-        let mut fetched_channel = match parse_feed_to_channel(&feed, &url.clone()) {
+        let fetched_channel = match parse_feed_to_channel(&feed, &url.clone()) {
             Ok(channel) => channel,
             Err(err_text) => {
                 return Err(format!("Could not parse: {}", err_text))
@@ -158,7 +144,7 @@ fn download_channel_updates(urls: &Vec<String>) -> Result<Channel, String> {
             new_channel = Some(fetched_channel);
         } else {
             let mut chan_temp = new_channel.clone().unwrap();
-            chan_temp.videos.append(&mut fetched_channel.videos);
+            chan_temp.merge_from(fetched_channel);
             new_channel = Some(chan_temp);
         }
     }
@@ -180,29 +166,68 @@ fn fetch_feed(url: &String) -> Result<String, reqwest::Error> {
 
 fn parse_feed_to_channel(body: &String, origin_url: &String) -> Result<Channel, String> {
 
+    let mut channel: Option<Channel> = None;
+
     // try to parse as atom
-    match from_str::<atom::Feed>(body) {
-        Ok(feed) => return Ok(feed.to_internal_channel(origin_url)),
-        Err(_) => (),
+    if channel.is_none() {
+        channel = match from_str::<atom::Feed>(body) {
+            Ok(feed) => Some(Channel::from(feed)),
+            Err(_) => None
+        };
     }
 
     // try to parse as rss
-    match from_str::<rss::Feed>(body) {
-        Ok(feed) => return Ok(feed.to_internal_channel(origin_url)),
-        Err(_) => (),
+    if channel.is_none() {
+        channel = match from_str::<rss::Feed>(body) {
+            Ok(feed) => Some(Channel::from(feed)),
+            Err(_) => None
+        };
     }
 
-    Err(String::from("Could not parse feed"))
+    match channel {
+        Some(mut ch) => {
+            ch.add_origin_url(origin_url);
+            Ok(ch)
+        },
+        None => Err(String::from("Could not parse feed")),
+    }
 }
 
-fn update_channel<T: 'static + UrlFileItem>(
+fn merge_with_history<T: 'static + UrlFileItem>(
         item: &T,
         channel_updates: Channel,
-        history_channels: &Vec<Channel>
+        history: &ChannelList,
     ) -> Channel {
 
-    // create template
-    let mut channel = Channel::new_with_id(item.id());
+/*     // create template
+ *     let mut channel = Channel::new_with_id(item.id());
+ *
+ *     // set name - prefere name declard in url-file
+ *     channel.name = if item.name().is_empty() {
+ *         channel_updates.name.clone()
+ *     } else {
+ *         item.name().clone()
+ *     };
+ *
+ *     // set tag
+ *     channel.tag = item.tag().clone();
+ *
+ *     // insert already known videos
+ *     if let Some(channnel_h) = history.get_by_id(&item.id()) {
+ *         [> channel.videos = channnel_h.videos.clone(); <]
+ *         channel.merge_from(channnel_h);
+ *     } */
+    /* for mut vid in channel_updates.videos.into_iter() {
+     *     if !channel.videos.iter().any(|video| video.link == vid.link) {
+     *         vid.new = true;
+     *         channel.videos.push(vid);
+     *     }
+     * } */
+
+    let mut channel = match history.get_by_id(&item.id()) {
+        Some(channel) => channel.clone(),// found something in histoy
+        None => Channel::new_with_id(item.id()), // found nothing in history; create new
+    };
 
     // set name - prefere name declard in url-file
     channel.name = if item.name().is_empty() {
@@ -214,30 +239,10 @@ fn update_channel<T: 'static + UrlFileItem>(
     // set tag
     channel.tag = item.tag().clone();
 
-    // insert already known videos
-    match get_channel_from_history(&item.id(), history_channels) {
-        Some(channel_h) => channel.videos = channel_h.videos.clone(),
-        None => (),
-    }
-
     // insert new videos
-    for mut vid in channel_updates.videos.into_iter() {
-        if !channel.videos.iter().any(|video| video.link == vid.link) {
-            vid.new = true;
-            channel.videos.push(vid);
-        }
-    }
+    channel.merge_from(channel_updates);
 
     channel // return updated channel
-}
-
-fn get_channel_from_history(id: &ChannelId, history_channels: &Vec<Channel>) -> Option<Channel> {
-    for channel in history_channels.iter() {
-        if &channel.id == id {
-            return Some(channel.clone());
-        }
-    }
-    None
 }
 
 #[cfg(test)]

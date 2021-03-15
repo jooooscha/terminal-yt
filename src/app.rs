@@ -1,12 +1,16 @@
 use crate::draw;
-use data::{config::Config, history::*};
-use data_types::internal::{Filter, *};
+use data::{config::Config, history::*, internal::{Filter, *}};
 #[cfg(test)]
-use rand::prelude::*;
+use rand::{distributions::Alphanumeric, prelude::*, Rng};
+use std::cmp;
+#[cfg(test)]
+use std::env;
 use std::{
     io::{stdin, stdout},
     process::{Command, Stdio},
 };
+#[cfg(test)]
+use std::{thread, time};
 #[cfg(not(test))]
 use termion::raw::IntoRawMode;
 use termion::{input::MouseTerminal, screen::AlternateScreen};
@@ -88,7 +92,7 @@ impl App {
 
         // ------------------------------------------
 
-        channel_list.list_state.select(Some(0));
+        channel_list.select(Some(0));
         channel_list.filter(current_filter, config.sort_by_tag);
 
         // ------------------------------------------
@@ -116,17 +120,17 @@ impl App {
             Mark | Unmark => {
                 if self.current_screen == Videos {
                     let state = action == Mark;
-                    match self.get_selected_video() {
-                        Some(v) => v.mark(state),
+                    match self.get_selected_video_mut() {
+                        Some(video) => video.mark(state),
                         None => return,
                     }
 
-                    if !self.get_selected_channel().has_new()
+                    if !self.get_selected_channel_mut().has_new()
                         && self.current_filter == Filter::OnlyNew
                     {
                         self.action(Leave);
                     } else if self.config.down_on_mark {
-                        self.get_selected_channel().next();
+                        self.get_selected_channel_mut().next();
                     }
 
                     self.save();
@@ -135,23 +139,22 @@ impl App {
             Up => match self.current_screen {
                 Channels => self.get_filtered_channel_list_mut().prev(),
                 Videos => {
-                    self.get_selected_channel().prev();
+                    self.get_selected_channel_mut().prev();
                 }
             },
             Down => match self.current_screen {
                 Channels => self.get_filtered_channel_list_mut().next(),
-                Videos => self.get_selected_channel().next(),
+                Videos => self.get_selected_channel_mut().next(),
             },
             Enter => {
+                /* notify_user(&format!("{}, {}", self.get_selected_channel_index(), self.get_selected_channel().id)); */
                 self.current_screen = Videos;
-                self.get_selected_channel().list_state.select(Some(0));
+                self.get_selected_channel_mut().select(Some(0));
             }
             Leave => {
                 self.current_screen = Channels;
                 let i = self.get_selected_channel_index();
-                self.get_filtered_channel_list_mut()
-                    .list_state
-                    .select(Some(i));
+                self.get_filtered_channel_list_mut().select(Some(i));
             }
             NextChannel => match self.current_screen {
                 Channels => {}
@@ -170,12 +173,12 @@ impl App {
                 }
             },
             Open => {
-                let video = match self.get_selected_video() {
+                let video = match self.get_selected_video_mut() {
                     Some(v) => v.clone(),
                     None => return,
                 };
 
-                let channel = self.get_selected_channel().name.clone();
+                let channel = self.get_selected_channel_mut().name.clone();
 
                 let history_video = video.to_minimal(channel);
 
@@ -206,7 +209,7 @@ impl App {
         }
     }
 
-    #[doc = "Select a filter."]
+    /// Set a filter
     pub fn set_filter(&mut self, filter: Filter) {
         self.current_filter = filter;
         self.set_channel_list(self.channel_list.clone());
@@ -215,49 +218,75 @@ impl App {
     fn set_channel_list(&mut self, new_cl: ChannelList) {
         let mut filtered_channel_list = new_cl.clone();
 
-        // apply current filter
+        if filtered_channel_list.len() == 0 {
+            return
+        }
+
+        // apply current filter to new list
         filtered_channel_list.filter(self.current_filter, self.config.sort_by_tag);
 
         // keep current selection based on currend focused screen
-        match self.current_screen {
-            Channels => {
-                let selected_channel = self.get_selected_channel_index();
+        let on_videos = self.current_screen == Videos;
 
-                self.channel_list = filtered_channel_list;
-
-                self.channel_list.list_state.select(Some(selected_channel));
-            }
-            Videos => {
-                let selected_video = self.get_selected_channel().list_state.selected();
-
-                self.channel_list = filtered_channel_list;
-
-                self.get_selected_channel()
-                    .list_state
-                    .select(selected_video);
-            }
+        let mut video_pos = None;
+        if on_videos {
+            self.action(Leave);
+            video_pos = self.get_selected_channel().selected();
         }
+
+        let selected_channel_index = self.get_selected_channel_index();
+        let selected_channel_id = if self.get_filtered_channel_list().len() > 0 {
+            self.get_selected_channel_mut().id.clone()
+        } else {
+            String::new() // will not match later: intended
+        };
+
+        self.channel_list = filtered_channel_list;
+
+        let position = self.get_filtered_channel_list().get_position_by_id(&selected_channel_id);
+
+        let selection = match position {
+            Some(i) => i,
+            None => {
+                let l = cmp::max(1, self.get_filtered_channel_list().len());
+                cmp::min(
+                    selected_channel_index,
+                    l - 1,
+                )
+            },
+        };
+
+        #[cfg(test)]
+        println!("{:?}, selection: {}, selected_channel_index: {}", position, selection, selected_channel_index);
+
+        self.channel_list.select(Some(selection));
+
+        if on_videos {
+            self.action(Enter);
+            self.get_selected_channel_mut().select(video_pos);
+        }
+
+/*         match self.current_screen {
+ *             Channels => {
+ *             }
+ *             Videos => {
+ *                 let selected_video = self.get_selected_channel_mut().selected();
+ *
+ *                 self.channel_list = filtered_channel_list;
+ *
+ *                 self.get_selected_channel_mut().select(selected_video);
+ *             }
+ *         } */
     }
 
-    #[doc = "Update the list of channels."]
-    pub fn update_channel_list(&mut self, updated_channel: Channel) {
+    /// Search for the channel in channel_list by id. If found insert videos that are not already in channel.videos; else insert channel to channel_list.
+    pub fn update_channel(&mut self, updated_channel: Channel) {
         let mut channel_list = self.get_filtered_channel_list().clone();
 
-        let position: Option<usize> = channel_list
-            .channels
-            .iter()
-            .position(|channel| channel.id == updated_channel.id);
-
-        match position {
-            Some(i) => {
-                /* channel_list.channels[i] = updated_channel; */
-                for new_video in updated_channel.videos.into_iter() {
-                    if channel_list.channels[i].videos.iter().all(|video| video.link != new_video.link) {
-                        channel_list.channels[i].videos.push(new_video);
-                    }
-                }
-            }
-            None => channel_list.channels.push(updated_channel),
+        if let Some(channel) = channel_list.get_mut_by_id(&updated_channel.id) {
+            channel.merge_from(updated_channel); // add video to channel
+        } else {
+            channel_list.push(updated_channel); // insert new channel
         }
 
         self.set_channel_list(channel_list);
@@ -271,15 +300,8 @@ impl App {
         &self.channel_list
     }
 
-    pub fn get_selected_channel_index(&self) -> usize {
-        match self.get_filtered_channel_list().list_state.selected() {
-            Some(i) => i,
-            None => 0,
-        }
-    }
-
     pub fn get_selected_video_link(&mut self) -> String {
-        match self.get_selected_video() {
+        match self.get_selected_video_mut() {
             Some(v) => v.link.clone(),
             None => String::from("none"),
         }
@@ -292,18 +314,30 @@ impl App {
 
     //--------------
 
-    fn get_selected_channel(&mut self) -> &mut Channel {
-        let i = self.get_selected_channel_index();
-        self.channel_list.channels.get_mut(i).unwrap()
+    pub fn get_selected_channel_index(&self) -> usize {
+        match self.get_filtered_channel_list().selected() {
+            Some(i) => i,
+            None => 0,
+        }
     }
 
-    fn get_selected_video(&mut self) -> Option<&mut Video> {
-        let c = self.get_selected_channel();
-        let i = match c.list_state.selected() {
-            Some(i) => i,
-            None => return None,
-        };
-        c.videos.get_mut(i)
+    fn get_selected_channel(&self) -> &Channel {
+        let i = self.get_selected_channel_index();
+        self.get_filtered_channel_list()
+            .get(i)
+            .unwrap()
+    }
+
+    fn get_selected_channel_mut(&mut self) -> &mut Channel {
+        let i = self.get_selected_channel_index();
+        self.get_filtered_channel_list_mut()
+            .get_mut(i)
+            .unwrap()
+    }
+
+    fn get_selected_video_mut(&mut self) -> Option<&mut Video> {
+        let i = self.get_selected_channel().selected()?;
+        self.get_selected_channel_mut().get_mut(i)
     }
     //---------------
     pub fn save(&mut self) {
@@ -318,46 +352,109 @@ impl App {
 mod tests {
     use super::*;
 
-    fn test_app(channel_count: usize) -> App {
-        let mut rng = rand::thread_rng();
-        let channel_list: ChannelList = ChannelList::new();
-
-        let mut app = App::new_from_channel_list(channel_list);
-
-        for i in 0..channel_count {
-            let mut test_channel: Channel = Channel::new();
-            test_channel.id = format!("channel {}", i);
-
-            if i % 2 == 0 {
-                let mut video = Video::new();
-                if rng.gen::<f64>() > 0.0 {
-                    video.mark(true);
-                };
-                test_channel.videos.push(Video::new());
-            }
-            app.update_channel_list(test_channel);
+    fn get_random_video() -> Video {
+        let mut rng = thread_rng();
+        if rng.gen::<f64>() > 0.5 {
+            get_unmarked_video()
+        } else {
+            get_unmarked_video()
         }
+    }
 
-        app
+    fn get_marked_video() -> Video {
+        let mut video = get_unmarked_video();
+        video.mark(true);
+
+        video
+    }
+
+    fn get_unmarked_video() -> Video {
+        let mut video = Video::new();
+        video.link = random_string();
+
+        video
+    }
+
+    fn random_string() -> String {
+        rand::thread_rng()
+            .sample_iter(&Alphanumeric)
+            .take(9)
+            .map(char::from)
+            .collect()
+    }
+
+    fn test_app() -> App {
+        let channel_list: ChannelList = ChannelList::new();
+        App::new_from_channel_list(channel_list)
     }
 
     #[test]
     fn test_init() {
-        let channel_count = 10;
-        let mut app = test_app(channel_count);
+        let mut app = test_app();
+
+        const CHANNEL_COUNT: usize = 10;
+
+        let hidden_video_count = 5;
+        let not_hidden_video_count = 30;
+
+        let channel_has_unmarked: [bool; CHANNEL_COUNT] = [
+            true, true, false, false, false, true, false, true, false, false,
+        ];
+        let _trues = 4;
+        let _falses = 6;
+
+        for i in 0..CHANNEL_COUNT {
+            let mut channel = Channel::new();
+            channel.id = random_string();
+
+            if channel_has_unmarked[i] {
+                channel.push(get_unmarked_video());
+                for _ in 0..not_hidden_video_count - 1 {
+                    channel.push(get_random_video());
+                }
+            } else {
+                for _ in 0..hidden_video_count - 1 {
+                    channel.push(get_marked_video());
+                }
+            }
+
+            app.update_channel(channel);
+        }
 
         app.set_filter(Filter::NoFilter);
 
         assert_eq!(
-            app.get_filtered_channel_list().channels.len(),
-            channel_count
+            app.get_filtered_channel_list().len(),
+            CHANNEL_COUNT
+        );
+
+        app.set_filter(Filter::OnlyNew);
+
+        assert_eq!(app.get_filtered_channel_list().len(), _trues);
+
+        app.set_filter(Filter::NoFilter);
+
+        assert_eq!(
+            app.get_filtered_channel_list().len(),
+            CHANNEL_COUNT
         );
     }
 
     #[test]
     fn test_move() {
         let channel_count = 10;
-        let mut app = test_app(channel_count);
+        let mut app = test_app();
+
+        for _ in 0..channel_count {
+            let mut channel = Channel::new();
+            channel.id = random_string();
+
+            for _ in 0..10 {
+                channel.push(get_random_video());
+            }
+
+            app.update_channel(channel);
+        }
 
         app.set_filter(Filter::NoFilter);
 
@@ -366,37 +463,65 @@ mod tests {
             app.action(Down);
         }
 
-        assert_eq!(app.channel_list.list_state.selected().unwrap(), 3);
+        assert_eq!(app.channel_list.selected().unwrap(), 3);
 
         // simple up
         for _ in 0..2 {
             app.action(Up);
         }
 
-        assert_eq!(app.channel_list.list_state.selected().unwrap(), 1);
+        assert_eq!(app.channel_list.selected().unwrap(), 1);
 
         // too far up
         for _ in 0..5 {
             app.action(Up);
         }
 
-        assert_eq!(app.channel_list.list_state.selected().unwrap(), 0);
+        assert_eq!(app.channel_list.selected().unwrap(), 0);
 
         // too far down
         for _ in 0..channel_count + 1 {
             app.action(Down);
         }
 
-        assert_eq!(
-            app.channel_list.list_state.selected().unwrap(),
-            channel_count - 1
-        );
+        assert_eq!(app.channel_list.selected().unwrap(), channel_count - 1);
     }
 
     #[test]
     fn test_enter_leave() {
-        let channel_count = 100;
-        let mut app = test_app(channel_count);
+        let mut app = test_app();
+
+        const CHANNEL_COUNT: usize = 10;
+        let hidden_video_count = 5;
+        let not_hidden_video_count = 100;
+
+        let channel_has_unmarked: [bool; CHANNEL_COUNT] = [
+            false, false, true, false, true, true, false, true, true, false,
+        ];
+        let _trues = 5;
+        let _falses = 5;
+
+        for i in 0..CHANNEL_COUNT {
+            let mut channel = Channel::new();
+            channel.id = random_string();
+
+            if channel_has_unmarked[i] {
+                channel.push(get_unmarked_video());
+                for _ in 0..not_hidden_video_count - 1 {
+                    channel.push(get_random_video());
+                }
+            } else {
+                for _ in 0..hidden_video_count - 1 {
+                    channel.push(get_marked_video());
+                }
+            }
+
+            app.update_channel(channel);
+        }
+
+        app.set_filter(Filter::NoFilter);
+
+        // --------------------------------------------------------------------------
 
         assert_eq!(app.get_selected_channel_index(), 0);
 
@@ -408,35 +533,139 @@ mod tests {
 
         app.action(Enter);
 
+        assert_eq!(app.get_selected_channel_index(), 3);
+
         assert_eq!(app.current_screen, Screen::Videos);
 
         app.action(Down);
         app.action(Down);
         app.action(Down);
+        app.action(Up);
 
         app.action(Leave);
 
         assert_eq!(app.current_screen, Screen::Channels);
         assert_eq!(app.get_selected_channel_index(), 3);
+    }
 
-        app.set_filter(Filter::OnlyNew);
+    #[test]
+    fn test_toggle_filter() {
+        let mut app = test_app();
+        let mut rng = thread_rng();
 
-        app.action(Down);
-        app.action(Down);
-        app.action(Down);
-        app.action(Down);
-        app.action(Down);
-        app.action(Down);
-        app.action(Down);
-        app.action(Down);
-        app.action(Down);
-        app.action(Down);
-        app.action(Down);
+        let gui_mode = match &env::args().collect::<Vec<String>>().get(2) {
+            Some(text) => text.clone().clone() == "gui".to_owned(),
+            None => false,
+        };
 
-        let channel_id = app.get_selected_channel().id.clone();
+        const CHANNEL_COUNT: usize = 30;
+        let hidden_video_count = 30;
+        let not_hidden_video_count = 70;
+
+        let mut trues = 0;
+        let mut falses = 0;
+
+        let mut channel_list = ChannelList::new();
+
+        for _ in 0..CHANNEL_COUNT {
+            let mut channel = Channel::new();
+            channel.id = random_string();
+            channel.name = random_string();
+
+            if rand::random() {
+                trues += 1;
+                channel.push(get_unmarked_video());
+                for _ in 0..not_hidden_video_count - 1 {
+                    channel.push(get_random_video());
+                }
+            } else {
+                falses += 1;
+                for _ in 0..hidden_video_count {
+                    channel.push(get_marked_video());
+                }
+            }
+
+            // app.update_channel_list(channel);
+            channel_list.push(channel);
+        }
+
+        app.set_channel_list(channel_list);
 
         app.set_filter(Filter::NoFilter);
 
+        if gui_mode {
+            app.action(Update);
+            thread::sleep(time::Duration::from_millis(1000));
+        }
+
+        //-------------------------------------------------------------------------------
+
+        assert_eq!(
+            app.get_filtered_channel_list().len(),
+            trues + falses
+        );
+        app.set_filter(Filter::OnlyNew);
+        assert_eq!(app.get_filtered_channel_list().len(), trues);
+
+        if gui_mode {
+            app.action(Update);
+            thread::sleep(time::Duration::from_millis(1000));
+        }
+
+        let number = rng.gen::<f32>() * 3.0;
+        let number = number.floor() as usize + 1;
+
+        assert_eq!(app.get_selected_channel_index(), 0);
+
+        for _ in 0..number {
+            app.action(Down);
+        }
+
+        if gui_mode {
+            app.action(Update);
+            thread::sleep(time::Duration::from_millis(1000));
+        }
+
+        assert_eq!(app.get_selected_channel_index(), number);
+
+        let channel_id = app.get_selected_channel().id.clone();
+        app.set_filter(Filter::NoFilter);
+
+        if gui_mode {
+            app.action(Update);
+            thread::sleep(time::Duration::from_millis(1000));
+        }
+
+        assert_eq!(
+            app.get_filtered_channel_list().len(),
+            trues + falses
+        );
+
         assert_eq!(app.get_selected_channel().id.clone(), channel_id);
+
+        // add one  marked channel at end
+        let mut channel = Channel::new();
+        channel.id = random_string();
+        channel.name = "zzzzzzzzzzzzzzzzzzzz".to_owned();
+        channel.push(get_marked_video());
+        app.update_channel(channel);
+
+        for _ in 0..100 {
+            app.action(Down);
+        }
+
+        if gui_mode {
+            app.action(Update);
+            thread::sleep(time::Duration::from_millis(1000));
+        }
+
+        app.set_filter(Filter::OnlyNew);
+
+        if gui_mode {
+            app.action(Update);
+            thread::sleep(time::Duration::from_millis(1000));
+        }
+
+        assert_eq!(app.get_filtered_channel_list().len() - 1, app.get_selected_channel_index());
     }
 }

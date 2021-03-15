@@ -8,20 +8,19 @@ use serde::{
     },
 };
 use std::fmt;
-use chrono::DateTime;
-use crate::internal;
 
 #[derive(Debug, Deserialize)]
 pub struct Feed {
     pub channel: Channel,
+    /* #[serde(skip)]
+     * pub origin_url: String, */
 }
 
-#[derive(Debug)]
+#[derive(Debug,)]
 pub struct Channel {
     /* #[serde(rename = "title")] */
     pub name: String,
     pub link: String,
-    /* #[serde(rename = "item")] */
     pub videos: Vec<Video>,
 }
 
@@ -29,116 +28,8 @@ pub struct Channel {
 pub struct Video {
     pub title: String,
     pub link: String,
-    /* #[serde(rename = "pubDate")] */
     pub pub_date: String,
 }
-
-#[allow(dead_code)]
-impl Feed {
-    pub fn to_internal_channel(self, original_link: &String) -> internal::Channel {
-        let chan = self.channel;
-
-        let name = chan.name;
-        let link = chan.link;
-        let videos = chan.videos.into_iter().map(|v| v.to_internal_video(original_link)).collect();
-
-        internal::Channel {
-            name,
-            id: link,
-            videos,
-            ..internal::Channel::new()
-        }
-    }
-}
-
-#[allow(dead_code)]
-impl Video {
-    fn to_internal_video(self, channel_link: &String) -> internal::Video {
-        // let title = self.title.first().unwrap().to_string();
-        let title = self.title;
-        let link = self.link;
-        let pub_date = match DateTime::parse_from_rfc2822(&self.pub_date) {
-            Ok(date) => date.to_rfc3339(),
-            Err(e) => panic!("error parsing date in video {}: {}", title, e),
-        };
-
-        internal::Video {
-            title,
-            link,
-            channel_link: channel_link.clone(),
-            pub_date,
-            ..internal::Video::new()
-        }
-    }
-}
-/*
- * pub fn from_str(xml: &String) -> Result<Feed, String> {
- *     let mut reader = Reader::from_str(xml);
- *     reader.trim_text(true);
- *
- *     let mut buf = Vec::new();
- *     let mut ns_buf = Vec::new();
- *
- *     let mut channel = Channel::new();
- *
- *     loop {
- *         match reader.read_namespaced_event(&mut buf, &mut ns_buf) {
- *             Ok((ref ns, Event::Start(ref e))) => {
- *                 match (*ns, e.local_name()) {
- *                     (Some(b"atom"), b"link") => println!("link {:?}", e.attributes().map(|a| a.unwrap().value).collect::<Vec<_>>()),
- *                     [> b"title" => println!("{}", e.unescape_and_decode(&reader).unwrap()), <]
- *                     _ => (),
- *                 }
- *             },
- *             [> Ok(Event::Text(e)) => <]
- *             Ok((_, Event::Eof)) => break,
- *             Err(e) => panic!("error at pos {}: {:?}", reader.buffer_position(), e),
- *             _ => (),
- *         }
- *     }
- *
- *     buf.clear();
- *
- *     Err(String::from("testing..."))
- * } */
-
-
-/* struct VideoMapVisitor {}
- * impl VideoMapVisitor {
- *     fn new() -> Self {
- *         Self {}
- *     }
- * }
- *
- * impl<'de> Visitor<'de> for VideoMapVisitor {
- *     type Value = Video;
- *
- *     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
- *         formatter.write_str("struct Video")
- *     }
- *     fn visit_map<M: MapAccess<'de>>(self, mut access: M) -> Result<Self::Value, M::Error> {
- *         let mut item = Video {
- *             title: String::new(),
- *             link: String::new(),
- *             pub_date: String::new(),
- *         };
- *         while let Some((key, value)) = access.next_entry::<String, String>()? {
- *             item = Video {
- *                 title: key,
- *                 link: value,
- *                 pub_date: String::new(),
- *             };
- *         }
- *         Ok(item)
- *     }
- * }
- *
- * impl<'de> Deserialize<'de> for Video {
- *     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
- *         where D: Deserializer<'de>, {
- *             deserializer.deserialize_map(VideoMapVisitor::new())
- *     }
- * } */
 
 impl<'de> Deserialize<'de> for Video {
     fn deserialize<D: Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
@@ -166,9 +57,6 @@ impl<'de> Deserialize<'de> for Video {
                 }{
                     match key.as_str() {
                         "title" => {
-                            /* if title.is_some() {
-                             *     return Err(de::Error::duplicate_field("title"));
-                             * } */
                             title = Some(map.next_value()?);
                         }
                         "link" => {
