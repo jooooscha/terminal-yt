@@ -66,10 +66,6 @@ pub struct MinimalVideo {
     pub channel: String,
 }
 
-fn empty_string() -> String {
-    String::new()
-}
-
 //----------------------------------
 
 impl ChannelList {
