@@ -261,7 +261,7 @@ impl App {
 
         self.channel_list.select(Some(selection));
 
-        if on_videos {
+        if on_videos && position.is_some() {
             self.action(Enter);
             self.get_selected_channel_mut().select(video_pos);
         }
