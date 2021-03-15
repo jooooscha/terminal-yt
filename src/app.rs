@@ -215,15 +215,11 @@ impl App {
         self.set_channel_list(self.channel_list.clone());
     }
 
-    fn set_channel_list(&mut self, new_cl: ChannelList) {
-        let mut filtered_channel_list = new_cl.clone();
+    fn set_channel_list(&mut self, mut new_channel_list: ChannelList) {
 
-        if filtered_channel_list.len() == 0 {
+        if new_channel_list.len() == 0 {
             return
         }
-
-        // apply current filter to new list
-        filtered_channel_list.filter(self.current_filter, self.config.sort_by_tag);
 
         // keep current selection based on currend focused screen
         let on_videos = self.current_screen == Videos;
@@ -241,7 +237,10 @@ impl App {
             String::new() // will not match later: intended
         };
 
-        self.channel_list = filtered_channel_list;
+        // apply current filter to new list
+        new_channel_list.filter(self.current_filter, self.config.sort_by_tag);
+
+        self.channel_list = new_channel_list;
 
         let position = self.get_filtered_channel_list().get_position_by_id(&selected_channel_id);
 
@@ -265,18 +264,6 @@ impl App {
             self.action(Enter);
             self.get_selected_channel_mut().select(video_pos);
         }
-
-/*         match self.current_screen {
- *             Channels => {
- *             }
- *             Videos => {
- *                 let selected_video = self.get_selected_channel_mut().selected();
- *
- *                 self.channel_list = filtered_channel_list;
- *
- *                 self.get_selected_channel_mut().select(selected_video);
- *             }
- *         } */
     }
 
     /// Search for the channel in channel_list by id. If found insert videos that are not already in channel.videos; else insert channel to channel_list.
@@ -284,7 +271,7 @@ impl App {
         let mut channel_list = self.get_filtered_channel_list().clone();
 
         if let Some(channel) = channel_list.get_mut_by_id(&updated_channel.id) {
-            channel.merge_from(updated_channel); // add video to channel
+            channel.merge_videos(updated_channel); // add video to channel
         } else {
             channel_list.push(updated_channel); // insert new channel
         }
