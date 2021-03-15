@@ -1,6 +1,6 @@
 [package]
 name = "data"
-version = "0.3.2"
+version = "0.4.0"
 authors = ["joooscha <joscha.loos@pm.me>"]
 edition = "2018"
 
@@ -14,6 +14,7 @@ toml = "*"
 chrono = "*"
 dirs-next = "*"
 threadpool = "*"
+tui = "*"
 
-data_types = { path = "../data_types" }
+feed_types = { path = "../feed_types" }
 notification = { path = "../notification" }
