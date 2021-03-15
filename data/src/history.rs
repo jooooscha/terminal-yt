@@ -38,7 +38,7 @@ pub fn read_history() -> Option<ChannelList> {
                 Err(e) => panic!("could not read history file: {}", e),
             };
 
-            channel_list.remove_old();
+            channel_list.apply_url_file_changes(); // update all things that have changed in url file
 
             // return
             Some(channel_list)

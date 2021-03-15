@@ -24,7 +24,6 @@ use crate::history::{
 };
 use crate::url_file::{
     UrlFileItem,
-    /* ChannelId, */
     read_urls_file,
 };
 
@@ -144,7 +143,7 @@ fn download_channel_updates(urls: &Vec<String>) -> Result<Channel, String> {
             new_channel = Some(fetched_channel);
         } else {
             let mut chan_temp = new_channel.clone().unwrap();
-            chan_temp.merge_from(fetched_channel);
+            chan_temp.merge_videos(fetched_channel);
             new_channel = Some(chan_temp);
         }
     }
@@ -199,48 +198,13 @@ fn merge_with_history<T: 'static + UrlFileItem>(
         history: &ChannelList,
     ) -> Channel {
 
-/*     // create template
- *     let mut channel = Channel::new_with_id(item.id());
- *
- *     // set name - prefere name declard in url-file
- *     channel.name = if item.name().is_empty() {
- *         channel_updates.name.clone()
- *     } else {
- *         item.name().clone()
- *     };
- *
- *     // set tag
- *     channel.tag = item.tag().clone();
- *
- *     // insert already known videos
- *     if let Some(channnel_h) = history.get_by_id(&item.id()) {
- *         [> channel.videos = channnel_h.videos.clone(); <]
- *         channel.merge_from(channnel_h);
- *     } */
-    /* for mut vid in channel_updates.videos.into_iter() {
-     *     if !channel.videos.iter().any(|video| video.link == vid.link) {
-     *         vid.new = true;
-     *         channel.videos.push(vid);
-     *     }
-     * } */
-
     let mut channel = match history.get_by_id(&item.id()) {
         Some(channel) => channel.clone(),// found something in histoy
         None => Channel::new_with_id(item.id()), // found nothing in history; create new
     };
 
-    // set name - prefere name declard in url-file
-    channel.name = if item.name().is_empty() {
-        channel_updates.name.clone()
-    } else {
-        item.name().clone()
-    };
-
-    // set tag
-    channel.tag = item.tag().clone();
-
     // insert new videos
-    channel.merge_from(channel_updates);
+    channel.merge_videos(channel_updates);
 
     channel // return updated channel
 }
@@ -307,14 +271,13 @@ mod tests{
  *         let mut updates = old.clone();
  *         updates.videos.push(video);
  *
- *         let url_file_channel = UrlFileChannel (
- *             url: String::from("URL");
+ *         let url_file_channel = UrlFileChannel {
+ *             url: String::from("URL"),
  *             name,
  *             updates
- *         )
+ *         };
  *
- *         let ret_channel = update_channel_attr(, updates, &vec![old]);
- *
+ *         let ret_channel = update_channel(&vec![old]);
  *
  *         assert_eq!(ret_channel.tag, tag);
  *         assert_eq!(ret_channel.name, name);

@@ -9,7 +9,7 @@ use tui::{
     widgets::ListState,
 };
 use Filter::*;
-use crate::url_file::{read_urls_file, UrlFileItem};
+use crate::url_file::{read_urls_file, UrlFileItem, UrlFile};
 use feed_types::*;
 
 #[derive(PartialEq, Clone, Copy)]
@@ -38,10 +38,11 @@ pub struct ChannelList {
 pub struct Channel {
     pub name: String,
     pub id: String,
-    #[serde(default = "empty_string")]
-    pub tag: String,
+    // #[serde(default = "empty_string")]
     videos: Vec<Video>,
 
+    #[serde(skip)]
+    pub tag: String,
     #[serde(skip)]
     list_state: ListState,
 }
@@ -162,9 +163,7 @@ impl ChannelList {
     }
 
     /// Filter all channels that are not in the UrlFile anymore
-    pub fn remove_old(&mut self) {
-        let url_file_content = read_urls_file();
-
+    fn remove_old(&mut self, url_file_content: &UrlFile) {
         self.channels = self.channels
             .iter()
             .cloned()
@@ -177,7 +176,7 @@ impl ChannelList {
             .collect();
 
         // remove videos that belong to urls removed from a custom channel
-        for custom_channel in url_file_content.custom_channels {
+        for custom_channel in url_file_content.custom_channels.iter() {
             let urls = &custom_channel.urls;
             if let Some(mut channel) = self.get_mut_by_id(&custom_channel.id()) {
                 channel.videos = channel.videos.iter().filter(
@@ -187,6 +186,34 @@ impl ChannelList {
                 ).cloned().collect();
             }
         }
+    }
+
+    fn update_name_and_tag(&mut self, url_file_content: &UrlFile) {
+        for item in url_file_content.channels.iter() {
+            if let Some(mut chan) = self.get_mut_by_id(&item.id()) {
+                chan.tag = item.tag().clone();
+                if !item.name().is_empty() {
+                    chan.name = item.name().clone();
+                }
+            }
+        }
+
+        for item in url_file_content.custom_channels.iter() {
+            if let Some(mut chan) = self.get_mut_by_id(&item.id()) {
+                chan.tag = item.tag().clone();
+                if !item.name().is_empty() {
+                    chan.name = item.name().clone();
+                }
+            }
+        }
+    }
+
+
+    pub fn apply_url_file_changes(&mut self) {
+        let url_file_content = read_urls_file();
+
+        self.remove_old(&url_file_content);
+        self.update_name_and_tag(&url_file_content);
     }
 
     //---------------------------------------------------------------
@@ -322,6 +349,17 @@ impl Channel {
         }
     }
 
+    pub fn update_information(&mut self, url_file_channel: &dyn UrlFileItem) {
+        // set name - prefere name declard in url-file
+        if !url_file_channel.name().is_empty() {
+            self.name = url_file_channel.name().clone();
+        }
+
+        // set tag
+        /* println!("{},{}", self.tag, url_file_channel.tag().clone()); */
+        self.tag = url_file_channel.tag().clone();
+    }
+
     //-------------------------------------------------
 
     pub fn len(&self) -> usize {
@@ -356,7 +394,7 @@ impl Channel {
         self.videos.append(videos);
     }
 
-    pub fn merge_from(&mut self, other: Channel) {
+    pub fn merge_videos(&mut self, other: Channel) {
         for video in other.videos.into_iter() {
             if !self.contains(&video) {
                 self.push(video);
