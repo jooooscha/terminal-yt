@@ -4,9 +4,9 @@ use std::{
 };
 use dirs_next::home_dir;
 
-use crate::data_types::internal::{
-    ChannelList,
-    MinimalVideo,
+use crate::data_types::{
+    channel_list::ChannelList,
+    video::MinimalVideo,
 };
 
 const HISTORY_FILE_PATH: &str = ".config/tyt/history.json";

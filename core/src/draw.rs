@@ -1,11 +1,22 @@
-use crate::data_types::internal::ToSpans;
-use crate::{App, *};
+use crate::{
+    data_types::{channel::Channel, channel_list::ChannelList, video::MinimalVideo},
+    config::Config,
+    Screen::*,
+    core::Core,
+    ToTuiListItem,
+};
 use std::thread;
+use std::{
+    sync::{
+        Arc, Mutex,
+    },
+};
+use tui::{backend::TermionBackend, widgets::ListItem, Terminal};
 use tui::{
     layout::{Alignment, Constraint, Direction, Layout},
     style::Style,
-    text::{Span},
-    widgets::{Block, BorderType, Borders, List, ListItem, Paragraph},
+    text::Span,
+    widgets::{Block, BorderType, Borders, List, Paragraph},
 };
 
 const INFO_LINE: &str =
@@ -45,16 +56,16 @@ pub struct View {
     playback_history: Vec<MinimalVideo>,
 }
 
-impl From<&App> for View {
-    fn from(app: &App) -> Self {
-        let terminal = app.terminal.clone();
-        let config = app.config.clone();
-        let update_line = app.update_line.clone();
-        let show_channel_block = app.current_screen == Videos;
-        let channel_list = app.get_filtered_channel_list().clone();
-        let current_selected = app.get_selected_channel().clone();
+impl From<&Core> for View {
+    fn from(core: &Core) -> Self {
+        let terminal = core.terminal.clone();
+        let config = core.config.clone();
+        let update_line = core.update_line.clone();
+        let show_channel_block = core.current_screen == Videos;
+        let channel_list = core.get_filtered_channel_list().clone();
+        let current_selected = core.get_selected_channel().clone();
         let selected_channel_name = current_selected.name.clone();
-        let playback_history = app.playback_history.clone();
+        let playback_history = core.playback_history.clone();
 
         View {
             terminal,
@@ -71,7 +82,6 @@ impl From<&App> for View {
 
 pub fn draw(app: View) {
     thread::spawn(move || {
-
         let mut block = Block::default()
             .title(app.config.app_title.clone())
             .borders(Borders::ALL)
@@ -91,7 +101,6 @@ pub fn draw(app: View) {
         // -------------------------------------------
 
         // all channels - left view
-        // let channels = app.get_filtered_channel_list().clone();
         let channels = app.channel_list.clone();
 
         let chan: Vec<ListItem> = channels.get_spans_list();
@@ -101,17 +110,13 @@ pub fn draw(app: View) {
 
         let mut vid_state = current_channel.state();
 
-        /* let mut vid = Vec::new(); */
         let vid = current_channel.get_spans_list();
-        /* for e in vid_str.into_iter() {
-         *     vid.push(ListItem::new(e));
-         * } */
 
         // playback history - bottom view
         let playback_history: Vec<ListItem> = app
             .playback_history
             .iter()
-            .map(|v| v.to_spans())
+            .map(|v| v.to_list_item())
             .rev()
             .collect();
 

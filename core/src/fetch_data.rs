@@ -1,6 +1,6 @@
 use crate::data_types::feed_types::{atom, rss};
+use crate::data_types::{channel::Channel, channel_list::ChannelList};
 use crate::history::read_history;
-use crate::data_types::internal::{Channel, ChannelList};
 use crate::url_file::{read_urls_file, UrlFileItem};
 use chrono::prelude::*;
 use notification::notify::notify_user;

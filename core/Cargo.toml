@@ -1,5 +1,5 @@
 [package]
-name = "app"
+name = "core"
 version = "0.1.0"
 authors = ["joooscha <j.loos@posteo.net>"]
 edition = "2018"

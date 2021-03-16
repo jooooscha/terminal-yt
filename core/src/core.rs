@@ -1,18 +1,18 @@
-mod config;
-mod draw;
-pub mod fetch_data;
-mod history;
-mod url_file;
-pub mod data_types {
-    pub(crate) mod feed_types;
-    pub mod internal;
-}
-
-use self::{Action::*, Screen::*};
-use config::Config;
-use data_types::internal::{Channel, ChannelList, Filter, MinimalVideo, Video};
-use draw::draw;
-use history::{read_history, read_playback_history, write_history, write_playback_history};
+use crate::{
+    config::Config,
+    data_types::{
+        channel::Channel,
+        channel_list::ChannelList,
+        video::{MinimalVideo, Video},
+    },
+    draw::draw,
+    history::{read_history, read_playback_history, write_history, write_playback_history},
+    Filter,
+    Screen,
+    Action,
+    Action::*,
+    Screen::*,
+};
 use std::{
     cmp,
     io::{stdin, stdout},
@@ -21,7 +21,6 @@ use std::{
         mpsc::{channel, Receiver, Sender},
         Arc, Mutex,
     },
-    /* time, */
 };
 use tui::{backend::TermionBackend, Terminal};
 
@@ -35,7 +34,7 @@ use std::{thread, time};
 use termion::{input::MouseTerminal, raw::IntoRawMode, screen::AlternateScreen};
 
 // The main struct containing everything important
-pub struct App {
+pub struct Core {
     #[cfg(not(test))]
     pub terminal: Arc<
         Mutex<
@@ -67,29 +66,10 @@ pub struct App {
     channel_list: ChannelList,
     pub(crate) playback_history: Vec<MinimalVideo>,
     pub status_sender: Sender<String>,
-    pub(crate) status_receiver: Receiver<String>
+    pub(crate) status_receiver: Receiver<String>,
 }
 
-#[derive(PartialEq)]
-pub enum Action {
-    Mark,
-    Unmark,
-    Up,
-    Down,
-    Enter,
-    Leave,
-    NextChannel,
-    PrevChannel,
-    Open,
-}
-
-#[derive(PartialEq, Clone, Debug)]
-pub enum Screen {
-    Channels,
-    Videos,
-}
-
-impl App {
+impl Core {
     pub fn new_from_history() -> Self {
         #[cfg(not(test))]
         let stdout = stdout().into_raw_mode().unwrap();
@@ -127,7 +107,7 @@ impl App {
 
         // ------------------------------------------
 
-        App {
+        Core {
             terminal,
             config: config.clone(),
             current_screen: Channels,
@@ -234,9 +214,17 @@ impl App {
                 self.playback_history.push(history_video);
 
                 write_playback_history(&self.playback_history);
-                if let Err(err) = video.open() {
-                    self.post(err.to_string());
-                };
+
+                if let Err(error) = Command::new("setid")
+                    .arg("-f")
+                    .arg("umpv")
+                    .arg(&video.link)
+                    .stderr(Stdio::null())
+                    .spawn()
+                {
+                    self.post(error.to_string());
+                }
+
                 if self.config.use_notify_send {
                     if let Err(err) = Command::new("notify-send")
                         .arg("Open video")
@@ -359,17 +347,17 @@ impl App {
         }
     }
 
-    fn get_selected_channel(&self) -> &Channel {
+    pub fn get_selected_channel(&self) -> &Channel {
         let i = self.get_selected_channel_index();
         self.get_filtered_channel_list().get(i).unwrap()
     }
 
-    fn get_selected_channel_mut(&mut self) -> &mut Channel {
+    pub fn get_selected_channel_mut(&mut self) -> &mut Channel {
         let i = self.get_selected_channel_index();
         self.get_filtered_channel_list_mut().get_mut(i).unwrap()
     }
 
-    fn get_selected_video_mut(&mut self) -> Option<&mut Video> {
+    pub fn get_selected_video_mut(&mut self) -> Option<&mut Video> {
         let i = self.get_selected_channel().selected()?;
         self.get_selected_channel_mut().get_mut(i)
     }
@@ -417,14 +405,14 @@ mod tests {
             .collect()
     }
 
-    fn test_app() -> App {
+    fn test_core() -> Core {
         let channel_list: ChannelList = ChannelList::new();
-        App::new_from_channel_list(channel_list)
+        Core::new_from_channel_list(channel_list)
     }
 
     #[test]
     fn test_init() {
-        let mut app = test_app();
+        let mut core = test_core();
 
         const CHANNEL_COUNT: usize = 10;
 
@@ -452,26 +440,26 @@ mod tests {
                 }
             }
 
-            app.update_channel(channel);
+            core.update_channel(channel);
         }
 
-        app.set_filter(Filter::NoFilter);
+        core.set_filter(Filter::NoFilter);
 
-        assert_eq!(app.get_filtered_channel_list().len(), CHANNEL_COUNT);
+        assert_eq!(core.get_filtered_channel_list().len(), CHANNEL_COUNT);
 
-        app.set_filter(Filter::OnlyNew);
+        core.set_filter(Filter::OnlyNew);
 
-        assert_eq!(app.get_filtered_channel_list().len(), _trues);
+        assert_eq!(core.get_filtered_channel_list().len(), _trues);
 
-        app.set_filter(Filter::NoFilter);
+        core.set_filter(Filter::NoFilter);
 
-        assert_eq!(app.get_filtered_channel_list().len(), CHANNEL_COUNT);
+        assert_eq!(core.get_filtered_channel_list().len(), CHANNEL_COUNT);
     }
 
     #[test]
     fn test_move() {
         let channel_count = 10;
-        let mut app = test_app();
+        let mut core = test_core();
 
         for _ in 0..channel_count {
             let mut channel = Channel::new();
@@ -481,43 +469,43 @@ mod tests {
                 channel.push(get_random_video());
             }
 
-            app.update_channel(channel);
+            core.update_channel(channel);
         }
 
-        app.set_filter(Filter::NoFilter);
+        core.set_filter(Filter::NoFilter);
 
         // simple down
         for _ in 0..3 {
-            app.action(Down);
+            core.action(Down);
         }
 
-        assert_eq!(app.channel_list.selected().unwrap(), 3);
+        assert_eq!(core.channel_list.selected().unwrap(), 3);
 
         // simple up
         for _ in 0..2 {
-            app.action(Up);
+            core.action(Up);
         }
 
-        assert_eq!(app.channel_list.selected().unwrap(), 1);
+        assert_eq!(core.channel_list.selected().unwrap(), 1);
 
         // too far up
         for _ in 0..5 {
-            app.action(Up);
+            core.action(Up);
         }
 
-        assert_eq!(app.channel_list.selected().unwrap(), 0);
+        assert_eq!(core.channel_list.selected().unwrap(), 0);
 
         // too far down
         for _ in 0..channel_count + 1 {
-            app.action(Down);
+            core.action(Down);
         }
 
-        assert_eq!(app.channel_list.selected().unwrap(), channel_count - 1);
+        assert_eq!(core.channel_list.selected().unwrap(), channel_count - 1);
     }
 
     #[test]
     fn test_enter_leave() {
-        let mut app = test_app();
+        let mut core = test_core();
 
         const CHANNEL_COUNT: usize = 10;
         let hidden_video_count = 5;
@@ -544,41 +532,41 @@ mod tests {
                 }
             }
 
-            app.update_channel(channel);
+            core.update_channel(channel);
         }
 
-        app.set_filter(Filter::NoFilter);
+        core.set_filter(Filter::NoFilter);
 
         // --------------------------------------------------------------------------
 
-        assert_eq!(app.get_selected_channel_index(), 0);
+        assert_eq!(core.get_selected_channel_index(), 0);
 
-        app.action(Down);
-        app.action(Down);
-        app.action(Down);
+        core.action(Down);
+        core.action(Down);
+        core.action(Down);
 
-        assert_eq!(app.get_selected_channel_index(), 3);
+        assert_eq!(core.get_selected_channel_index(), 3);
 
-        app.action(Enter);
+        core.action(Enter);
 
-        assert_eq!(app.get_selected_channel_index(), 3);
+        assert_eq!(core.get_selected_channel_index(), 3);
 
-        assert_eq!(app.current_screen, Screen::Videos);
+        assert_eq!(core.current_screen, Screen::Videos);
 
-        app.action(Down);
-        app.action(Down);
-        app.action(Down);
-        app.action(Up);
+        core.action(Down);
+        core.action(Down);
+        core.action(Down);
+        core.action(Up);
 
-        app.action(Leave);
+        core.action(Leave);
 
-        assert_eq!(app.current_screen, Screen::Channels);
-        assert_eq!(app.get_selected_channel_index(), 3);
+        assert_eq!(core.current_screen, Screen::Channels);
+        assert_eq!(core.get_selected_channel_index(), 3);
     }
 
     #[test]
     fn test_toggle_filter() {
-        let mut app = test_app();
+        let mut core = test_core();
         let mut rng = thread_rng();
 
         let gui_mode = match &env::args().collect::<Vec<String>>().get(2) {
@@ -613,7 +601,6 @@ mod tests {
                 }
             }
 
-            // app.update_channel_list(channel);
             channel_list.push(channel);
         }
 

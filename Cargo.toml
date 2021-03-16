@@ -8,8 +8,6 @@ edition = "2018"
 termion = "*"
 tui = "*"
 clipboard = "*"
-# rand = "*"
 
-# data = { path = "./data" }
 notification = { path = "./notification" }
-app = { path = "./app" }
+core = { path = "./core" }
