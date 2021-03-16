@@ -59,7 +59,10 @@ fn run() {
                     // ----------------- close -----------------------
                     match core.current_screen {
                         Channels => break,
-                        Videos => core.action(Leave),
+                        Videos => {
+                            core.action(Leave);
+                            core.draw();
+                        },
                     }
                 }
                 Key::Esc | Key::Char('h') | Key::Left => {
