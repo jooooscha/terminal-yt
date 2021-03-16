@@ -48,6 +48,9 @@ fn run() {
 
     let events = Events::new();
 
+    let mut tick_counter = 0;
+    let mut size = app.terminal.size().unwrap();
+
     let (channel_update_sender, channel_update_receiver) = channel();
 
     if app.config.update_at_start {
@@ -61,7 +64,7 @@ fn run() {
             app.update_channel(c);
             app.save();
 
-            app.draw();
+            /* app.draw(); */
         }
 
         match event.unwrap() {
@@ -79,19 +82,24 @@ fn run() {
                         Channels => {}
                         Videos => app.action(Leave),
                     }
+                    app.draw();
                 }
                 Key::Char('j') | Key::Down => {
                     // ---------------------- Down ---------------------
                     app.action(Down);
+                    app.draw();
                 }
                 Key::Char('k') | Key::Up => {
                     app.action(Up);
+                    app.draw();
                 }
                 Key::Char('n') => {
                     app.action(NextChannel);
+                    app.draw();
                 }
                 Key::Char('p') => {
                     app.action(PrevChannel);
+                    app.draw();
                 }
                 Key::Char('\n') | Key::Char('l') | Key::Right | Key::Char('o') => {
                     match app.current_screen {
@@ -103,14 +111,17 @@ fn run() {
                             }
                         }
                     }
+                    app.draw();
                 }
                 Key::Char('m') => {
                     // ----------- mark ---------------
                     app.action(Mark);
+                    app.draw();
                 }
                 Key::Char('M') => {
                     // ----------- unmark -------------
                     app.action(Unmark);
+                    app.draw();
                 }
                 Key::Char('r') => {
                     update_channel_list(
@@ -126,6 +137,7 @@ fn run() {
                         Filter::OnlyNew => Filter::NoFilter,
                     };
                     app.set_filter(new_filter);
+                    app.draw();
                 }
                 Key::Char('c') => match app.current_screen {
                     Channels => (),
@@ -139,9 +151,20 @@ fn run() {
                 _ => {}
             },
             Event::Tick => {
-                app.update_status_line();
+                if tick_counter == 2 {
+                    let actually_updated = app.update_status_line();
+                    if actually_updated {
+                        app.draw();
+                    }
+                    tick_counter = 0;
+                } else {
+                    tick_counter += 1;
+                }
 
-                app.draw();
+                if app.terminal.size().unwrap() != size.clone() {
+                    app.draw();
+                    size = app.terminal.size().unwrap();
+                }
             }
         }
     }

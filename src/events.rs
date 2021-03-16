@@ -44,7 +44,7 @@ impl Events {
                 let tx = tx.clone();
                 loop {
                     tx.send(Event::Tick).unwrap();
-                    thread::sleep(Duration::from_millis(100));
+                    thread::sleep(Duration::from_millis(50));
                 }
             })
         };

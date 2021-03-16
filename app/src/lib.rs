@@ -133,12 +133,16 @@ impl App {
         /* self.status_sender.send(msg); */
     }
 
-    pub fn update_status_line(&mut self) {
+    pub fn update_status_line(&mut self) -> bool {
         if let Ok(line) = self.status_receiver.try_recv() {
-            self.update_line = line
-        } else {
+            self.update_line = line;
+        } else if !self.update_line.is_empty() {
             self.update_line = String::new();
+        } else {
+            return false
         }
+
+        true
     }
 
     #[doc = "Contains every possible action possible."]
