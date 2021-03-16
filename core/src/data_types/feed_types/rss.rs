@@ -12,13 +12,10 @@ use std::fmt;
 #[derive(Debug, Deserialize)]
 pub struct Feed {
     pub channel: Channel,
-    /* #[serde(skip)]
-     * pub origin_url: String, */
 }
 
 #[derive(Debug,)]
 pub struct Channel {
-    /* #[serde(rename = "title")] */
     pub name: String,
     pub link: String,
     pub videos: Vec<Video>,
