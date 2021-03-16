@@ -6,7 +6,7 @@ use std::{
 use tui::{
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::ListState,
+    widgets::{ListState, ListItem},
 };
 use Filter::*;
 use crate::url_file::{read_urls_file, UrlFileItem, UrlFile};
@@ -20,7 +20,7 @@ pub enum Filter {
 
 // program structs
 pub trait ToSpans {
-    fn to_spans(&self) -> Spans;
+    fn to_spans(&self) -> ListItem;
 }
 
 //----------------------------------
@@ -154,7 +154,7 @@ impl ChannelList {
         self.channels.iter().position(|channel| &channel.id == id)
     }
 
-    pub fn get_spans_list(&self) -> Vec<Spans> {
+    pub fn get_spans_list(&self) -> Vec<ListItem> {
         self.channels.iter().map(|channel| channel.to_spans()).collect()
     }
 
@@ -414,8 +414,8 @@ impl Channel {
         self.videos.reverse();
     }
 
-    pub fn get_spans_list(&self) -> Vec<Spans> {
-        self.videos.iter().map(|e| e.to_spans()).collect::<Vec<Spans>>().clone()
+    pub fn get_spans_list(&self) -> Vec<ListItem> {
+        self.videos.iter().map(|e| e.to_spans()).collect::<Vec<ListItem>>().clone()
     }
 }
 
@@ -459,7 +459,7 @@ impl From<atom::Feed> for Channel {
 }
 
 impl ToSpans for Channel {
-    fn to_spans(&self) -> Spans {
+    fn to_spans(&self) -> ListItem {
         let num_marked = &self
             .videos
             .clone()
@@ -497,13 +497,13 @@ impl ToSpans for Channel {
             tag_style = base_style.clone();
         }
 
-        Spans::from(vec![
+        ListItem::new(Spans::from(vec![
             Span::styled(num, base_style),
             Span::styled(bar, base_style),
             Span::styled(tag, tag_style),
             Span::styled(name, base_style.add_modifier(Modifier::ITALIC)),
             Span::styled(new, new_style),
-        ])
+        ]))
     }
 }
 
@@ -595,7 +595,7 @@ impl From<atom::Video> for Video {
 
 
 impl ToSpans for Video {
-    fn to_spans(&self) -> Spans {
+    fn to_spans(&self) -> ListItem {
         /* let d = match DateTime::parse_from_rfc3339(&self.pub_date); */
         let pre_title = if self.new && !self.marked {
             String::from("   new   - ")
@@ -623,22 +623,22 @@ impl ToSpans for Video {
             style_new = style_title.clone();
         }
 
-        Spans::from(vec![
+        ListItem::new(Spans::from(vec![
             Span::styled(pre_title, style_new),
             Span::styled(title, style_title.add_modifier(Modifier::ITALIC)),
-        ])
+        ]))
     }
 }
 impl ToSpans for MinimalVideo {
-    fn to_spans(&self) -> Spans {
+    fn to_spans(&self) -> ListItem {
         let channel = format!("{} {} - ", tui::symbols::DOT, &self.channel);
         let title = format!("{}", &self.title);
 
         let style = Style::default().fg(Color::DarkGray);
 
-        Spans::from(vec![
+        ListItem::new(Spans::from(vec![
             Span::styled(channel, style),
             Span::styled(title, style.add_modifier(Modifier::ITALIC)),
-        ])
+        ]))
     }
 }

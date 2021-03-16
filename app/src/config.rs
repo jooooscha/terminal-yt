@@ -1,65 +1,49 @@
+use dirs_next::home_dir;
 use serde::{Deserialize, Serialize};
 use std::{
     fs::File,
-    io::{
-        Read,
-        Write,
-    },
+    io::{Read, Write},
 };
-use dirs_next::home_dir;
 
 const CONFIG_FILE_PATH: &str = ".config/tyt/config";
+const SCHOW_EMPTY_CHANNEL_DEFAULT: bool = true;
+const MARK_ON_OPEN_DEFAULT: bool = true;
+const DOWN_ON_MARK_DEFAULT: bool = true;
+const APP_TITLE_DEFAULT: &str = "TYT";
+const UPDATAE_AT_START_DEFAULT: bool = true;
+const SORT_BY_TAG_DEFAULT: bool = false;
+const MASSAGE_TIMEOUT_DEFAULT: usize = 20;
+const USE_NOTIFY_SEND_DEFAULT: bool = true;
 
-#[allow(dead_code)]
 #[derive(Clone, Deserialize, Serialize)]
+#[serde(default)]
 pub struct Config {
     pub show_empty_channels: bool,
-    #[serde(default = "default_bool_true")]
     pub mark_on_open: bool,
-    #[serde(default = "default_bool_true")]
     pub down_on_mark: bool,
-    #[serde(default = "default_title")]
     pub app_title: String,
-    #[serde(default = "default_bool_true")]
     pub update_at_start: bool,
-    #[serde(default = "default_bool_false")]
     pub sort_by_tag: bool,
-    #[serde(default = "default_20")]
-    pub message_timeout: u8,
-    #[serde(default = "default_bool_true")]
+    pub message_timeout: usize,
     pub use_notify_send: bool,
 }
 
-fn default_title() -> String {
-    String::from("TYT")
-}
-
-fn default_bool_true() -> bool {
-    true
-}
-
-fn default_bool_false() -> bool {
-    false
-}
-
-fn default_20() -> u8 {
-    20
+impl Default for Config {
+    fn default() -> Self {
+        Config {
+            show_empty_channels: SCHOW_EMPTY_CHANNEL_DEFAULT,
+            mark_on_open: MARK_ON_OPEN_DEFAULT,
+            down_on_mark: DOWN_ON_MARK_DEFAULT,
+            app_title: APP_TITLE_DEFAULT.into(),
+            update_at_start: UPDATAE_AT_START_DEFAULT,
+            sort_by_tag: SORT_BY_TAG_DEFAULT,
+            message_timeout: MASSAGE_TIMEOUT_DEFAULT,
+            use_notify_send: USE_NOTIFY_SEND_DEFAULT,
+        }
+    }
 }
 
 impl Config {
-    pub fn default() -> Self {
-        Config {
-            show_empty_channels: true,
-            mark_on_open: true,
-            down_on_mark: true,
-            app_title: String::from("TYT"),
-            update_at_start: true,
-            sort_by_tag: false,
-            message_timeout: 20,
-            use_notify_send: true,
-        }
-    }
-
     pub fn read_config_file() -> Self {
         let mut path = home_dir().unwrap();
         path.push(CONFIG_FILE_PATH);
@@ -74,7 +58,7 @@ impl Config {
                 };
 
                 config
-            },
+            }
             Err(_) => {
                 match File::create(path) {
                     Ok(mut file) => {
@@ -85,7 +69,7 @@ impl Config {
                             Ok(_) => return Config::read_config_file(),
                             Err(e) => panic!("could not write default config: {}", e),
                         }
-                    },
+                    }
                     Err(e) => panic!("could not create config file: {}", e),
                 };
             }

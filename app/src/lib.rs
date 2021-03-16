@@ -17,7 +17,10 @@ use std::{
     cmp,
     io::{stdin, stdout},
     process::{Command, Stdio},
-    sync::mpsc::{channel, Receiver, Sender},
+    sync::{
+        mpsc::{channel, Receiver, Sender},
+        Arc, Mutex,
+    },
     /* time, */
 };
 use tui::{backend::TermionBackend, Terminal};
@@ -34,28 +37,37 @@ use termion::{input::MouseTerminal, raw::IntoRawMode, screen::AlternateScreen};
 // The main struct containing everything important
 pub struct App {
     #[cfg(not(test))]
-    pub terminal: Terminal<
-        TermionBackend<
-            termion::screen::AlternateScreen<
-                termion::input::MouseTerminal<termion::raw::RawTerminal<std::io::Stdout>>,
+    pub terminal: Arc<
+        Mutex<
+            Terminal<
+                TermionBackend<
+                    termion::screen::AlternateScreen<
+                        termion::input::MouseTerminal<termion::raw::RawTerminal<std::io::Stdout>>,
+                    >,
+                >,
             >,
         >,
     >,
     #[cfg(test)]
-    pub terminal: Terminal<
-        TermionBackend<
-            termion::screen::AlternateScreen<termion::input::MouseTerminal<std::io::Stdout>>,
+    pub terminal: Arc<
+        Mutex<
+            Terminal<
+                TermionBackend<
+                    termion::screen::AlternateScreen<
+                        termion::input::MouseTerminal<std::io::Stdout>,
+                    >,
+                >,
+            >,
         >,
     >,
     pub config: Config,
     pub(crate) update_line: String,
-    /* pub msg_array: Vec<String>, */
     pub current_screen: Screen,
     pub current_filter: Filter,
     channel_list: ChannelList,
     pub(crate) playback_history: Vec<MinimalVideo>,
     pub status_sender: Sender<String>,
-    pub(crate) status_receiver: Receiver<String>,
+    pub(crate) status_receiver: Receiver<String>
 }
 
 #[derive(PartialEq)]
@@ -88,7 +100,7 @@ impl App {
         let screen = AlternateScreen::from(mouse_terminal);
         let _stdin = stdin();
         let backend = TermionBackend::new(screen);
-        let terminal = Terminal::new(backend).unwrap();
+        let terminal = Arc::new(Mutex::new(Terminal::new(backend).unwrap()));
 
         // ------------------------------------------
         let config = Config::read_config_file();
@@ -125,7 +137,7 @@ impl App {
             current_filter,
             playback_history,
             status_sender,
-            status_receiver,
+            status_receiver: status_receiver,
         }
     }
 
@@ -139,7 +151,7 @@ impl App {
         } else if !self.update_line.is_empty() {
             self.update_line = String::new();
         } else {
-            return false
+            return false;
         }
 
         true
@@ -239,8 +251,8 @@ impl App {
         }
     }
 
-    pub fn draw(&mut self) {
-        draw(self);
+    pub fn draw(&self) {
+        draw(self.into());
     }
 
     /// Set a filter

@@ -1,7 +1,6 @@
 mod events;
 
 use clipboard::{ClipboardContext, ClipboardProvider};
-/* use data::{fetch_data::fetch_new_videos, history::read_history}; */
 use app::{
     fetch_data::fetch_new_videos,
     Action::*,
@@ -49,7 +48,7 @@ fn run() {
     let events = Events::new();
 
     let mut tick_counter = 0;
-    let mut size = app.terminal.size().unwrap();
+    let mut size = app.terminal.clone().lock().unwrap().size().unwrap();
 
     let (channel_update_sender, channel_update_receiver) = channel();
 
@@ -161,9 +160,9 @@ fn run() {
                     tick_counter += 1;
                 }
 
-                if app.terminal.size().unwrap() != size.clone() {
+                if app.terminal.clone().lock().unwrap().size().unwrap() != size.clone() {
                     app.draw();
-                    size = app.terminal.size().unwrap();
+                    size = app.terminal.clone().lock().unwrap().size().unwrap();
                 }
             }
         }
