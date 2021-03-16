@@ -1,59 +1,33 @@
+use crate::{App, *};
+use crate::data_types::internal::ToSpans;
+use tui::widgets::{Block, Borders, List, ListItem};
 use tui::{
-    widgets::{
-        Paragraph,
-        BorderType,
-    },
+    layout::{Alignment, Constraint, Direction, Layout},
     style::Style,
-    text::{
-        Spans,
-        Span,
-    },
-    layout::{
-        Alignment,
-        Layout,
-        Constraint,
-        Direction
-    },
+    text::{Span, Spans},
+    widgets::{BorderType, Paragraph},
 };
 
-use crate::{
-    *,
-    app::{
-        App,
-    },
-};
-
-const INFO_LINE: &str = "q close; o open video/select; Enter/l select; Esc/h go back; m mark; M unmark";
-
-static mut MSG_LINE_TIMER: u8 = 1;
-static mut MSG_LINE: String = String::new();
+const INFO_LINE: &str =
+    "q close; o open video/select; Enter/l select; Esc/h go back; m mark; M unmark";
 
 pub fn draw(app: &mut App) {
-
     // -------------- Visuals/Data ---------------
     let title = app.config.app_title.clone();
 
     let update_line = app.update_line.clone();
-
-    unsafe {
-        MSG_LINE_TIMER -= 1;
-        if MSG_LINE_TIMER == 0 {
-            MSG_LINE = if let Some(rec) = app.msg_array.pop() {
-                MSG_LINE_TIMER = app.config.message_timeout;
-                rec
-            } else {
-                MSG_LINE_TIMER = 1;
-                String::from(INFO_LINE)
-            };
-        }
-    }
 
     let current_selected = app.get_selected_channel_index();
 
     let (show_second_block, channel_name) = match app.current_screen {
         Channels => (false, String::new()),
         Videos => {
-            let right_title = app.get_filtered_channel_list().get(current_selected).unwrap().name.clone();
+            let right_title = app
+                .get_filtered_channel_list()
+                .get(current_selected)
+                .unwrap()
+                .name
+                .clone();
             (true, right_title)
         }
     };
@@ -69,8 +43,8 @@ pub fn draw(app: &mut App) {
     };
 
     let constraints = match app.current_screen {
-        Channels =>  [ Constraint::Percentage(100) ].as_ref(),
-        Videos => [ Constraint::Percentage(35), Constraint::Percentage(65) ].as_ref(),
+        Channels => [Constraint::Percentage(100)].as_ref(),
+        Videos => [Constraint::Percentage(35), Constraint::Percentage(65)].as_ref(),
     };
     // -------------------------------------------
 
@@ -105,13 +79,17 @@ pub fn draw(app: &mut App) {
 
     // playback history - far right
     let mut playback_history = Vec::new();
-    let playback_history_spans: Vec<Spans> = app.playback_history.iter_mut().rev().map(|v| v.to_spans()).collect();
+    let playback_history_spans: Vec<Spans> = app
+        .playback_history
+        .iter()
+        .rev()
+        .map(|v| v.to_spans())
+        .collect();
     for e in playback_history_spans.into_iter() {
         playback_history.push(ListItem::new(e));
     }
 
     let _res = app.terminal.draw(|f| {
-
         // --------------------------
         let main_structure = Layout::default()
             .direction(Direction::Vertical)
@@ -127,10 +105,7 @@ pub fn draw(app: &mut App) {
         let new_and_playback = Layout::default()
             .direction(Direction::Vertical)
             .margin(0)
-            .constraints([
-                Constraint::Percentage(80),
-                Constraint::Percentage(20),
-            ])
+            .constraints([Constraint::Percentage(80), Constraint::Percentage(20)])
             .split(main_structure[0]);
 
         // --------------------------
@@ -168,11 +143,9 @@ pub fn draw(app: &mut App) {
             .alignment(Alignment::Left);
         f.render_widget(par_1, main_structure[1]);
 
-        unsafe {
-            let par_2 = Paragraph::new(Span::from(MSG_LINE.clone()))
-                .style(Style::default())
-                .alignment(Alignment::Left);
-            f.render_widget(par_2, main_structure[2]);
-        }
+        let par_2 = Paragraph::new(Span::from(INFO_LINE.clone()))
+            .style(Style::default())
+            .alignment(Alignment::Left);
+        f.render_widget(par_2, main_structure[2]);
     });
 }

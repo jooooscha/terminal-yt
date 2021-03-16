@@ -10,7 +10,7 @@ use tui::{
 };
 use Filter::*;
 use crate::url_file::{read_urls_file, UrlFileItem, UrlFile};
-use feed_types::*;
+use crate::data_types::feed_types::*;
 
 #[derive(PartialEq, Clone, Copy)]
 pub enum Filter {

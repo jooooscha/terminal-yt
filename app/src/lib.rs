@@ -1,22 +1,35 @@
-use crate::draw;
-use data::{config::Config, history::*, internal::{Filter, *}};
-#[cfg(test)]
-use rand::{distributions::Alphanumeric, prelude::*, Rng};
-use std::cmp;
-#[cfg(test)]
-use std::env;
+mod config;
+mod draw;
+pub mod fetch_data;
+mod history;
+mod url_file;
+pub mod data_types {
+    pub(crate) mod feed_types;
+    pub mod internal;
+}
+
+use self::{Action::*, Screen::*};
+use config::Config;
+use data_types::internal::{Channel, ChannelList, Filter, MinimalVideo, Video};
+use draw::draw;
+use history::{read_history, read_playback_history, write_history, write_playback_history};
 use std::{
+    cmp,
     io::{stdin, stdout},
     process::{Command, Stdio},
+    sync::mpsc::{channel, Receiver, Sender},
+    /* time, */
 };
+use tui::{backend::TermionBackend, Terminal};
+
+#[cfg(test)]
+use rand::{distributions::Alphanumeric, prelude::*, Rng};
+#[cfg(test)]
+use std::env;
 #[cfg(test)]
 use std::{thread, time};
 #[cfg(not(test))]
-use termion::raw::IntoRawMode;
-use termion::{input::MouseTerminal, screen::AlternateScreen};
-use tui::{backend::TermionBackend, Terminal};
-use Action::*;
-use Screen::*;
+use termion::{input::MouseTerminal, raw::IntoRawMode, screen::AlternateScreen};
 
 // The main struct containing everything important
 pub struct App {
@@ -35,13 +48,14 @@ pub struct App {
         >,
     >,
     pub config: Config,
-    pub update_line: String,
-    pub msg_array: Vec<String>,
-    pub app_title: String,
+    pub(crate) update_line: String,
+    /* pub msg_array: Vec<String>, */
     pub current_screen: Screen,
     pub current_filter: Filter,
     channel_list: ChannelList,
-    pub playback_history: Vec<MinimalVideo>,
+    pub(crate) playback_history: Vec<MinimalVideo>,
+    pub status_sender: Sender<String>,
+    pub(crate) status_receiver: Receiver<String>,
 }
 
 #[derive(PartialEq)]
@@ -55,7 +69,6 @@ pub enum Action {
     NextChannel,
     PrevChannel,
     Open,
-    Update,
 }
 
 #[derive(PartialEq, Clone, Debug)]
@@ -65,7 +78,7 @@ pub enum Screen {
 }
 
 impl App {
-    pub fn new_from_channel_list(mut channel_list: ChannelList) -> Self {
+    pub fn new_from_history() -> Self {
         #[cfg(not(test))]
         let stdout = stdout().into_raw_mode().unwrap();
         #[cfg(test)]
@@ -88,6 +101,7 @@ impl App {
 
         // ------------------------------------------
 
+        let mut channel_list = read_history();
         let playback_history = read_playback_history();
 
         // ------------------------------------------
@@ -97,21 +111,34 @@ impl App {
 
         // ------------------------------------------
 
+        let (status_sender, status_receiver) = channel();
+
+        // ------------------------------------------
+
         App {
             terminal,
             config: config.clone(),
-            app_title: config.app_title,
             current_screen: Channels,
             channel_list,
             update_line: String::new(),
-            msg_array: Vec::new(),
+            /* msg_array: Vec::new(), */
             current_filter,
             playback_history,
+            status_sender,
+            status_receiver,
         }
     }
 
-    fn post(&mut self, msg: String) {
-        self.msg_array.push(msg);
+    fn post(&mut self, _msg: String) {
+        /* self.status_sender.send(msg); */
+    }
+
+    pub fn update_status_line(&mut self) {
+        if let Ok(line) = self.status_receiver.try_recv() {
+            self.update_line = line
+        } else {
+            self.update_line = String::new();
+        }
     }
 
     #[doc = "Contains every possible action possible."]
@@ -205,8 +232,11 @@ impl App {
                     };
                 }
             }
-            Update => draw(self),
         }
+    }
+
+    pub fn draw(&mut self) {
+        draw(self);
     }
 
     /// Set a filter
@@ -216,9 +246,8 @@ impl App {
     }
 
     fn set_channel_list(&mut self, mut new_channel_list: ChannelList) {
-
         if new_channel_list.len() == 0 {
-            return
+            return;
         }
 
         // keep current selection based on currend focused screen
@@ -242,21 +271,23 @@ impl App {
 
         self.channel_list = new_channel_list;
 
-        let position = self.get_filtered_channel_list().get_position_by_id(&selected_channel_id);
+        let position = self
+            .get_filtered_channel_list()
+            .get_position_by_id(&selected_channel_id);
 
         let selection = match position {
             Some(i) => i,
             None => {
                 let l = cmp::max(1, self.get_filtered_channel_list().len());
-                cmp::min(
-                    selected_channel_index,
-                    l - 1,
-                )
-            },
+                cmp::min(selected_channel_index, l - 1)
+            }
         };
 
         #[cfg(test)]
-        println!("{:?}, selection: {}, selected_channel_index: {}", position, selection, selected_channel_index);
+        println!(
+            "{:?}, selection: {}, selected_channel_index: {}",
+            position, selection, selected_channel_index
+        );
 
         self.channel_list.select(Some(selection));
 
@@ -269,6 +300,10 @@ impl App {
     /// Search for the channel in channel_list by id. If found insert videos that are not already in channel.videos; else insert channel to channel_list.
     pub fn update_channel(&mut self, updated_channel: Channel) {
         let mut channel_list = self.get_filtered_channel_list().clone();
+
+        self.status_sender
+            .send(format!("Ready: {}", &updated_channel.name))
+            .unwrap();
 
         if let Some(channel) = channel_list.get_mut_by_id(&updated_channel.id) {
             channel.merge_videos(updated_channel); // add video to channel
@@ -294,10 +329,10 @@ impl App {
         }
     }
 
-    #[doc = "draw the screen."]
-    pub fn update(&mut self) {
-        draw(self);
-    }
+    /* #[doc = "draw the screen."]
+     * pub fn update(&mut self) {
+     *     draw(self);
+     * } */
 
     //--------------
 
@@ -310,16 +345,12 @@ impl App {
 
     fn get_selected_channel(&self) -> &Channel {
         let i = self.get_selected_channel_index();
-        self.get_filtered_channel_list()
-            .get(i)
-            .unwrap()
+        self.get_filtered_channel_list().get(i).unwrap()
     }
 
     fn get_selected_channel_mut(&mut self) -> &mut Channel {
         let i = self.get_selected_channel_index();
-        self.get_filtered_channel_list_mut()
-            .get_mut(i)
-            .unwrap()
+        self.get_filtered_channel_list_mut().get_mut(i).unwrap()
     }
 
     fn get_selected_video_mut(&mut self) -> Option<&mut Video> {
@@ -410,10 +441,7 @@ mod tests {
 
         app.set_filter(Filter::NoFilter);
 
-        assert_eq!(
-            app.get_filtered_channel_list().len(),
-            CHANNEL_COUNT
-        );
+        assert_eq!(app.get_filtered_channel_list().len(), CHANNEL_COUNT);
 
         app.set_filter(Filter::OnlyNew);
 
@@ -421,10 +449,7 @@ mod tests {
 
         app.set_filter(Filter::NoFilter);
 
-        assert_eq!(
-            app.get_filtered_channel_list().len(),
-            CHANNEL_COUNT
-        );
+        assert_eq!(app.get_filtered_channel_list().len(), CHANNEL_COUNT);
     }
 
     #[test]
@@ -581,21 +606,18 @@ mod tests {
         app.set_filter(Filter::NoFilter);
 
         if gui_mode {
-            app.action(Update);
+            app.draw();
             thread::sleep(time::Duration::from_millis(1000));
         }
 
         //-------------------------------------------------------------------------------
 
-        assert_eq!(
-            app.get_filtered_channel_list().len(),
-            trues + falses
-        );
+        assert_eq!(app.get_filtered_channel_list().len(), trues + falses);
         app.set_filter(Filter::OnlyNew);
         assert_eq!(app.get_filtered_channel_list().len(), trues);
 
         if gui_mode {
-            app.action(Update);
+            app.draw();
             thread::sleep(time::Duration::from_millis(1000));
         }
 
@@ -609,7 +631,7 @@ mod tests {
         }
 
         if gui_mode {
-            app.action(Update);
+            app.draw();
             thread::sleep(time::Duration::from_millis(1000));
         }
 
@@ -619,14 +641,11 @@ mod tests {
         app.set_filter(Filter::NoFilter);
 
         if gui_mode {
-            app.action(Update);
+            app.draw();
             thread::sleep(time::Duration::from_millis(1000));
         }
 
-        assert_eq!(
-            app.get_filtered_channel_list().len(),
-            trues + falses
-        );
+        assert_eq!(app.get_filtered_channel_list().len(), trues + falses);
 
         assert_eq!(app.get_selected_channel().id.clone(), channel_id);
 
@@ -642,17 +661,20 @@ mod tests {
         }
 
         if gui_mode {
-            app.action(Update);
+            app.draw();
             thread::sleep(time::Duration::from_millis(1000));
         }
 
         app.set_filter(Filter::OnlyNew);
 
         if gui_mode {
-            app.action(Update);
+            app.draw();
             thread::sleep(time::Duration::from_millis(1000));
         }
 
-        assert_eq!(app.get_filtered_channel_list().len() - 1, app.get_selected_channel_index());
+        assert_eq!(
+            app.get_filtered_channel_list().len() - 1,
+            app.get_selected_channel_index()
+        );
     }
 }

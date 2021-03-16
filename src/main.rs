@@ -1,19 +1,25 @@
+mod events;
+
 use clipboard::{ClipboardContext, ClipboardProvider};
-use data::{fetch_data::fetch_new_videos, history::read_history};
-use data::internal::{Channel, ChannelList, Filter, ToSpans};
+/* use data::{fetch_data::fetch_new_videos, history::read_history}; */
+use app::{
+    fetch_data::fetch_new_videos,
+    Action::*,
+    App,
+    Screen::*,
+    data_types::internal::{
+        Channel,
+        Filter,
+    },
+};
+/* use data::internal::{Channel, ChannelList, Filter}; */
 use std::{
     sync::mpsc::{channel, Sender},
     thread,
 };
 use termion::event::Key;
-use tui::widgets::{Block, Borders, List, ListItem};
-use Screen::*;
-mod app;
-mod draw;
-mod events;
-
-use app::{Action::*, App, Screen};
-use draw::draw;
+/* use app::Screen::*;
+ * use app::{Action::*, App, Screen}; */
 use events::*;
 use notification::notify::notify_user;
 
@@ -37,32 +43,25 @@ fn main() {
 }
 
 fn run() {
-    let history = match read_history() {
-        Some(h) => h,
-        None => ChannelList::new(),
-    };
 
-    let mut app = App::new_from_channel_list(history);
+    let mut app = App::new_from_history();
 
     let events = Events::new();
-    let tick_counter_limit = 10;
-    let mut tick_counter = 0;
 
-    let (status_update_sender, status_update_reveiver) = channel();
     let (channel_update_sender, channel_update_receiver) = channel();
 
     if app.config.update_at_start {
-        update_channel_list(status_update_sender.clone(), channel_update_sender.clone());
+        update_channel_list(app.status_sender.clone(), channel_update_sender.clone());
     }
 
     loop {
         let event = events.next();
 
-        for c in channel_update_receiver.try_iter() {
+        if let Ok(c) = channel_update_receiver.try_recv() {
             app.update_channel(c);
             app.save();
 
-            app.action(Update);
+            app.draw();
         }
 
         match event.unwrap() {
@@ -115,7 +114,7 @@ fn run() {
                 }
                 Key::Char('r') => {
                     update_channel_list(
-                        status_update_sender.clone(),
+                        app.status_sender.clone(),
                         channel_update_sender.clone(),
                     );
                     app.action(Leave);
@@ -140,18 +139,10 @@ fn run() {
                 _ => {}
             },
             Event::Tick => {
-                tick_counter += 1;
-                for v in status_update_reveiver.try_iter() {
-                    app.update_line = v;
-                    app.action(Update);
-                }
-                if tick_counter == tick_counter_limit {
-                    tick_counter = 0;
-                    app.update_line = String::new();
-                }
-                app.action(Update);
+                app.update_status_line();
+
+                app.draw();
             }
         }
-        app.update();
     }
 }

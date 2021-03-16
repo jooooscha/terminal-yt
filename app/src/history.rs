@@ -4,7 +4,7 @@ use std::{
 };
 use dirs_next::home_dir;
 
-use crate::internal::{
+use crate::data_types::internal::{
     ChannelList,
     MinimalVideo,
 };
@@ -25,7 +25,7 @@ pub fn write_history(channel_list: &ChannelList) {
     file.write_all(json.as_bytes()).unwrap();
 }
 
-pub fn read_history() -> Option<ChannelList> {
+pub fn read_history() -> ChannelList {
     let mut path = home_dir().unwrap();
     path.push(HISTORY_FILE_PATH);
 
@@ -41,9 +41,9 @@ pub fn read_history() -> Option<ChannelList> {
             channel_list.apply_url_file_changes(); // update all things that have changed in url file
 
             // return
-            Some(channel_list)
+            channel_list
         }
-        Err(_) => None,
+        Err(_) => ChannelList::new(),
     }
 }
 
