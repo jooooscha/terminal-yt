@@ -215,7 +215,7 @@ impl Core {
 
                 write_playback_history(&self.playback_history);
 
-                if let Err(error) = Command::new("setid")
+                if let Err(error) = Command::new("setsid")
                     .arg("-f")
                     .arg("umpv")
                     .arg(&video.link)
@@ -332,11 +332,6 @@ impl Core {
             None => String::from("none"),
         }
     }
-
-    /* #[doc = "draw the screen."]
-     * pub fn update(&mut self) {
-     *     draw(self);
-     * } */
 
     //--------------
 
