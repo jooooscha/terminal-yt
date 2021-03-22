@@ -361,7 +361,7 @@ impl Core {
         let f = self.current_filter;
         self.set_filter(Filter::NoFilter);
         #[cfg(not(test))]
-        /* write_history(self.get_filtered_channel_list()); */
+        write_history(self.get_filtered_channel_list());
         self.set_filter(f);
     }
 }
