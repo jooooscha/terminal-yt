@@ -70,26 +70,29 @@ fn update_videos_from_url<T: 'static + UrlFileItem + std::marker::Send>(
     pool.execute(move || {
         let today = Local::now().weekday();
 
-        let mut channel: Option<Channel>;
+        let mut channel = if item.update_on().iter().any(|w| w.eq_to(&today)) {
+            // download updates
+            match download_channel_updates(&urls) {
+                Ok(mut channel_updates) => {
+                    // merge history into updates
+                    if let Some(history_channel) = history.get_by_id(&item.id()) {
+                        channel_updates.merge_videos(history_channel.clone());
+                    }
 
-        if item.update_on().iter().any(|w| w.eq_to(&today)) {
-            channel = match download_channel_updates(&urls) {
-                Ok(channel_updates) => {
-                    let merged_channel = merge_with_history(&item, channel_updates, &history);
-                    Some(merged_channel)
-                }
+                    Some(channel_updates)
+                },
                 Err(err_text) => {
                     notify_user(&format!("Could not update {}: {}", &item.id(), &err_text));
                     history.get_by_id(&item.id()).cloned()
                 }
             }
         } else {
-            channel = history.get_by_id(&item.id()).cloned()
+            history.get_by_id(&item.id()).cloned()
         };
 
-        if let Some(mut ch) = channel {
+        if let Some(ref mut ch) = channel {
+            ch.update_information(&item);
             ch.sort();
-            channel = Some(ch);
         }
 
         match channel_sender.send(channel) {
@@ -165,95 +168,110 @@ fn parse_feed_to_channel(body: &String, origin_url: &String) -> Result<Channel, 
     }
 }
 
-fn merge_with_history<T: 'static + UrlFileItem>(
-    item: &T,
-    channel_updates: Channel,
-    history: &ChannelList,
-) -> Channel {
-    let mut channel = match history.get_by_id(&item.id()) {
-        Some(channel) => channel.clone(), // found something in histoy
-        None => Channel::new_with_id(item.id()), // found nothing in history; create new
-    };
-
-    // insert new videos
-    channel.merge_videos(channel_updates);
-
-    channel // return updated channel
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use data_types::internal::Video;
-
-    fn test_feed() -> String {
-        String::from("<rss><channel><title>TITLE</title><link>http://example.com</link><description>DESCRIPTION</description><ttl>123</ttl>
-           <item>
-                <title>VIDEO TITLE</title>
-                <link>VIDEO LINK</link>
-                <description>VIDEO DESCRIPTION</description>
-                <guid isPermaLink=\"false\">123</guid>
-                <pubDate>Tue, 02 Mar 2021 18:55:52 UT</pubDate>
-                <category>CATEGORY</category>
-           </item>
-           </channel>
-        </rss>")
-    }
+    use crate::url_file::Date::*;
+    use crate::url_file::UrlFileChannel;
 
     #[test]
-    fn parser_test_err() {
-        let output = parse_feed_to_channel(&String::new());
+    fn test_fetch() {
 
-        assert!(output.is_err());
+        let (cs, cr) = channel();
+        let urls = vec![String::from("https://www.youtube.com/feeds/videos.xml?channel_id=UC8uT9cgJorJPWu7ITLGo9Ww")];
+        let pool = ThreadPool::new(4);
+        let history = ChannelList::new();
+        let item = UrlFileChannel {
+            url: urls[0].clone(),
+            name: String::from("test name"),
+            update_on: vec![Always],
+            tag: String::from("test tag"),
+        };
+
+        update_videos_from_url(cs, &pool, history, item, urls);
+
+        for channel in cr.try_iter() {
+            println!("{:?}", channel);
+        }
+
+        assert!(false)
+
     }
-
-    #[test]
-    fn parser_test_ok() {
-        let string = test_feed();
-
-        let output = parse_feed_to_channel(&String::from(string));
-
-        assert!(output.is_ok());
-    }
-
-    #[test]
-    fn get_channel_from_history_test() {
-        let url = String::from("URL");
-        let mut channel = Channel::new();
-        channel.id = url.clone();
-
-        let mut history_channels = Vec::new();
-        history_channels.push(channel);
-
-        let channel = get_channel_from_history(&url, &history_channels);
-
-        assert!(channel.is_some());
-    }
-
-    /*     #[test]
-     *     fn update_existing_channel_test() {
-     *         let id = String::from("ID");
-     *         let tag = String::from("new_tag");
-     *         let name = String::from("new_name");
-     *
-     *         let video = Video::new();
-     *
-     *         let old = Channel::new_with_id(&id);
-     *
-     *         let mut updates = old.clone();
-     *         updates.videos.push(video);
-     *
-     *         let url_file_channel = UrlFileChannel {
-     *             url: String::from("URL"),
-     *             name,
-     *             updates
-     *         };
-     *
-     *         let ret_channel = update_channel(&vec![old]);
-     *
-     *         assert_eq!(ret_channel.tag, tag);
-     *         assert_eq!(ret_channel.name, name);
-     *         assert_eq!(ret_channel.id, id);
-     *         assert_eq!(ret_channel.videos.len(), 1);
-     *     } */
 }
+
+/* #[cfg(test)]
+ * mod tests {
+ *     use super::*;
+ *     use crate::data_types::video::Video;
+ *
+ *     fn test_feed() -> String {
+ *         String::from("<rss><channel><title>TITLE</title><link>http://example.com</link><description>DESCRIPTION</description><ttl>123</ttl>
+ *            <item>
+ *                 <title>VIDEO TITLE</title>
+ *                 <link>VIDEO LINK</link>
+ *                 <description>VIDEO DESCRIPTION</description>
+ *                 <guid isPermaLink=\"false\">123</guid>
+ *                 <pubDate>Tue, 02 Mar 2021 18:55:52 UT</pubDate>
+ *                 <category>CATEGORY</category>
+ *            </item>
+ *            </channel>
+ *         </rss>")
+ *     }
+ *
+ *     #[test]
+ *     fn parser_test_err() {
+ *         let output = parse_feed_to_channel(&String::new());
+ *
+ *         assert!(output.is_err());
+ *     }
+ *
+ *     #[test]
+ *     fn parser_test_ok() {
+ *         let string = test_feed();
+ *
+ *         let output = parse_feed_to_channel(&String::from(string));
+ *
+ *         assert!(output.is_ok());
+ *     }
+ *
+ *     #[test]
+ *     fn get_channel_from_history_test() {
+ *         let url = String::from("URL");
+ *         let mut channel = Channel::new();
+ *         channel.id = url.clone();
+ *
+ *         let mut history_channels = Vec::new();
+ *         history_channels.push(channel);
+ *
+ *         [> let channel = get_channel_from_history(&url, &history_channels); <]
+ *
+ *         assert!(channel.is_some());
+ *     }
+ *
+ *         #[test]
+ *         fn update_existing_channel_test() {
+ *             let id = String::from("ID");
+ *             let tag = String::from("new_tag");
+ *             let name = String::from("new_name");
+ *
+ *             let video = Video::new();
+ *
+ *             let old = Channel::new_with_id(&id);
+ *
+ *             let mut updates = old.clone();
+ *             updates.videos.push(video);
+ *
+ *             let url_file_channel = UrlFileChannel {
+ *                 url: String::from("URL"),
+ *                 name,
+ *                 updates
+ *             };
+ *
+ *             let ret_channel = update_channel(&vec![old]);
+ *
+ *             assert_eq!(ret_channel.tag, tag);
+ *             assert_eq!(ret_channel.name, name);
+ *             assert_eq!(ret_channel.id, id);
+ *             assert_eq!(ret_channel.videos.len(), 1);
+ *         }
+ * } */

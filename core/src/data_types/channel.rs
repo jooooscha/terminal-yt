@@ -30,22 +30,19 @@ impl Channel {
     #[allow(dead_code)]
     pub fn new() -> Self {
         Channel {
-            name: String::from("New Channel"),
+            name: String::from("placeholder_name"),
             id: String::from("placeholder_id"),
             videos: Vec::new(),
             list_state: ListState::default(),
-            tag: String::new(),
+            tag: String::from("placeholder_tag"),
         }
     }
 
     #[allow(dead_code)]
     pub fn new_with_id(id: String) -> Channel {
         Channel {
-            name: String::from("New Channel"),
             id: id,
-            videos: Vec::new(),
-            list_state: ListState::default(),
-            tag: String::new(),
+            ..Self::new()
         }
     }
 
@@ -92,13 +89,13 @@ impl Channel {
     }
 
     pub fn update_information(&mut self, url_file_channel: &dyn UrlFileItem) {
+
         // set name - prefere name declard in url-file
         if !url_file_channel.name().is_empty() {
             self.name = url_file_channel.name().clone();
         }
 
         // set tag
-        /* println!("{},{}", self.tag, url_file_channel.tag().clone()); */
         self.tag = url_file_channel.tag().clone();
     }
 

@@ -21,17 +21,17 @@ fn update_channel_list(
     });
 }
 
+/* fn main() {
+ *     let result = std::panic::catch_unwind(|| {
+ *         run();
+ *     });
+ *
+ *     if let Err(error_text) = result {
+ *         panic!(error_text);
+ *     }
+ * } */
+
 fn main() {
-    let result = std::panic::catch_unwind(|| {
-        run();
-    });
-
-    if let Err(error_text) = result {
-        panic!(error_text);
-    }
-}
-
-fn run() {
     let mut core = Core::new_from_history();
 
     let events = Events::new();

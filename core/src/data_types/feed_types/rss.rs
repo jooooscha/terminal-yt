@@ -132,8 +132,7 @@ impl<'de> Deserialize<'de> for Channel {
                         _ => map.next_value()?,
                     }
                 }
-                let title = title.ok_or_else(|| de::Error::missing_field("title_channel"))?;
-                let name = title;
+                let name = title.ok_or_else(|| de::Error::missing_field("title_channel"))?;
                 let link = link.ok_or_else(|| de::Error::missing_field("link_channel"))?;
                 if videos.is_empty() {
                     return Err(de::Error::missing_field("videos_channel"));

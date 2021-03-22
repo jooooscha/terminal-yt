@@ -23,6 +23,7 @@ use std::{
     },
 };
 use tui::{backend::TermionBackend, Terminal};
+use termion::{input::MouseTerminal, screen::AlternateScreen};
 
 #[cfg(test)]
 use rand::{distributions::Alphanumeric, prelude::*, Rng};
@@ -31,7 +32,7 @@ use std::env;
 #[cfg(test)]
 use std::{thread, time};
 #[cfg(not(test))]
-use termion::{input::MouseTerminal, raw::IntoRawMode, screen::AlternateScreen};
+use termion::raw::IntoRawMode;
 
 // The main struct containing everything important
 pub struct Core {
@@ -272,7 +273,6 @@ impl Core {
 
         // apply current filter to new list
         new_channel_list.filter(self.current_filter, self.config.sort_by_tag);
-
         self.channel_list = new_channel_list;
 
         let position = self
@@ -360,7 +360,8 @@ impl Core {
     pub fn save(&mut self) {
         let f = self.current_filter;
         self.set_filter(Filter::NoFilter);
-        write_history(self.get_filtered_channel_list());
+        #[cfg(not(test))]
+        /* write_history(self.get_filtered_channel_list()); */
         self.set_filter(f);
     }
 }
@@ -402,7 +403,18 @@ mod tests {
 
     fn test_core() -> Core {
         let channel_list: ChannelList = ChannelList::new();
-        Core::new_from_channel_list(channel_list)
+        let mut c = Core::new_from_history();
+
+        c.channel_list = channel_list;
+
+        c
+    }
+
+    fn draw(core: &mut Core, gui_mode: bool) {
+        if gui_mode {
+            core.draw();
+            thread::sleep(time::Duration::from_millis(1000));
+        }
     }
 
     #[test]
@@ -599,80 +611,111 @@ mod tests {
             channel_list.push(channel);
         }
 
-        app.set_channel_list(channel_list);
+        core.set_channel_list(channel_list);
 
-        app.set_filter(Filter::NoFilter);
+        core.set_filter(Filter::NoFilter);
 
-        if gui_mode {
-            app.draw();
-            thread::sleep(time::Duration::from_millis(1000));
-        }
+        draw(&mut core, gui_mode);
 
         //-------------------------------------------------------------------------------
 
-        assert_eq!(app.get_filtered_channel_list().len(), trues + falses);
-        app.set_filter(Filter::OnlyNew);
-        assert_eq!(app.get_filtered_channel_list().len(), trues);
+        assert_eq!(core.get_filtered_channel_list().len(), trues + falses);
+        core.set_filter(Filter::OnlyNew);
+        assert_eq!(core.get_filtered_channel_list().len(), trues);
 
-        if gui_mode {
-            app.draw();
-            thread::sleep(time::Duration::from_millis(1000));
-        }
+        draw(&mut core, gui_mode);
 
         let number = rng.gen::<f32>() * 3.0;
         let number = number.floor() as usize + 1;
 
-        assert_eq!(app.get_selected_channel_index(), 0);
+        assert_eq!(core.get_selected_channel_index(), 0);
 
         for _ in 0..number {
-            app.action(Down);
+            core.action(Down);
         }
 
-        if gui_mode {
-            app.draw();
-            thread::sleep(time::Duration::from_millis(1000));
-        }
+        draw(&mut core, gui_mode);
 
-        assert_eq!(app.get_selected_channel_index(), number);
+        assert_eq!(core.get_selected_channel_index(), number);
 
-        let channel_id = app.get_selected_channel().id.clone();
-        app.set_filter(Filter::NoFilter);
+        let channel_id = core.get_selected_channel().id.clone();
+        core.set_filter(Filter::NoFilter);
 
-        if gui_mode {
-            app.draw();
-            thread::sleep(time::Duration::from_millis(1000));
-        }
+        draw(&mut core, gui_mode);
 
-        assert_eq!(app.get_filtered_channel_list().len(), trues + falses);
+        assert_eq!(core.get_filtered_channel_list().len(), trues + falses);
 
-        assert_eq!(app.get_selected_channel().id.clone(), channel_id);
+        assert_eq!(core.get_selected_channel().id.clone(), channel_id);
 
         // add one  marked channel at end
         let mut channel = Channel::new();
         channel.id = random_string();
         channel.name = "zzzzzzzzzzzzzzzzzzzz".to_owned();
         channel.push(get_marked_video());
-        app.update_channel(channel);
+        core.update_channel(channel);
 
         for _ in 0..100 {
-            app.action(Down);
+            core.action(Down);
         }
 
-        if gui_mode {
-            app.draw();
-            thread::sleep(time::Duration::from_millis(1000));
-        }
+        draw(&mut core, gui_mode);
 
-        app.set_filter(Filter::OnlyNew);
+        core.set_filter(Filter::OnlyNew);
 
-        if gui_mode {
-            app.draw();
-            thread::sleep(time::Duration::from_millis(1000));
-        }
+        draw(&mut core, gui_mode);
 
         assert_eq!(
-            app.get_filtered_channel_list().len() - 1,
-            app.get_selected_channel_index()
+            core.get_filtered_channel_list().len() - 1,
+            core.get_selected_channel_index()
         );
+    }
+
+    #[test]
+    fn test_marked() {
+
+        let gui_mode = match &env::args().collect::<Vec<String>>().get(2) {
+            Some(text) => text.clone().clone() == "gui".to_owned(),
+            None => false,
+        };
+
+        let mut core = test_core();
+
+        for _ in 0..10 {
+            let mut channel = Channel::new();
+            channel.id = random_string();
+
+            for _ in 0..3 {
+                channel.push(get_unmarked_video());
+            }
+
+            core.update_channel(channel);
+        }
+
+        // ---------------------------------------------------------
+
+        draw(&mut core, gui_mode);
+
+        core.action(Down);
+        core.action(Down);
+        core.action(Down);
+
+        draw(&mut core, gui_mode);
+
+        core.action(Enter);
+
+        draw(&mut core, gui_mode);
+
+        let channel_id = core.get_selected_channel_index();
+
+        println!("{}", channel_id);
+
+        for _ in 0..3 {
+            core.action(Mark);
+            draw(&mut core, gui_mode);
+        }
+
+        draw(&mut core, gui_mode);
+
+        assert_eq!(channel_id, core.get_selected_channel_index());
     }
 }
