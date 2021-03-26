@@ -306,11 +306,11 @@ impl Core {
         let mut channel_list = self.get_filtered_channel_list().clone();
 
         self.status_sender
-            .send(format!("Ready: {}", &updated_channel.name))
+            .send(format!("Updated: {}", &updated_channel.name))
             .unwrap();
 
         if let Some(channel) = channel_list.get_mut_by_id(&updated_channel.id) {
-            channel.merge_videos(updated_channel); // add video to channel
+            channel.merge_videos(updated_channel.videos); // add video to channel
         } else {
             channel_list.push(updated_channel); // insert new channel
         }
@@ -360,7 +360,6 @@ impl Core {
     pub fn save(&mut self) {
         let f = self.current_filter;
         self.set_filter(Filter::NoFilter);
-        #[cfg(not(test))]
         write_history(self.get_filtered_channel_list());
         self.set_filter(f);
     }
