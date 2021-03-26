@@ -67,7 +67,10 @@ impl From<rss::Video> for Video {
     fn from(rss_video: rss::Video) -> Video {
         let title = rss_video.title;
         let link = rss_video.link;
-        let pub_date = rss_video.pub_date;
+        let pub_date = match DateTime::parse_from_rfc2822(&rss_video.pub_date) {
+            Ok(date) => date.to_rfc3339(),
+            Err(e) => panic!("error parsing date in video {}: {}", title, e),
+        };
 
         Video {
             title,
