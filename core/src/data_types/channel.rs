@@ -46,6 +46,16 @@ impl Channel {
         }
     }
 
+    pub fn new_from_history(hist_chan: &Channel) -> Self {
+        let mut channel = Channel::new_with_id(hist_chan.id.clone());
+
+        channel.name = hist_chan.name.clone();
+        channel.tag = hist_chan.tag.clone();
+        channel.merge_videos(hist_chan.videos.clone());
+
+        channel
+    }
+
     #[allow(dead_code)]
     pub fn next(&mut self) {
         let state = &self.list_state;
@@ -88,7 +98,7 @@ impl Channel {
         }
     }
 
-    pub fn update_information(&mut self, url_file_channel: &dyn UrlFileItem) {
+    pub fn update_from_url_file(&mut self, url_file_channel: &dyn UrlFileItem) {
 
         // set name - prefere name declard in url-file
         if !url_file_channel.name().is_empty() {
@@ -133,8 +143,8 @@ impl Channel {
         self.videos.append(videos);
     }
 
-    pub fn merge_videos(&mut self, other: Channel) {
-        for video in other.videos.into_iter() {
+    pub fn merge_videos(&mut self, other_videos: Vec<Video>) {
+        for video in other_videos.into_iter() {
             if !self.contains(&video) {
                 self.push(video);
             }
@@ -190,7 +200,7 @@ impl From<rss::Feed> for Channel {
 impl From<atom::Feed> for Channel {
     fn from(feed: atom::Feed) -> Channel {
         let name = feed.name;
-        let id = format!("htttps://www.youtube.com/channel/{}", feed.channel_id);
+        let id = format!("https://www.youtube.com/channel/{}", feed.channel_id);
         let videos = feed
             .videos
             .into_iter()
@@ -203,6 +213,17 @@ impl From<atom::Feed> for Channel {
             videos,
             ..Channel::new()
         }
+    }
+}
+
+impl PartialEq<Channel> for Channel {
+    fn eq(&self, other: &Channel) -> bool {
+        let eq_id = self.id == other.id;
+        let eq_name = self.name == other.name;
+        let eq_tag = self.tag == other.tag;
+        let eq_videos = self.videos == other.videos;
+
+        eq_videos && eq_tag && eq_id && eq_name
     }
 }
 
@@ -252,5 +273,26 @@ impl ToTuiListItem for Channel {
             Span::styled(name, base_style.add_modifier(Modifier::ITALIC)),
             Span::styled(new, new_style),
         ]))
+    }
+}
+
+#[cfg(test)]
+pub mod tests {
+    use super::*;
+
+    impl Channel {
+        pub fn test(name: String, tag: String, id: String) -> Self {
+            let list_state = ListState::default();
+
+            let videos = Vec::new();
+
+            Channel {
+                name,
+                tag,
+                id,
+                list_state,
+                videos,
+            }
+        }
     }
 }

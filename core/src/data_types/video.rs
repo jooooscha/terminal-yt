@@ -141,3 +141,16 @@ impl ToTuiListItem for MinimalVideo {
         ]))
     }
 }
+
+#[cfg(test)]
+pub mod tests {
+
+/*     impl Video {
+ *         fn test(input: Vec<(String, String, )>) -> Self {
+ *
+ *
+ *
+ *         }
+ *     } */
+
+}

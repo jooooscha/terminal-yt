@@ -13,10 +13,14 @@ const HISTORY_FILE_PATH: &str = ".config/tyt/history.json";
 const PLAYBACK_HISTORY_PATH: &str = ".config/tyt/playback_history.json";
 
 pub fn write_history(channel_list: &ChannelList) {
+    write_history_intern(channel_list, HISTORY_FILE_PATH);
+}
+
+fn write_history_intern(channel_list: &ChannelList, history_path: &str) {
     let json = serde_json::to_string(channel_list).unwrap();
 
     let mut path = home_dir().unwrap();
-    path.push(HISTORY_FILE_PATH);
+    path.push(history_path);
 
     let mut file = match File::create(path) {
         Ok(file) => file,
@@ -26,8 +30,12 @@ pub fn write_history(channel_list: &ChannelList) {
 }
 
 pub fn read_history() -> ChannelList {
+    read_history_intern(HISTORY_FILE_PATH)
+}
+
+fn read_history_intern(history_path: &str) -> ChannelList {
     let mut path = home_dir().unwrap();
-    path.push(HISTORY_FILE_PATH);
+    path.push(history_path);
 
     match File::open(path) {
         Ok(mut file) => {
@@ -77,5 +85,25 @@ pub fn read_playback_history() -> Vec<MinimalVideo> {
             playback_history
         }
         Err(_) => Vec::new(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs::remove_file;
+
+    #[test]
+    fn test_rw_history() {
+        let input = ChannelList::new();
+
+        let file = "./test_write_history";
+
+        write_history_intern(&input, file);
+        let output = read_history_intern(file);
+
+        assert_eq!(input, output);
+
+        let _ = remove_file(file);
     }
 }

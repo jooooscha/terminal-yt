@@ -9,7 +9,7 @@ pub type ChannelId = String;
 pub type ChannelTag = String;
 pub type ChannelName = String;
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize, Debug)]
 #[serde(rename_all = "lowercase")]
 pub enum Date {
     Mon,
@@ -52,7 +52,7 @@ impl Date {
 const URLS_FILE_PATH: &str = ".config/tyt/urls.yaml";
 
 // url file video type
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct UrlFile {
     #[serde(default = "empty_url_file_channel")]
     pub channels: Vec<UrlFileChannel>,
@@ -68,7 +68,7 @@ pub trait UrlFileItem {
 }
 
 // url file video type
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize, Debug)]
 pub struct UrlFileChannel {
     pub url: String,
     #[serde(default = "empty_string")]
@@ -79,7 +79,7 @@ pub struct UrlFileChannel {
     tag: ChannelTag,
 }
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize, Debug)]
 pub struct UrlFileCustomChannel {
     pub urls: Vec<String>,
     pub name: ChannelName,
@@ -134,8 +134,20 @@ fn empty_string() -> String {
 
 // impl UrlFile {
 impl UrlFile {
+    /// return length of channels + custom_channels
     pub fn len(&self) -> usize {
         self.channels.len() + self.custom_channels.len()
+    }
+
+    /// checks wheather the url file contains a channel with the given id
+    pub fn contains_channel_by_id(&self, id: &String) -> bool {
+        let in_channels = self.channels.iter().any(|channel| &channel.id() == id);
+        let in_custom_channels = self
+            .custom_channels
+            .iter()
+            .any(|channel| &channel.id() == id);
+
+        in_channels || in_custom_channels
     }
 }
 
@@ -164,6 +176,48 @@ pub fn read_urls_file() -> UrlFile {
             match file.write_all(string.as_bytes()) {
                 Ok(_) => read_urls_file(),
                 Err(e) => panic!("{}", e),
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+pub mod tests {
+    use super::{Date, *};
+
+    impl UrlFileChannel {
+        pub fn test(name: String, tag: String, url: String) -> Self {
+            let update_on = vec![Date::Mon];
+
+            UrlFileChannel {
+                name,
+                update_on,
+                tag,
+                url,
+            }
+        }
+    }
+
+    impl UrlFileCustomChannel {
+        pub fn test(name: String, tag: String, urls: Vec<String>) -> Self {
+            let update_on = vec![Date::Mon];
+
+            UrlFileCustomChannel {
+                name,
+                update_on,
+                tag,
+                urls,
+            }
+        }
+    }
+
+    impl UrlFile {
+        pub fn test(custom_channels: Vec<UrlFileCustomChannel>) -> Self {
+            let channels = Vec::new();
+
+            UrlFile {
+                channels,
+                custom_channels,
             }
         }
     }

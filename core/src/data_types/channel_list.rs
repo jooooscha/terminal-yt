@@ -1,14 +1,11 @@
 use crate::{
+    data_types::{channel::Channel, video::Video},
     url_file::{read_urls_file, UrlFile, UrlFileItem},
-    data_types::{video::Video, channel::Channel},
     Filter::{self, *},
     ToTuiListItem,
 };
 use serde::{Deserialize, Serialize};
-use tui::{
-    widgets::{ListItem, ListState},
-};
-
+use tui::widgets::{ListItem, ListState};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChannelList {
@@ -115,48 +112,41 @@ impl ChannelList {
     }
 
     /// Filter all channels that are not in the UrlFile anymore
-    fn remove_old(&mut self, url_file_content: &UrlFile) {
-        self.channels = self.channels
+    fn remove_old(&mut self, url_file: &UrlFile) {
+        self.channels = self
+            .channels
             .iter()
+            .filter(|channel| url_file.contains_channel_by_id(&channel.id))
             .cloned()
-            .filter(|channel| {
-                // test if in normal channels
-                url_file_content.channels.iter().any(|url_channel| url_channel.id() == channel.id)
-                    // test if in custom channels
-                    || url_file_content.custom_channels.iter().any(|url_channel| url_channel.id() == channel.id)
-            })
             .collect();
 
         // remove videos that belong to urls removed from a custom channel
-        for custom_channel in url_file_content.custom_channels.iter() {
+        for custom_channel in url_file.custom_channels.iter() {
             let urls = &custom_channel.urls;
+
             if let Some(mut channel) = self.get_mut_by_id(&custom_channel.id()) {
                 channel.videos = channel
                     .videos
                     .iter()
-                    .filter(|video| urls.iter().any(|url| url == &video.origin_url))
+                    .filter(
+                        |video| urls.contains(&video.origin_url)
+                    )
                     .cloned()
                     .collect();
             }
         }
     }
 
-    fn update_name_and_tag(&mut self, url_file_content: &UrlFile) {
+    fn update_channels_from_url_file(&mut self, url_file_content: &UrlFile) {
         for item in url_file_content.channels.iter() {
-            if let Some(mut chan) = self.get_mut_by_id(&item.id()) {
-                chan.tag = item.tag().clone();
-                if !item.name().is_empty() {
-                    chan.name = item.name().clone();
-                }
+            if let Some(ref mut chan) = self.get_mut_by_id(&item.id()) {
+                chan.update_from_url_file(item as &dyn UrlFileItem);
             }
         }
 
         for item in url_file_content.custom_channels.iter() {
-            if let Some(mut chan) = self.get_mut_by_id(&item.id()) {
-                chan.tag = item.tag().clone();
-                if !item.name().is_empty() {
-                    chan.name = item.name().clone();
-                }
+            if let Some(ref mut chan) = self.get_mut_by_id(&item.id()) {
+                chan.update_from_url_file(item as &dyn UrlFileItem);
             }
         }
     }
@@ -165,7 +155,7 @@ impl ChannelList {
         let url_file_content = read_urls_file();
 
         self.remove_old(&url_file_content);
-        self.update_name_and_tag(&url_file_content);
+        self.update_channels_from_url_file(&url_file_content);
     }
 
     //---------------------------------------------------------------
@@ -232,4 +222,67 @@ impl ChannelList {
             }
         }
     }
+}
+
+impl PartialEq<ChannelList> for ChannelList {
+    fn eq(&self, other: &ChannelList) -> bool {
+        self.channels == other.channels
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::url_file::*;
+
+    impl ChannelList {
+        fn test(channels: Vec<Channel>) -> ChannelList {
+            let backup = Vec::new();
+            let list_state = ListState::default();
+
+            ChannelList {
+                backup,
+                list_state,
+                channels,
+            }
+        }
+    }
+
+    #[test]
+    fn test_update_from_url() {
+        let channels = vec![
+            Channel::test(
+                "channel_1".into(),
+                "tag_1".into(),
+                "channel_1".into(),
+            ),
+            Channel::test(
+                "channel_2".into(),
+                "tag_2".into(),
+                "channel_2".into(),
+            )
+        ];
+
+        let url_channels = vec![
+            UrlFileCustomChannel::test(
+                "channel_2".into(),
+                "tag_2".into(),
+                vec!["url_2".into()],
+            ),
+        ];
+
+        let url_file = UrlFile::test(url_channels);
+        let mut channel_list = ChannelList::test(channels);
+
+        println!("{:#?}", url_file);
+        println!("{:#?}", channel_list);
+        assert_eq!(channel_list.get(0).unwrap().id, String::from("channel_1"));
+
+        channel_list.remove_old(&url_file);
+
+        println!("{:#?}", channel_list);
+        assert_eq!(channel_list.get(0).unwrap().id, String::from("channel_2"));
+
+    }
+
 }
