@@ -2,7 +2,8 @@ mod events;
 
 use clipboard::{ClipboardContext, ClipboardProvider};
 use core::{
-    data_types::channel::Channel, fetch_data::fetch_new_videos, Action::*, core::Core, Filter, Screen::*,
+    core::Core, data_types::channel::Channel, fetch_data::fetch_new_videos, Action::*, Filter,
+    Screen::*,
 };
 use events::*;
 use notification::notify::notify_user;
@@ -62,7 +63,7 @@ fn main() {
                         Videos => {
                             core.action(Leave);
                             core.draw();
-                        },
+                        }
                     }
                 }
                 Key::Esc | Key::Char('h') | Key::Left => {
