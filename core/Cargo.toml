@@ -1,6 +1,6 @@
 [package]
 name = "core"
-version = "0.1.2"
+version = "0.2.0"
 authors = ["joooscha <j.loos@posteo.net>"]
 edition = "2018"
 
