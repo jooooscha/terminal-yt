@@ -124,9 +124,9 @@ fn download_channel_updates(urls: &Vec<String>) -> ChannelFactory {
     for url in urls.iter() {
         let mut feed = match fetch_feed(url) {
             Ok(f) => f,
-            Err(e) => {
+            Err(_e) => {
                 #[cfg(debug_assertions)]
-                eprintln!("Could not GET url: {}", e);
+                eprintln!("Could not GET url: {}", _e);
                 continue
             }
         };
