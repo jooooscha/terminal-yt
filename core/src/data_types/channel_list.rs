@@ -1,5 +1,5 @@
 use crate::{
-    data_types::{channel::Channel, video::Video},
+    data_types::{channel::channel::Channel, video::video::Video},
     url_file::{read_urls_file, UrlFile, UrlFileItem},
     Filter::{self, *},
     ToTuiListItem,
@@ -101,7 +101,7 @@ impl ChannelList {
     }
 
     pub fn get_position_by_id(&self, id: &String) -> Option<usize> {
-        self.channels.iter().position(|channel| &channel.id == id)
+        self.channels.iter().position(|channel| channel.id() == id)
     }
 
     pub fn get_spans_list(&self) -> Vec<ListItem> {
@@ -116,7 +116,7 @@ impl ChannelList {
         self.channels = self
             .channels
             .iter()
-            .filter(|channel| url_file.contains_channel_by_id(&channel.id))
+            .filter(|channel| url_file.contains_channel_by_id(&channel.id()))
             .cloned()
             .collect();
 
@@ -186,7 +186,7 @@ impl ChannelList {
         let tmp = self.backup.clone();
         self.backup = self.channels.clone();
         for chan in tmp.iter() {
-            if !self.backup.iter().any(|c| c.id == chan.id) {
+            if !self.backup.iter().any(|c| c.id() == chan.id()) {
                 self.backup.push(chan.clone());
             }
         }
@@ -194,17 +194,17 @@ impl ChannelList {
         // sort
         if sort_by_tag {
             self.backup.sort_by_key(|channel|
-                if channel.tag.is_empty() {
-                    channel.name.clone().to_lowercase() // lowercase is sorted after uppercase
+                if channel.tag().is_empty() {
+                    channel.name().clone().to_lowercase() // lowercase is sorted after uppercase
                 /* if channel.has_new() {
                  *     channel.name.clone().to_lowercase() // lowercase is sorted after uppercase */
                 } else {
-                    format!("{}{}", channel.tag.clone().to_uppercase(), channel.name.clone().to_uppercase())
+                    format!("{}{}", channel.tag().clone().to_uppercase(), channel.name().clone().to_uppercase())
                 }
             );
         } else {
             self.backup
-                .sort_by_key(|channel| channel.name.clone().to_lowercase());
+                .sort_by_key(|channel| channel.name().clone().to_lowercase());
         }
 
         // aply new changes

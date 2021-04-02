@@ -1,9 +1,12 @@
 use crate::data_types::feed_types::{atom, rss};
-use crate::data_types::{channel::Channel, channel_list::ChannelList};
+use crate::data_types::{
+    channel::{channel::Channel, factory::ChannelFactory},
+    channel_list::ChannelList,
+    feed_types::Feed,
+};
 use crate::history::read_history;
 use crate::url_file::{read_urls_file, UrlFileItem};
 use chrono::prelude::*;
-use notification::notify::notify_user;
 use quick_xml::de::from_str;
 use reqwest::blocking::Client;
 use std::sync::{mpsc::channel, mpsc::Sender};
@@ -33,7 +36,7 @@ pub fn fetch_new_videos(
         let item = item.clone();
         let urls = vec![item.url.clone()];
 
-        fetch_channel_updates(channel_sender, &pool, hc, item, urls, false); // updates will be send with `channel_sender`
+        fetch_channel_updates(channel_sender, &pool, hc, item, urls); // updates will be send with `channel_sender`
     }
 
     // load custom channels
@@ -43,7 +46,7 @@ pub fn fetch_new_videos(
         let item = item.clone();
         let urls = item.urls.clone();
 
-        fetch_channel_updates(channel_sender, &pool, hc, item, urls, true); // updates will be send with `channel_sender`
+        fetch_channel_updates(channel_sender, &pool, hc, item, urls); // updates will be send with `channel_sender`
     }
 
     // receive channels from `update_video_from_url`
@@ -63,151 +66,113 @@ fn fetch_channel_updates<T: 'static + UrlFileItem + std::marker::Send>(
     history: ChannelList,
     item: T,
     urls: Vec<String>,
-    is_custom: bool,
 ) {
     pool.execute(move || {
         let today = Local::now().weekday();
 
-        let mut channel = if item.update_on().iter().any(|w| w.eq_to(&today)) {
-            // download updates
-            match download_channel_updates(&urls) {
-                Ok(channel_updates) => {
-
-                    let mut c: Channel;
-
-                    // merge history into updates
-                    if let Some(history_channel) = history.get_by_id(&item.id()) {
-                        c = Channel::new_from_history(history_channel);
-                        c.merge_videos(channel_updates.videos);
-                    } else {
-                        c = channel_updates;
-                    }
-
-                    if is_custom {
-                        c.id = item.name();
-                    } else {
-                        c.id = urls.first().unwrap().clone();
-                    }
-
-                    Some(c)
-                },
-                Err(err_text) => {
-                    notify_user(&format!("Could not update {}: {}", &item.id(), &err_text));
-                    history.get_by_id(&item.id()).cloned()
-                }
-            }
+        let mut channel_factory = if item.update_on().iter().any(|w| w.eq_to(&today)) {
+            download_channel_updates(&urls)
         } else {
-            history.get_by_id(&item.id()).cloned()
+            ChannelFactory::create()
         };
 
-        if let Some(ref mut ch) = channel {
-            ch.update_from_url_file(&item);
-            ch.sort();
+        /* let channel_factory = download_channel_updates(&urls); */
+
+        // set videos from history
+        let (history_videos, history_name) = match history.get_by_id(&item.id()) {
+            Some(h) => (h.videos.clone(), h.name().clone()),
+            None => (Vec::new(), String::new()),
+        };
+
+        channel_factory.set_old_videos(history_videos);
+
+        if !channel_factory.new_videos_added() {
+            channel_factory.add_new_videos(Vec::new());
         }
 
-        match channel_sender.send(channel) {
+        // set id
+        channel_factory.set_id(item.id());
+
+        if !item.name().is_empty() {
+            channel_factory.set_name(item.name());
+        } else if !channel_factory.name_set() {
+            channel_factory.set_name(history_name);
+        }
+
+
+        if item.tag().is_empty() {
+            channel_factory.set_tag(String::new());
+        } else {
+            channel_factory.set_tag(item.tag().clone());
+        }
+
+        let channel = match channel_factory.commit() {
+            Ok(channel) => channel,
+            Err(error) => panic!("{}", error),
+        };
+
+        match channel_sender.send(Some(channel)) {
             Ok(_) => (),
             Err(error) => panic!("error on sending channel: {}", error),
         }
     }); // end pool
 }
 
-fn download_channel_updates(urls: &Vec<String>) -> Result<Channel, String> {
-    let mut new_channel = None;
+fn download_channel_updates(urls: &Vec<String>) -> ChannelFactory {
+    let mut cf = ChannelFactory::create();
 
     for url in urls.iter() {
-        let feed = match fetch_feed(url) {
-            Ok(text) => text,
-            Err(e) => return Err(format!("Could not GET url: {}", e)),
+        let mut feed = match fetch_feed(url) {
+            Ok(f) => f,
+            Err(e) => {
+                #[cfg(debug_assertions)]
+                eprintln!("Could not GET url: {}", e);
+                continue
+            }
         };
 
-        let fetched_channel = match parse_feed_to_channel(&feed, &url.clone()) {
-            Ok(channel) => channel,
-            Err(err_text) => return Err(format!("Could not parse: {}", err_text)),
-        };
-
-        if new_channel.is_none() {
-            new_channel = Some(fetched_channel);
-        } else {
-            let mut chan_temp = new_channel.clone().unwrap();
-            chan_temp.merge_videos(fetched_channel.videos);
-            new_channel = Some(chan_temp);
+        cf.set_name(feed.name.clone());
+        for vf in feed.videos.iter_mut() {
+            vf.set_origin_url(url.clone());
+            vf.set_origin_channel_name(feed.name.clone());
+            vf.set_marked(false);
+            vf.set_new(true);
         }
+        cf.add_new_videos(feed.videos);
     }
 
-    match new_channel {
-        Some(channel) => return Ok(channel),
-        None => return Err(String::from("No new content found")),
-    }
+    cf
 }
 
-fn fetch_feed(url: &String) -> Result<String, reqwest::Error> {
-    let client = Client::builder().build()?;
+fn fetch_feed(url: &String) -> Result<Feed, String> {
+    let client = Client::builder().build().unwrap();
 
-    match client.get(url).send() {
-        Ok(r) => return r.text(),
-        Err(e) => return Err(e),
-    }
-}
+    let feed: String = match client.get(url).send() {
+        Ok(r) => match r.text() {
+            Ok(t) => t,
+            Err(e) => return Err(e.to_string()),
+        },
+        Err(e) => return Err(e.to_string()),
+    };
 
-fn parse_feed_to_channel(body: &String, origin_url: &String) -> Result<Channel, String> {
-    let mut channel: Option<Channel> = None;
+    // ------------------------------------------------------------------
 
     // try to parse as atom
-    if channel.is_none() {
-        channel = match from_str::<atom::Feed>(body) {
-            Ok(feed) => Some(Channel::from(feed)),
-            Err(_) => None,
-        };
-    }
+    match from_str::<atom::Feed>(&feed) {
+        Ok(feed) => return Ok(feed.into()),//Some(ChannelFactory::from((feed, url.clone()))),
+        Err(_) => (),
+    };
 
     // try to parse as rss
-    if channel.is_none() {
-        channel = match from_str::<rss::Feed>(body) {
-            Ok(feed) => Some(Channel::from(feed)),
-            Err(_) => None,
-        };
+    match from_str::<rss::Feed>(&feed) {
+        Ok(feed) => return Ok(feed.into()),//Some(ChannelFactory::from((feed, url.clone()))),
+        Err(_) => (),
     }
 
-    match channel {
-        Some(mut ch) => {
-            ch.add_origin_url(origin_url);
-            Ok(ch)
-        }
-        None => Err(String::from("Could not parse feed")),
-    }
+    Err(String::from("Could not parse feed"))
 }
 
-/* #[cfg(test)]
- * mod tests {
- *     use super::*;
- *     use crate::url_file::Date::*;
- *     use crate::url_file::UrlFileChannel;
- *
- *     #[test]
- *     fn test_fetch() {
- *
- *         let (cs, cr) = channel();
- *         let urls = vec![String::from("https://www.youtube.com/feeds/videos.xml?channel_id=UC8uT9cgJorJPWu7ITLGo9Ww")];
- *         let pool = ThreadPool::new(4);
- *         let history = ChannelList::new();
- *         let item = UrlFileChannel {
- *             url: urls[0].clone(),
- *             name: String::from("test name"),
- *             update_on: vec![Always],
- *             tag: String::from("test tag"),
- *         };
- *
- *         update_videos_from_url(cs, &pool, history, item, urls);
- *
- *         for channel in cr.try_iter() {
- *             println!("{:?}", channel);
- *         }
- *
- *         assert!(false)
- *
- *     }
- * } */
+
 
 /* #[cfg(test)]
  * mod tests {

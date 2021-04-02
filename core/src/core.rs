@@ -1,16 +1,11 @@
 use crate::{
     config::Config,
-    data_types::{
-        channel::Channel,
-        channel_list::ChannelList,
-        video::{MinimalVideo, Video},
-    },
+    data_types::{channel::channel::Channel, channel_list::ChannelList, video::video::Video},
     draw::draw,
-    history::{read_history, read_playback_history, write_history, write_playback_history},
-    Filter,
-    Screen,
+    history::{read_history, read_playback_history, write_history, write_playback_history, MinimalVideo},
     Action,
     Action::*,
+    Filter, Screen,
     Screen::*,
 };
 use std::{
@@ -22,8 +17,8 @@ use std::{
         Arc, Mutex,
     },
 };
-use tui::{backend::TermionBackend, Terminal};
 use termion::{input::MouseTerminal, screen::AlternateScreen};
+use tui::{backend::TermionBackend, Terminal};
 
 #[cfg(test)]
 use rand::{distributions::Alphanumeric, prelude::*, Rng};
@@ -71,7 +66,7 @@ pub struct Core {
 }
 
 impl Core {
-    pub fn new_from_history() -> Self {
+    pub fn new_with_history() -> Self {
         #[cfg(not(test))]
         let stdout = stdout().into_raw_mode().unwrap();
         #[cfg(test)]
@@ -202,9 +197,7 @@ impl Core {
                     None => return,
                 };
 
-                let channel = self.get_selected_channel_mut().name.clone();
-
-                let history_video = video.to_minimal(channel);
+                let history_video = MinimalVideo::from(video.clone());
 
                 for i in 0..self.playback_history.len() {
                     if self.playback_history[i] == history_video {
@@ -266,7 +259,7 @@ impl Core {
 
         let selected_channel_index = self.get_selected_channel_index();
         let selected_channel_id = if self.get_filtered_channel_list().len() > 0 {
-            self.get_selected_channel_mut().id.clone()
+            self.get_selected_channel_mut().id().clone()
         } else {
             String::new() // will not match later: intended
         };
@@ -306,10 +299,10 @@ impl Core {
         let mut channel_list = self.get_filtered_channel_list().clone();
 
         self.status_sender
-            .send(format!("Updated: {}", &updated_channel.name))
+            .send(format!("Updated: {}", &updated_channel.name()))
             .unwrap();
 
-        if let Some(channel) = channel_list.get_mut_by_id(&updated_channel.id) {
+        if let Some(channel) = channel_list.get_mut_by_id(&updated_channel.id()) {
             channel.merge_videos(updated_channel.videos); // add video to channel
         } else {
             channel_list.push(updated_channel); // insert new channel
@@ -402,7 +395,7 @@ mod tests {
 
     fn test_core() -> Core {
         let channel_list: ChannelList = ChannelList::new();
-        let mut c = Core::new_from_history();
+        let mut c = Core::new_with_history();
 
         c.channel_list = channel_list;
 
@@ -671,7 +664,6 @@ mod tests {
 
     #[test]
     fn test_marked() {
-
         let gui_mode = match &env::args().collect::<Vec<String>>().get(2) {
             Some(text) => text.clone().clone() == "gui".to_owned(),
             None => false,

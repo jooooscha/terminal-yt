@@ -1,5 +1,5 @@
 use crate::{
-    data_types::{feed_types::*, video::Video},
+    data_types::{video::video::Video},
     url_file::UrlFileItem,
     ToTuiListItem,
 };
@@ -14,12 +14,12 @@ use tui::{
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Channel {
-    pub name: String,
-    pub id: String,
+    pub(super) name: String,
+    pub(super) id: String,
     pub(crate) videos: Vec<Video>,
 
     #[serde(skip)]
-    pub tag: String,
+    pub(super) tag: String,
     #[serde(skip)]
     list_state: ListState,
 }
@@ -28,7 +28,7 @@ pub struct Channel {
 
 impl Channel {
     #[allow(dead_code)]
-    pub fn new() -> Self {
+    pub(super) fn new() -> Self {
         Channel {
             name: String::from("placeholder_name"),
             id: String::from("placeholder_id"),
@@ -36,24 +36,6 @@ impl Channel {
             list_state: ListState::default(),
             tag: String::from("placeholder_tag"),
         }
-    }
-
-    #[allow(dead_code)]
-    pub fn new_with_id(id: String) -> Channel {
-        Channel {
-            id: id,
-            ..Self::new()
-        }
-    }
-
-    pub fn new_from_history(hist_chan: &Channel) -> Self {
-        let mut channel = Channel::new_with_id(hist_chan.id.clone());
-
-        channel.name = hist_chan.name.clone();
-        channel.tag = hist_chan.tag.clone();
-        channel.merge_videos(hist_chan.videos.clone());
-
-        channel
     }
 
     #[allow(dead_code)]
@@ -92,13 +74,13 @@ impl Channel {
         self.videos.iter().any(|v| !v.marked)
     }
 
-    pub fn add_origin_url(&mut self, url: &String) {
+    pub fn add_origin(&mut self, url: &String) {
         for video in self.videos.iter_mut() {
-            video.add_origin_url(url);
+            video.add_origin(url, &self.name.clone());
         }
     }
 
-    pub fn update_from_url_file(&mut self, url_file_channel: &dyn UrlFileItem) {
+    pub(crate) fn update_from_url_file(&mut self, url_file_channel: &dyn UrlFileItem) {
 
         // set name - prefere name declard in url-file
         if !url_file_channel.name().is_empty() {
@@ -107,6 +89,24 @@ impl Channel {
 
         // set tag
         self.tag = url_file_channel.tag().clone();
+    }
+
+    //-------------------------------------------------
+
+    pub fn id(&self) -> &String {
+        &self.id
+    }
+
+    pub fn name(&self) -> &String {
+        &self.name
+    }
+
+    pub fn tag(&self) -> &String {
+        &self.tag
+    }
+
+    pub fn videos(&self) -> &Vec<Video> {
+        &self.videos
     }
 
     //-------------------------------------------------
@@ -173,46 +173,6 @@ impl Channel {
             .map(|e| e.to_list_item())
             .collect::<Vec<ListItem>>()
             .clone()
-    }
-}
-
-impl From<rss::Feed> for Channel {
-    fn from(rss_feed: rss::Feed) -> Channel {
-        let feed = rss_feed.channel;
-
-        let name = feed.name;
-        let id = feed.link;
-        let videos = feed
-            .videos
-            .into_iter()
-            .map(|rss_vid| Video::from(rss_vid))
-            .collect();
-
-        Channel {
-            name,
-            id,
-            videos,
-            ..Channel::new()
-        }
-    }
-}
-
-impl From<atom::Feed> for Channel {
-    fn from(feed: atom::Feed) -> Channel {
-        let name = feed.name;
-        let id = format!("https://www.youtube.com/channel/{}", feed.channel_id);
-        let videos = feed
-            .videos
-            .into_iter()
-            .map(|atom_vid| Video::from(atom_vid))
-            .collect();
-
-        Channel {
-            name,
-            id,
-            videos,
-            ..Channel::new()
-        }
     }
 }
 

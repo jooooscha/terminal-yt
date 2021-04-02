@@ -33,7 +33,7 @@ impl<'de> Deserialize<'de> for Video {
 
         #[derive(Deserialize, Debug)]
         #[serde(field_identifier, rename_all = "lowercase")]
-        enum Field { Title, Link, PubDate };
+        enum Field { Title, Link, PubDate }
 
         struct VideoVisitor;
 
@@ -94,7 +94,7 @@ impl<'de> Deserialize<'de> for Channel {
 
         #[derive(Deserialize, Debug)]
         #[serde(field_identifier, rename_all = "lowercase")]
-        enum Field { Title, Link, Videos };
+        enum Field { Title, Link, Videos }
 
         struct ChannelVisitor;
 

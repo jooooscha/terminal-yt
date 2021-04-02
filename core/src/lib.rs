@@ -1,9 +1,15 @@
 pub mod core;
 pub mod data_types {
-    pub mod channel;
+    pub mod channel {
+        pub mod channel;
+        pub mod factory;
+    }
     pub(crate) mod channel_list;
     pub(crate) mod feed_types;
-    pub(crate) mod video;
+    pub(crate) mod video {
+        pub(crate) mod video;
+        pub(crate) mod factory;
+    }
 }
 
 mod config;

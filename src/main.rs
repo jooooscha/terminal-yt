@@ -2,7 +2,7 @@ mod events;
 
 use clipboard::{ClipboardContext, ClipboardProvider};
 use core::{
-    core::Core, data_types::channel::Channel, fetch_data::fetch_new_videos, Action::*, Filter,
+    core::Core, data_types::channel::channel::Channel, fetch_data::fetch_new_videos, Action::*, Filter,
     Screen::*,
 };
 use events::*;
@@ -33,7 +33,7 @@ fn update_channel_list(
  * } */
 
 fn main() {
-    let mut core = Core::new_from_history();
+    let mut core = Core::new_with_history();
 
     let events = Events::new();
 

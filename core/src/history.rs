@@ -6,11 +6,55 @@ use dirs_next::home_dir;
 
 use crate::data_types::{
     channel_list::ChannelList,
-    video::MinimalVideo,
+};
+use crate::{data_types::video::video::Video, ToTuiListItem};
+use serde::{Deserialize, Serialize};
+use tui::{
+    style::{Color, Modifier, Style},
+    text::{Span, Spans},
+    widgets::ListItem,
 };
 
+#[cfg(debug_assertions)]
+const HISTORY_FILE_PATH: &str = ".config/tyt/history_debug.json";
+#[cfg(debug_assertions)]
+const PLAYBACK_HISTORY_PATH: &str = ".config/tyt/playback_history_debug.json";
+
+#[cfg(not(debug_assertions))]
 const HISTORY_FILE_PATH: &str = ".config/tyt/history.json";
+#[cfg(not(debug_assertions))]
 const PLAYBACK_HISTORY_PATH: &str = ".config/tyt/playback_history.json";
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MinimalVideo {
+    pub title: String,
+    pub channel: String,
+}
+
+impl ToTuiListItem for MinimalVideo {
+    fn to_list_item(&self) -> ListItem {
+        let channel = format!("{} {} - ", tui::symbols::DOT, &self.channel);
+        let title = format!("{}", &self.title);
+
+        let style = Style::default().fg(Color::DarkGray);
+
+        ListItem::new(Spans::from(vec![
+            Span::styled(channel, style),
+            Span::styled(title, style.add_modifier(Modifier::ITALIC)),
+        ]))
+    }
+}
+
+impl From<Video> for MinimalVideo {
+    fn from(video: Video) -> MinimalVideo {
+        MinimalVideo {
+            title: video.title.clone(),
+            channel: video.origin_channel_name.clone(),
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------
 
 pub fn write_history(channel_list: &ChannelList) {
     write_history_intern(channel_list, HISTORY_FILE_PATH);
@@ -55,6 +99,8 @@ fn read_history_intern(history_path: &str) -> ChannelList {
     }
 }
 
+// ------------------------------------------------------------------------------------------
+
 pub fn write_playback_history(list: &Vec<MinimalVideo>) {
     let json = serde_json::to_string(list).unwrap();
 
@@ -88,6 +134,8 @@ pub fn read_playback_history() -> Vec<MinimalVideo> {
     }
 }
 
+// ------------------------------------------------------------------------------------------
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -95,7 +143,7 @@ mod tests {
 
     #[test]
     fn test_rw_history() {
-        let input = ChannelList::new();
+        let input = ChannelList::test();
 
         let file = "./test_write_history";
 

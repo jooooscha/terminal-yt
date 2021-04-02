@@ -1,16 +1,13 @@
 use crate::{
-    data_types::{channel::Channel, channel_list::ChannelList, video::MinimalVideo},
     config::Config,
-    Screen::*,
     core::Core,
+    data_types::{channel::channel::Channel, channel_list::ChannelList},
+    history::MinimalVideo,
+    Screen::*,
     ToTuiListItem,
 };
+use std::sync::{Arc, Mutex};
 use std::thread;
-use std::{
-    sync::{
-        Arc, Mutex,
-    },
-};
 use tui::{backend::TermionBackend, widgets::ListItem, Terminal};
 use tui::{
     layout::{Alignment, Constraint, Direction, Layout},
@@ -64,7 +61,7 @@ impl From<&Core> for View {
         let show_channel_block = core.current_screen == Videos;
         let channel_list = core.get_filtered_channel_list().clone();
         let current_selected = core.get_selected_channel().clone();
-        let selected_channel_name = current_selected.name.clone();
+        let selected_channel_name = current_selected.name().clone();
         let playback_history = core.playback_history.clone();
 
         View {
