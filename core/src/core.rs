@@ -26,6 +26,7 @@ use rand::{distributions::Alphanumeric, prelude::*, Rng};
 use std::env;
 #[cfg(test)]
 use std::{thread, time};
+
 #[cfg(not(test))]
 use termion::raw::IntoRawMode;
 
@@ -133,7 +134,7 @@ impl Core {
         true
     }
 
-    #[doc = "Contains every possible action possible."]
+    /// Contains every possible action.
     pub fn action(&mut self, action: Action) {
         match action {
             Mark | Unmark => {
@@ -212,7 +213,7 @@ impl Core {
                 if let Err(error) = Command::new("setsid")
                     .arg("-f")
                     .arg("umpv")
-                    .arg(&video.link)
+                    .arg(video.link())
                     .stderr(Stdio::null())
                     .spawn()
                 {
@@ -222,7 +223,7 @@ impl Core {
                 if self.config.use_notify_send {
                     if let Err(err) = Command::new("notify-send")
                         .arg("Open video")
-                        .arg(video.title)
+                        .arg(video.title())
                         .stderr(Stdio::null())
                         .spawn()
                     {
@@ -321,7 +322,7 @@ impl Core {
 
     pub fn get_selected_video_link(&mut self) -> String {
         match self.get_selected_video_mut() {
-            Some(v) => v.link.clone(),
+            Some(v) => v.link().clone(),
             None => String::from("none"),
         }
     }

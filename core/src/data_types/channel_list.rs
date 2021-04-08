@@ -128,9 +128,7 @@ impl ChannelList {
                 channel.videos = channel
                     .videos
                     .iter()
-                    .filter(
-                        |video| urls.contains(&video.origin_url)
-                    )
+                    .filter(|video| urls.contains(&video.origin_url()))
                     .cloned()
                     .collect();
             }
@@ -168,7 +166,7 @@ impl ChannelList {
                 .videos
                 .clone()
                 .into_iter()
-                .filter(|video| !video.marked)
+                .filter(|video| !video.marked())
                 .collect::<Vec<Video>>()
                 .len();
             if num_marked != 0 {
@@ -217,7 +215,7 @@ impl ChannelList {
                     .backup
                     .iter()
                     .cloned()
-                    .filter(|c| c.videos.iter().any(|v| !v.marked))
+                    .filter(|c| c.videos.iter().any(|v| !v.marked()))
                     .collect();
             }
         }
@@ -251,25 +249,15 @@ mod tests {
     #[test]
     fn test_update_from_url() {
         let channels = vec![
-            Channel::test(
-                "channel_1".into(),
-                "tag_1".into(),
-                "channel_1".into(),
-            ),
-            Channel::test(
-                "channel_2".into(),
-                "tag_2".into(),
-                "channel_2".into(),
-            )
+            Channel::test("channel_1".into(), "tag_1".into(), "channel_1".into()),
+            Channel::test("channel_2".into(), "tag_2".into(), "channel_2".into()),
         ];
 
-        let url_channels = vec![
-            UrlFileCustomChannel::test(
-                "channel_2".into(),
-                "tag_2".into(),
-                vec!["url_2".into()],
-            ),
-        ];
+        let url_channels = vec![UrlFileCustomChannel::test(
+            "channel_2".into(),
+            "tag_2".into(),
+            vec!["url_2".into()],
+        )];
 
         let url_file = UrlFile::test(url_channels);
         let mut channel_list = ChannelList::test(channels);
@@ -282,7 +270,5 @@ mod tests {
 
         println!("{:#?}", channel_list);
         assert_eq!(channel_list.get(0).unwrap().id, String::from("channel_2"));
-
     }
-
 }

@@ -27,7 +27,6 @@ pub struct Channel {
 //----------------------------------
 
 impl Channel {
-    #[allow(dead_code)]
     pub(super) fn new() -> Self {
         Channel {
             name: String::from("placeholder_name"),
@@ -38,7 +37,6 @@ impl Channel {
         }
     }
 
-    #[allow(dead_code)]
     pub fn next(&mut self) {
         let state = &self.list_state;
         let index = match state.selected() {
@@ -54,7 +52,6 @@ impl Channel {
         self.list_state.select(Some(index));
     }
 
-    #[allow(dead_code)]
     pub fn prev(&mut self) {
         let state = &self.list_state;
         let index = match state.selected() {
@@ -69,16 +66,16 @@ impl Channel {
         };
         self.list_state.select(Some(index));
     }
-    #[allow(dead_code)]
+
     pub fn has_new(&self) -> bool {
-        self.videos.iter().any(|v| !v.marked)
+        self.videos.iter().any(|v| !v.marked())
     }
 
-    pub fn add_origin(&mut self, url: &String) {
-        for video in self.videos.iter_mut() {
-            video.add_origin(url, &self.name.clone());
-        }
-    }
+    /* pub fn add_origin(&mut self, url: &String) {
+     *     for video in self.videos.iter_mut() {
+     *         video.add_origin(url, &self.name.clone());
+     *     }
+     * } */
 
     pub(crate) fn update_from_url_file(&mut self, url_file_channel: &dyn UrlFileItem) {
 
@@ -163,7 +160,7 @@ impl Channel {
     }
 
     pub fn sort(&mut self) {
-        self.videos.sort_by_key(|video| video.pub_date.clone());
+        self.videos.sort_by_key(|video| video.pub_date().clone());
         self.videos.reverse();
     }
 
@@ -193,10 +190,10 @@ impl ToTuiListItem for Channel {
             .videos
             .clone()
             .into_iter()
-            .filter(|video| !video.marked)
+            .filter(|video| !video.marked())
             .collect::<Vec<Video>>()
             .len();
-        let has_new = self.videos.iter().any(|video| video.new);
+        let has_new = self.videos.iter().any(|video| video.new());
 
         let num = format!("{:>3}/{:<4}", num_marked, &self.videos.len());
         let bar = String::from(" | ");

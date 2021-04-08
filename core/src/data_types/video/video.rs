@@ -9,40 +9,56 @@ use tui::{
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Video {
-    pub title: String,
-    pub link: String,
-    pub origin_url: String,
-    pub origin_channel_name: String,
+    pub(super) title: String,
+    pub(super) link: String,
+    pub(super) origin_url: String,
+    pub(super) origin_channel_name: String,
+    pub(super) marked: bool,
+
     #[serde(rename = "pubDate")]
-    pub pub_date: String,
-    pub marked: bool,
+    pub(super) pub_date: String,
 
     #[serde(skip)]
-    pub new: bool,
+    pub(super) new: bool,
 }
 
 impl Video {
-    #[allow(dead_code)]
     pub fn mark(&mut self, value: bool) {
         self.marked = value;
     }
 
-    pub fn add_origin(&mut self, url: &String, channel_name: &String) {
-        self.origin_url = url.to_string();
-        self.origin_channel_name = channel_name.to_string();
+    pub fn title(&self) -> &String {
+        &self.title
     }
 
-    pub(super) fn new() -> Self {
-        Video {
-            title: String::new(),
-            link: String::new(),
-            origin_url: String::new(),
-            origin_channel_name: String::new(),
-            pub_date: String::new(),
-            marked: false,
-            new: true,
-        }
+    pub fn link(&self) -> &String {
+        &self.link
     }
+
+    pub fn origin_url(&self) -> &String {
+        &self.origin_url
+    }
+
+    pub fn origin_channel_name(&self) -> &String {
+        &self.origin_channel_name
+    }
+
+    pub fn marked(&self) -> bool {
+        self.marked
+    }
+
+    pub fn pub_date(&self) -> &String {
+        &self.pub_date
+    }
+
+    pub fn new(&self) -> bool {
+        self.new
+    }
+
+    /* pub(super) fn add_origin(&mut self, url: &String, channel_name: &String) {
+     *     self.origin_url = url.to_string();
+     *     self.origin_channel_name = channel_name.to_string();
+     * } */
 }
 
 impl PartialEq<Video> for Video {

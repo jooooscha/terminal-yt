@@ -15,7 +15,15 @@ pub struct VideoFactory {
 
 impl VideoFactory {
     pub fn create() -> VideoFactory {
-        let video = Video::new();
+        let video = Video {
+            title: String::new(),
+            link: String::new(),
+            origin_url: String::new(),
+            origin_channel_name: String::new(),
+            pub_date: String::new(),
+            marked: false,
+            new: true,
+        };
 
         VideoFactory {
             video,

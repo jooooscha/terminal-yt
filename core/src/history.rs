@@ -48,8 +48,8 @@ impl ToTuiListItem for MinimalVideo {
 impl From<Video> for MinimalVideo {
     fn from(video: Video) -> MinimalVideo {
         MinimalVideo {
-            title: video.title.clone(),
-            channel: video.origin_channel_name.clone(),
+            title: video.title().clone(),
+            channel: video.origin_channel_name().clone(),
         }
     }
 }

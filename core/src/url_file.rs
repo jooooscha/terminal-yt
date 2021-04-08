@@ -54,9 +54,9 @@ const URLS_FILE_PATH: &str = ".config/tyt/urls.yaml";
 // url file video type
 #[derive(Deserialize, Serialize, Debug)]
 pub struct UrlFile {
-    #[serde(default = "empty_url_file_channel")]
+    #[serde(default)]
     pub channels: Vec<UrlFileChannel>,
-    #[serde(default = "empty_url_file_custom_channels")]
+    #[serde(default)]
     pub custom_channels: Vec<UrlFileCustomChannel>,
 }
 
@@ -71,11 +71,11 @@ pub trait UrlFileItem {
 #[derive(Clone, Deserialize, Serialize, Debug)]
 pub struct UrlFileChannel {
     pub url: String,
-    #[serde(default = "empty_string")]
+    #[serde(default)]
     name: ChannelName,
     #[serde(default = "date_always")]
     update_on: Vec<Date>,
-    #[serde(default = "empty_string")]
+    #[serde(default)]
     tag: ChannelTag,
 }
 
@@ -85,7 +85,7 @@ pub struct UrlFileCustomChannel {
     pub name: ChannelName,
     #[serde(default = "date_always")]
     update_on: Vec<Date>,
-    #[serde(default = "empty_string")]
+    #[serde(default)]
     tag: ChannelTag,
 }
 
@@ -119,19 +119,6 @@ impl UrlFileItem for UrlFileCustomChannel {
     }
 }
 
-fn empty_url_file_channel() -> Vec<UrlFileChannel> {
-    Vec::new()
-}
-fn empty_url_file_custom_channels() -> Vec<UrlFileCustomChannel> {
-    Vec::new()
-}
-fn date_always() -> Vec<Date> {
-    vec![Date::Always]
-}
-fn empty_string() -> String {
-    String::new()
-}
-
 // impl UrlFile {
 impl UrlFile {
     /// return length of channels + custom_channels
@@ -150,6 +137,20 @@ impl UrlFile {
         in_channels || in_custom_channels
     }
 }
+
+fn date_always() -> Vec<Date> {
+    vec![Date::Always]
+}
+/* impl Default for UrlFileChannel {
+ *     fn default() -> Self {
+ *         UrlFileChannel {
+ *             url: String::new(),
+ *             name: String::new(),
+ *             update_on: vec![Date::Always],
+ *             tag: String::new(),
+ *         }
+ *     }
+ * } */
 
 pub fn read_urls_file() -> UrlFile {
     let mut path = home_dir().unwrap();
