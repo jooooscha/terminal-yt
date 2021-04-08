@@ -2,7 +2,9 @@ use crate::{
     config::Config,
     data_types::{channel::channel::Channel, channel_list::ChannelList, video::video::Video},
     draw::draw,
-    history::{read_history, read_playback_history, write_history, write_playback_history, MinimalVideo},
+    history::{
+        read_history, read_playback_history, write_history, write_playback_history, MinimalVideo,
+    },
     Action,
     Action::*,
     Filter, Screen,
@@ -362,29 +364,14 @@ impl Core {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    fn get_random_video() -> Video {
-        let mut rng = thread_rng();
-        if rng.gen::<f64>() > 0.5 {
-            get_unmarked_video()
-        } else {
-            get_unmarked_video()
-        }
-    }
-
-    fn get_marked_video() -> Video {
-        let mut video = get_unmarked_video();
-        video.mark(true);
-
-        video
-    }
-
-    fn get_unmarked_video() -> Video {
-        let mut video = Video::new();
-        video.link = random_string();
-
-        video
-    }
+    use crate::data_types::{
+        channel::factory::ChannelFactory,
+        video::factory::{
+            tests::{
+                get_marked_video_factory, get_random_video_factory, get_unmarked_video_factory,
+            },
+        },
+    };
 
     fn random_string() -> String {
         rand::thread_rng()
@@ -426,19 +413,22 @@ mod tests {
         let _falses = 6;
 
         for i in 0..CHANNEL_COUNT {
-            let mut channel = Channel::new();
-            channel.id = random_string();
+            let mut cf = ChannelFactory::test();
 
+            let mut videos = Vec::new();
             if channel_has_unmarked[i] {
-                channel.push(get_unmarked_video());
+                videos.push(get_unmarked_video_factory());
                 for _ in 0..not_hidden_video_count - 1 {
-                    channel.push(get_random_video());
+                    videos.push(get_random_video_factory());
                 }
             } else {
                 for _ in 0..hidden_video_count - 1 {
-                    channel.push(get_marked_video());
+                    videos.push(get_marked_video_factory());
                 }
             }
+            cf.add_new_videos(videos);
+
+            let channel = cf.commit().unwrap();
 
             core.update_channel(channel);
         }
@@ -462,13 +452,13 @@ mod tests {
         let mut core = test_core();
 
         for _ in 0..channel_count {
-            let mut channel = Channel::new();
-            channel.id = random_string();
+            let mut cf = ChannelFactory::test();
 
             for _ in 0..10 {
-                channel.push(get_random_video());
+                cf.add_new_videos(vec![get_random_video_factory()]);
             }
 
+            let channel = cf.commit().unwrap();
             core.update_channel(channel);
         }
 
@@ -518,19 +508,23 @@ mod tests {
         let _falses = 5;
 
         for i in 0..CHANNEL_COUNT {
-            let mut channel = Channel::new();
-            channel.id = random_string();
+            let mut cf = ChannelFactory::test();
 
+            let mut videos = Vec::new();
             if channel_has_unmarked[i] {
-                channel.push(get_unmarked_video());
+                videos.push(get_unmarked_video_factory());
                 for _ in 0..not_hidden_video_count - 1 {
-                    channel.push(get_random_video());
+                    videos.push(get_random_video_factory());
                 }
             } else {
                 for _ in 0..hidden_video_count - 1 {
-                    channel.push(get_marked_video());
+                    videos.push(get_marked_video_factory());
                 }
             }
+
+            cf.add_new_videos(videos);
+
+            let channel = cf.commit().unwrap();
 
             core.update_channel(channel);
         }
@@ -584,22 +578,26 @@ mod tests {
         let mut channel_list = ChannelList::new();
 
         for _ in 0..CHANNEL_COUNT {
-            let mut channel = Channel::new();
-            channel.id = random_string();
-            channel.name = random_string();
+            let mut cf = ChannelFactory::test();
+            cf.set_name(random_string());
 
+            let mut videos = Vec::new();
             if rand::random() {
                 trues += 1;
-                channel.push(get_unmarked_video());
+                videos.push(get_unmarked_video_factory());
                 for _ in 0..not_hidden_video_count - 1 {
-                    channel.push(get_random_video());
+                    videos.push(get_random_video_factory());
                 }
             } else {
                 falses += 1;
                 for _ in 0..hidden_video_count {
-                    channel.push(get_marked_video());
+                    videos.push(get_marked_video_factory());
                 }
             }
+
+            cf.add_new_videos(videos);
+
+            let channel = cf.commit().unwrap();
 
             channel_list.push(channel);
         }
@@ -631,20 +629,21 @@ mod tests {
 
         assert_eq!(core.get_selected_channel_index(), number);
 
-        let channel_id = core.get_selected_channel().id.clone();
+        let channel_id = core.get_selected_channel().id().clone();
         core.set_filter(Filter::NoFilter);
 
         draw(&mut core, gui_mode);
 
         assert_eq!(core.get_filtered_channel_list().len(), trues + falses);
 
-        assert_eq!(core.get_selected_channel().id.clone(), channel_id);
+        assert_eq!(core.get_selected_channel().id().clone(), channel_id);
 
         // add one  marked channel at end
-        let mut channel = Channel::new();
-        channel.id = random_string();
-        channel.name = "zzzzzzzzzzzzzzzzzzzz".to_owned();
-        channel.push(get_marked_video());
+        let mut cf = ChannelFactory::test();
+        cf.set_name("zzzzzzzzzzzz".to_owned());
+        cf.add_new_videos(vec![get_marked_video_factory()]);
+        let channel = cf.commit().unwrap();
+
         core.update_channel(channel);
 
         for _ in 0..100 {
@@ -673,12 +672,16 @@ mod tests {
         let mut core = test_core();
 
         for _ in 0..10 {
-            let mut channel = Channel::new();
-            channel.id = random_string();
+            let mut cf = ChannelFactory::test();
 
+            let mut videos = Vec::new();
             for _ in 0..3 {
-                channel.push(get_unmarked_video());
+                videos.push(get_unmarked_video_factory());
             }
+
+            cf.add_new_videos(videos);
+
+            let channel = cf.commit().unwrap();
 
             core.update_channel(channel);
         }

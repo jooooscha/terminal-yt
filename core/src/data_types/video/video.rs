@@ -106,18 +106,10 @@ impl ToTuiListItem for Video {
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use crate::url_file::Date;
+    /* use crate::url_file::Date; */
 
     impl Video {
-        pub fn test(
-            name: String,
-            link: String,
-            marked: bool,
-            new: bool,
-            origin_url: String,
-            pub_date: Date,
-            title: String,
-        ) -> Self {
-        }
+        /* pub fn test() -> Self {
+         * } */
     }
 }

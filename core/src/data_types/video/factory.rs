@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 use crate::data_types::{feed_types::*, video::video::Video};
 use chrono::DateTime;
 
@@ -141,6 +140,51 @@ impl From<atom::Video> for VideoFactory {
         vf.set_title(title);
         vf.set_link(link);
         vf.set_pub_date(pub_date);
+
+        vf
+    }
+}
+
+#[cfg(test)]
+pub mod tests {
+    use super::*;
+    use rand::{prelude::*, Rng};
+
+    impl VideoFactory {
+        pub fn test() -> Self {
+            let mut vf = VideoFactory::create();
+            vf.set_title(String::new());
+            vf.set_link(String::new());
+            vf.set_origin_url(String::new());
+            vf.set_origin_channel_name(String::new());
+            vf.set_pub_date(String::new());
+            vf.set_marked(false);
+            vf.set_new(false);
+
+            vf
+        }
+    }
+
+    pub fn get_random_video_factory() -> VideoFactory {
+        let mut rng = thread_rng();
+        if rng.gen::<f64>() > 0.5 {
+            get_unmarked_video_factory()
+        } else {
+            get_unmarked_video_factory()
+        }
+    }
+
+    pub fn get_marked_video_factory() -> VideoFactory {
+        let mut vf = VideoFactory::test();
+        vf.set_marked(true);
+
+        vf
+    }
+
+    pub fn get_unmarked_video_factory() -> VideoFactory {
+        let mut vf = VideoFactory::test();
+
+        vf.set_marked(false);
 
         vf
     }

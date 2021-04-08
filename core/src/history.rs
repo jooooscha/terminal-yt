@@ -1,12 +1,7 @@
-use std::{
-    fs::File,
-    io::prelude::*,
-};
 use dirs_next::home_dir;
+use std::{fs::File, io::prelude::*};
 
-use crate::data_types::{
-    channel_list::ChannelList,
-};
+use crate::data_types::channel_list::ChannelList;
 use crate::{data_types::video::video::Video, ToTuiListItem};
 use serde::{Deserialize, Serialize};
 use tui::{
@@ -74,7 +69,9 @@ fn write_history_intern(channel_list: &ChannelList, history_path: &str) {
 }
 
 pub fn read_history() -> ChannelList {
-    read_history_intern(HISTORY_FILE_PATH)
+    let mut cl = read_history_intern(HISTORY_FILE_PATH);
+    cl.apply_url_file_changes(); // update all things that have changed in url file
+    cl
 }
 
 fn read_history_intern(history_path: &str) -> ChannelList {
@@ -85,12 +82,10 @@ fn read_history_intern(history_path: &str) -> ChannelList {
         Ok(mut file) => {
             let mut reader = String::new();
             file.read_to_string(&mut reader).unwrap();
-            let mut channel_list: ChannelList = match serde_json::from_str(&reader) {
+            let channel_list: ChannelList = match serde_json::from_str(&reader) {
                 Ok(channels) => channels,
                 Err(e) => panic!("could not read history file: {}", e),
             };
-
-            channel_list.apply_url_file_changes(); // update all things that have changed in url file
 
             // return
             channel_list
@@ -115,7 +110,6 @@ pub fn write_playback_history(list: &Vec<MinimalVideo>) {
 }
 
 pub fn read_playback_history() -> Vec<MinimalVideo> {
-
     let mut path = home_dir().unwrap();
     path.push(PLAYBACK_HISTORY_PATH);
 
@@ -137,13 +131,30 @@ pub fn read_playback_history() -> Vec<MinimalVideo> {
 // ------------------------------------------------------------------------------------------
 
 #[cfg(test)]
-mod tests {
+pub mod tests {
     use super::*;
+    use crate::data_types::{
+        channel::factory::ChannelFactory, video::factory::tests::get_random_video_factory,
+    };
     use std::fs::remove_file;
 
     #[test]
     fn test_rw_history() {
-        let input = ChannelList::test();
+        let mut channels = Vec::new();
+        for _ in 0..10 {
+            let mut cf = ChannelFactory::test();
+
+            let mut videos = Vec::new();
+            for _ in 0..10 {
+                videos.push(get_random_video_factory());
+            }
+            cf.add_new_videos(videos);
+
+            let channel = cf.commit().unwrap();
+            channels.push(channel);
+        }
+
+        let input = ChannelList::test(channels);
 
         let file = "./test_write_history";
 

@@ -234,7 +234,7 @@ mod tests {
     use crate::url_file::*;
 
     impl ChannelList {
-        fn test(channels: Vec<Channel>) -> ChannelList {
+        pub fn test(channels: Vec<Channel>) -> ChannelList {
             let backup = Vec::new();
             let list_state = ListState::default();
 
@@ -264,11 +264,11 @@ mod tests {
 
         println!("{:#?}", url_file);
         println!("{:#?}", channel_list);
-        assert_eq!(channel_list.get(0).unwrap().id, String::from("channel_1"));
+        assert_eq!(channel_list.get(0).unwrap().id(), &String::from("channel_1"));
 
         channel_list.remove_old(&url_file);
 
         println!("{:#?}", channel_list);
-        assert_eq!(channel_list.get(0).unwrap().id, String::from("channel_2"));
+        assert_eq!(channel_list.get(0).unwrap().id(), &String::from("channel_2"));
     }
 }

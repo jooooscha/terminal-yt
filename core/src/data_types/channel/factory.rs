@@ -111,3 +111,31 @@ impl ChannelFactory {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[cfg(test)]
+    use rand::{distributions::Alphanumeric, Rng};
+
+    fn random_string() -> String {
+        rand::thread_rng()
+            .sample_iter(&Alphanumeric)
+            .take(9)
+            .map(char::from)
+            .collect()
+    }
+
+    impl ChannelFactory {
+        pub fn test() -> Self {
+            let mut cf = ChannelFactory::create();
+            cf.set_name(String::new());
+            cf.set_id(random_string());
+            cf.set_tag(String::new());
+            cf.add_new_videos(Vec::new());
+            cf.set_old_videos(Vec::new());
+
+            cf
+        }
+    }
+}
