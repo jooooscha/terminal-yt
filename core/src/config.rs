@@ -14,6 +14,7 @@ const UPDATAE_AT_START_DEFAULT: bool = true;
 const SORT_BY_TAG_DEFAULT: bool = false;
 const MASSAGE_TIMEOUT_DEFAULT: usize = 20;
 const USE_NOTIFY_SEND_DEFAULT: bool = true;
+const VIDEO_PLAYER_DEFAULT: &str = "mpv";
 
 #[derive(Clone, Deserialize, Serialize)]
 #[serde(default)]
@@ -26,6 +27,7 @@ pub struct Config {
     pub sort_by_tag: bool,
     pub message_timeout: usize,
     pub use_notify_send: bool,
+    pub video_player: String
 }
 
 impl Default for Config {
@@ -39,6 +41,7 @@ impl Default for Config {
             sort_by_tag: SORT_BY_TAG_DEFAULT,
             message_timeout: MASSAGE_TIMEOUT_DEFAULT,
             use_notify_send: USE_NOTIFY_SEND_DEFAULT,
+            video_player: VIDEO_PLAYER_DEFAULT.into(),
         }
     }
 }

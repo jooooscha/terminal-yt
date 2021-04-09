@@ -214,7 +214,7 @@ impl Core {
 
                 if let Err(error) = Command::new("setsid")
                     .arg("-f")
-                    .arg("umpv")
+                    .arg(&self.config.video_player)
                     .arg(video.link())
                     .stderr(Stdio::null())
                     .spawn()
