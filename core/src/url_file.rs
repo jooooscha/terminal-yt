@@ -10,10 +10,10 @@ pub type ChannelTag = String;
 pub type ChannelName = String;
 
 #[cfg(debug_assertions)]
-const URLS_FILE_PATH: &str = ".config/tyt/urls_debug.yaml";
+const URLS_FILE_PATH: &str = ".config/tyt/urls_debug.yml";
 
 #[cfg(not(debug_assertions))]
-const URLS_FILE_PATH: &str = ".config/tyt/urls.yaml";
+const URLS_FILE_PATH: &str = ".config/tyt/urls.yml";
 
 #[derive(Clone, Deserialize, Serialize, Debug)]
 #[serde(rename_all = "lowercase")]
