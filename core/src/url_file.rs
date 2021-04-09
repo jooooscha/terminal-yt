@@ -9,6 +9,12 @@ pub type ChannelId = String;
 pub type ChannelTag = String;
 pub type ChannelName = String;
 
+#[cfg(debug_assertions)]
+const URLS_FILE_PATH: &str = ".config/tyt/urls_debug.yaml";
+
+#[cfg(not(debug_assertions))]
+const URLS_FILE_PATH: &str = ".config/tyt/urls.yaml";
+
 #[derive(Clone, Deserialize, Serialize, Debug)]
 #[serde(rename_all = "lowercase")]
 pub enum Date {
@@ -48,8 +54,6 @@ impl Date {
         }
     }
 }
-
-const URLS_FILE_PATH: &str = ".config/tyt/urls.yaml";
 
 // url file video type
 #[derive(Deserialize, Serialize, Debug)]
