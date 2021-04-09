@@ -366,10 +366,8 @@ mod tests {
     use super::*;
     use crate::data_types::{
         channel::factory::ChannelFactory,
-        video::factory::{
-            tests::{
-                get_marked_video_factory, get_random_video_factory, get_unmarked_video_factory,
-            },
+        video::factory::tests::{
+            get_marked_video_factory, get_random_video_factory, get_unmarked_video_factory,
         },
     };
 
