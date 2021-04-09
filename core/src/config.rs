@@ -5,7 +5,7 @@ use std::{
     io::{Read, Write},
 };
 
-const CONFIG_FILE_PATH: &str = ".config/tyt/config";
+const CONFIG_FILE_PATH: &str = ".config/tyt/config.yml";
 const SCHOW_EMPTY_CHANNEL_DEFAULT: bool = true;
 const MARK_ON_OPEN_DEFAULT: bool = true;
 const DOWN_ON_MARK_DEFAULT: bool = true;
@@ -55,7 +55,7 @@ impl Config {
             Ok(mut file) => {
                 let mut reader = String::new();
                 file.read_to_string(&mut reader).unwrap();
-                let config: Config = match toml::from_str(&reader) {
+                let config: Config = match serde_yaml::from_str(&reader) {
                     Ok(file) => file,
                     Err(e) => panic!("could not parse config file: {}", e),
                 };
@@ -66,7 +66,7 @@ impl Config {
                 match File::create(path) {
                     Ok(mut file) => {
                         let def_config = Config::default();
-                        let string = toml::to_string(&def_config).unwrap();
+                        let string = serde_yaml::to_string(&def_config).unwrap();
 
                         match file.write_all(string.as_bytes()) {
                             Ok(_) => return Config::read_config_file(),
