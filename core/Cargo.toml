@@ -1,6 +1,6 @@
 [package]
 name = "core"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["joooscha <j.loos@posteo.net>"]
 edition = "2018"
 
@@ -14,7 +14,6 @@ serde_json = "*"
 serde_yaml = "*"
 quick-xml = { version = "*", features = ["serialize"] }
 reqwest = { version = "*", features = ["blocking"] }
-toml = "*"
 chrono = "*"
 dirs-next = "*"
 threadpool = "*"
