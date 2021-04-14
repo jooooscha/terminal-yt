@@ -116,7 +116,7 @@ impl Core {
             current_filter,
             playback_history,
             status_sender,
-            status_receiver: status_receiver,
+            status_receiver
         }
     }
 
