@@ -7,8 +7,8 @@ pub mod data_types {
     pub(crate) mod channel_list;
     pub(crate) mod feed_types;
     pub(crate) mod video {
-        pub(crate) mod video;
         pub(crate) mod factory;
+        pub(crate) mod video;
     }
 }
 
@@ -18,9 +18,9 @@ pub mod fetch_data;
 mod history;
 mod url_file;
 
-use tui::widgets::ListItem;
 use serde::{Deserialize, Serialize};
-
+use tui::widgets::ListItem;
+use crate::config::Config;
 pub trait ToTuiListItem {
     fn to_list_item(&self) -> ListItem;
 }
@@ -52,13 +52,14 @@ pub enum Screen {
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum SortingMethod {
-    Number,
-    Text,
     Date,
+    Text,
+    UnseenDate,
+    UnseenText,
 }
 
 impl Default for SortingMethod {
     fn default() -> Self {
-        SortingMethod::Date
+        Config::read_config_file().default_sorting_method
     }
 }

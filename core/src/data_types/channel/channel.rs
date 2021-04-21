@@ -168,10 +168,16 @@ impl Channel {
                 self.videos.reverse();
             },
             SortingMethod::Text => {
-                self.videos.sort_by_key(|video| video.title().clone());
-            },
-            SortingMethod::Number => {
                 self.videos.sort_by(|video_a, video_b| alphanumeric_sort::compare_str(video_a.title().clone(), video_b.title().clone()));
+            },
+            SortingMethod::UnseenDate => {
+                self.videos.sort_by_key(|video| video.pub_date().clone());
+                self.videos.reverse();
+                self.videos.sort();
+            },
+            SortingMethod::UnseenText => {
+                self.videos.sort_by(|video_a, video_b| alphanumeric_sort::compare_str(video_a.title().clone(), video_b.title().clone()));
+                self.videos.sort();
             },
         }
     }

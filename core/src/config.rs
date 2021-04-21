@@ -4,6 +4,7 @@ use std::{
     fs::File,
     io::{Read, Write},
 };
+use crate::SortingMethod;
 
 const CONFIG_FILE_PATH: &str = ".config/tyt/config.yml";
 const SCHOW_EMPTY_CHANNEL_DEFAULT: bool = true;
@@ -15,6 +16,7 @@ const SORT_BY_TAG_DEFAULT: bool = false;
 const MASSAGE_TIMEOUT_DEFAULT: usize = 20;
 const USE_NOTIFY_SEND_DEFAULT: bool = true;
 const VIDEO_PLAYER_DEFAULT: &str = "mpv";
+const DEFAULT_SORT: SortingMethod = SortingMethod::Date;
 
 #[derive(Clone, Deserialize, Serialize)]
 #[serde(default)]
@@ -27,7 +29,8 @@ pub struct Config {
     pub sort_by_tag: bool,
     pub message_timeout: usize,
     pub use_notify_send: bool,
-    pub video_player: String
+    pub video_player: String,
+    pub default_sorting_method: SortingMethod,
 }
 
 impl Default for Config {
@@ -42,6 +45,7 @@ impl Default for Config {
             message_timeout: MASSAGE_TIMEOUT_DEFAULT,
             use_notify_send: USE_NOTIFY_SEND_DEFAULT,
             video_player: VIDEO_PLAYER_DEFAULT.into(),
+            default_sorting_method: DEFAULT_SORT,
         }
     }
 }

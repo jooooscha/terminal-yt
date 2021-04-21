@@ -1,4 +1,5 @@
 use crate::ToTuiListItem;
+use std::cmp::Ordering::{self, *};
 use chrono::DateTime;
 use serde::{Deserialize, Serialize};
 use tui::{
@@ -7,7 +8,7 @@ use tui::{
     widgets::ListItem,
 };
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Eq)]
 pub struct Video {
     pub(super) title: String,
     pub(super) link: String,
@@ -59,6 +60,24 @@ impl Video {
      *     self.origin_url = url.to_string();
      *     self.origin_channel_name = channel_name.to_string();
      * } */
+}
+
+impl Ord for Video {
+    fn cmp(&self, other: &Self) -> Ordering {
+        if self.marked && !other.marked {
+            Greater
+        } else if !self.marked && other.marked {
+            Less
+        } else {
+            Equal
+        }
+    }
+}
+
+impl PartialOrd for Video {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
 }
 
 impl PartialEq<Video> for Video {
