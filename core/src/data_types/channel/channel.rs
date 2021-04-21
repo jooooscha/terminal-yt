@@ -1,14 +1,11 @@
-use crate::{
-    data_types::{video::video::Video},
-    url_file::UrlFileItem,
-    ToTuiListItem,
-};
+use crate::{data_types::video::video::Video, url_file::UrlFileItem, SortingMethod, ToTuiListItem};
 use serde::{Deserialize, Serialize};
 use tui::{
     style::{Color, Modifier, Style},
     text::{Span, Spans},
     widgets::{ListItem, ListState},
 };
+use alphanumeric_sort;
 
 //----------------------------------
 
@@ -18,6 +15,8 @@ pub struct Channel {
     pub(super) id: String,
     pub(crate) videos: Vec<Video>,
 
+    #[serde(skip_deserializing)]
+    pub sorting_method: SortingMethod,
     #[serde(skip)]
     pub(super) tag: String,
     #[serde(skip)]
@@ -34,6 +33,7 @@ impl Channel {
             videos: Vec::new(),
             list_state: ListState::default(),
             tag: String::from("placeholder_tag"),
+            sorting_method: SortingMethod::Date,
         }
     }
 
@@ -78,7 +78,6 @@ impl Channel {
      * } */
 
     pub(crate) fn update_from_url_file(&mut self, url_file_channel: &dyn UrlFileItem) {
-
         // set name - prefere name declard in url-file
         if !url_file_channel.name().is_empty() {
             self.name = url_file_channel.name().clone();
@@ -86,6 +85,9 @@ impl Channel {
 
         // set tag
         self.tag = url_file_channel.tag().clone();
+
+        // set sort order
+        self.sorting_method = url_file_channel.sorting_method();
     }
 
     //-------------------------------------------------
@@ -160,8 +162,18 @@ impl Channel {
     }
 
     pub fn sort(&mut self) {
-        self.videos.sort_by_key(|video| video.pub_date().clone());
-        self.videos.reverse();
+        match self.sorting_method {
+            SortingMethod::Date => {
+                self.videos.sort_by_key(|video| video.pub_date().clone());
+                self.videos.reverse();
+            },
+            SortingMethod::Text => {
+                self.videos.sort_by_key(|video| video.title().clone());
+            },
+            SortingMethod::Number => {
+                self.videos.sort_by(|video_a, video_b| alphanumeric_sort::compare_str(video_a.title().clone(), video_b.title().clone()));
+            },
+        }
     }
 
     pub fn get_spans_list(&self) -> Vec<ListItem> {
@@ -236,6 +248,7 @@ impl ToTuiListItem for Channel {
 #[cfg(test)]
 pub mod tests {
     use super::*;
+    use crate::SortingMethod;
 
     impl Channel {
         pub fn test(name: String, tag: String, id: String) -> Self {
@@ -249,6 +262,7 @@ pub mod tests {
                 id,
                 list_state,
                 videos,
+                sorting_method: SortingMethod::Date,
             }
         }
     }

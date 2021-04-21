@@ -1,6 +1,9 @@
-use crate::data_types::{
+use crate::{
+    data_types::{
     channel::channel::Channel,
     video::{factory::VideoFactory, video::Video},
+    },
+    SortingMethod,
 };
 
 pub struct ChannelFactory {
@@ -12,6 +15,7 @@ pub struct ChannelFactory {
     tag_set: bool,
     new_videos_set: bool,
     old_videos_set: bool,
+    sorting_set: bool,
 }
 
 impl ChannelFactory {
@@ -29,6 +33,7 @@ impl ChannelFactory {
             tag_set: false,
             new_videos_set: false,
             old_videos_set: false,
+            sorting_set: false,
         }
     }
 
@@ -70,6 +75,11 @@ impl ChannelFactory {
         self.old_videos_set = true;
     }
 
+    pub fn set_sorting(&mut self, sorting_method: SortingMethod) {
+        self.channel.sorting_method = sorting_method;
+        self.sorting_set = true;
+    }
+
     pub fn commit(mut self) -> Result<Channel, String> {
         if !self.name_set {
             return Err(String::from("name not set"));
@@ -90,6 +100,12 @@ impl ChannelFactory {
         if !self.old_videos_set {
             return Err(String::from("old_videos not set"));
         }
+
+        if !self.sorting_set {
+            return Err(String::from("sorting not set"));
+        }
+
+        // -------------------------------------------------------------
 
         let mut videos = self.old_videos;
 
@@ -114,8 +130,6 @@ impl ChannelFactory {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[cfg(test)]
     use rand::{distributions::Alphanumeric, Rng};
 
     fn random_string() -> String {
@@ -134,6 +148,7 @@ mod tests {
             cf.set_tag(String::new());
             cf.add_new_videos(Vec::new());
             cf.set_old_videos(Vec::new());
+            cf.set_sorting(SortingMethod::Date);
 
             cf
         }

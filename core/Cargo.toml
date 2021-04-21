@@ -18,5 +18,5 @@ chrono = "*"
 dirs-next = "*"
 threadpool = "*"
 rand = "*"
-
+alphanumeric-sort = "*"
 notification = { path = "../notification" }

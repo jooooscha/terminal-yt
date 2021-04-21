@@ -136,12 +136,14 @@ impl ChannelList {
     }
 
     fn update_channels_from_url_file(&mut self, url_file_content: &UrlFile) {
+        // update all "normal" channels
         for item in url_file_content.channels.iter() {
             if let Some(ref mut chan) = self.get_mut_by_id(&item.id()) {
                 chan.update_from_url_file(item as &dyn UrlFileItem);
             }
         }
 
+        // update all custom channels
         for item in url_file_content.custom_channels.iter() {
             if let Some(ref mut chan) = self.get_mut_by_id(&item.id()) {
                 chan.update_from_url_file(item as &dyn UrlFileItem);

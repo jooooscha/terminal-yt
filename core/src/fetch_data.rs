@@ -6,6 +6,7 @@ use crate::data_types::{
 };
 use crate::history::read_history;
 use crate::url_file::{read_urls_file, UrlFileItem};
+use crate::SortingMethod;
 use chrono::prelude::*;
 use quick_xml::de::from_str;
 use reqwest::blocking::Client;
@@ -70,7 +71,7 @@ fn fetch_channel_updates<T: 'static + UrlFileItem + std::marker::Send>(
     pool.execute(move || {
         let today = Local::now().weekday();
 
-        let mut channel_factory = if item.update_on().iter().any(|w| w.eq_to(&today)) {
+        let mut channel_factory = if false && item.update_on().iter().any(|w| w.eq_to(&today)) {
             download_channel_updates(&urls)
         } else {
             ChannelFactory::create()
@@ -99,12 +100,13 @@ fn fetch_channel_updates<T: 'static + UrlFileItem + std::marker::Send>(
             channel_factory.set_name(history_name);
         }
 
-
         if item.tag().is_empty() {
             channel_factory.set_tag(String::new());
         } else {
             channel_factory.set_tag(item.tag().clone());
         }
+
+        channel_factory.set_sorting(item.sorting_method());
 
         let channel = match channel_factory.commit() {
             Ok(channel) => channel,
@@ -127,7 +129,7 @@ fn download_channel_updates(urls: &Vec<String>) -> ChannelFactory {
             Err(_e) => {
                 #[cfg(debug_assertions)]
                 eprintln!("Could not GET url: {}", _e);
-                continue
+                continue;
             }
         };
 
@@ -159,20 +161,18 @@ fn fetch_feed(url: &String) -> Result<Feed, String> {
 
     // try to parse as atom
     match from_str::<atom::Feed>(&feed) {
-        Ok(feed) => return Ok(feed.into()),//Some(ChannelFactory::from((feed, url.clone()))),
+        Ok(feed) => return Ok(feed.into()), //Some(ChannelFactory::from((feed, url.clone()))),
         Err(_) => (),
     };
 
     // try to parse as rss
     match from_str::<rss::Feed>(&feed) {
-        Ok(feed) => return Ok(feed.into()),//Some(ChannelFactory::from((feed, url.clone()))),
+        Ok(feed) => return Ok(feed.into()), //Some(ChannelFactory::from((feed, url.clone()))),
         Err(_) => (),
     }
 
     Err(String::from("Could not parse feed"))
 }
-
-
 
 /* #[cfg(test)]
  * mod tests {

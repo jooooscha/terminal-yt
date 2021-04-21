@@ -19,6 +19,7 @@ mod history;
 mod url_file;
 
 use tui::widgets::ListItem;
+use serde::{Deserialize, Serialize};
 
 pub trait ToTuiListItem {
     fn to_list_item(&self) -> ListItem;
@@ -47,4 +48,17 @@ pub enum Action {
 pub enum Screen {
     Channels,
     Videos,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub enum SortingMethod {
+    Number,
+    Text,
+    Date,
+}
+
+impl Default for SortingMethod {
+    fn default() -> Self {
+        SortingMethod::Date
+    }
 }

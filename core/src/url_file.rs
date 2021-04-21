@@ -1,9 +1,9 @@
+use crate::SortingMethod;
 use chrono::prelude::*;
+use dirs_next::home_dir;
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::prelude::*;
-
-use dirs_next::home_dir;
 
 pub type ChannelId = String;
 pub type ChannelTag = String;
@@ -69,6 +69,7 @@ pub trait UrlFileItem {
     fn update_on(&self) -> Vec<Date>;
     fn tag(&self) -> ChannelTag;
     fn name(&self) -> ChannelName;
+    fn sorting_method(&self) -> SortingMethod;
 }
 
 // url file video type
@@ -81,6 +82,8 @@ pub struct UrlFileChannel {
     update_on: Vec<Date>,
     #[serde(default)]
     tag: ChannelTag,
+    #[serde(default)]
+    sort_by: SortingMethod,
 }
 
 #[derive(Clone, Deserialize, Serialize, Debug)]
@@ -91,6 +94,8 @@ pub struct UrlFileCustomChannel {
     update_on: Vec<Date>,
     #[serde(default)]
     tag: ChannelTag,
+    #[serde(default)]
+    sort_by: SortingMethod,
 }
 
 impl UrlFileItem for UrlFileChannel {
@@ -106,6 +111,9 @@ impl UrlFileItem for UrlFileChannel {
     fn name(&self) -> ChannelName {
         self.name.clone()
     }
+    fn sorting_method(&self) -> SortingMethod {
+        self.sort_by
+    }
 }
 
 impl UrlFileItem for UrlFileCustomChannel {
@@ -120,6 +128,9 @@ impl UrlFileItem for UrlFileCustomChannel {
     }
     fn name(&self) -> ChannelName {
         self.name.clone()
+    }
+    fn sorting_method(&self) -> SortingMethod {
+        self.sort_by
     }
 }
 
@@ -193,12 +204,14 @@ pub mod tests {
     impl UrlFileChannel {
         pub fn test(name: String, tag: String, url: String) -> Self {
             let update_on = vec![Date::Mon];
+            let sorting_method = SortingMethod::Date;
 
             UrlFileChannel {
                 name,
                 update_on,
                 tag,
                 url,
+                sorting_method,
             }
         }
     }
@@ -206,12 +219,14 @@ pub mod tests {
     impl UrlFileCustomChannel {
         pub fn test(name: String, tag: String, urls: Vec<String>) -> Self {
             let update_on = vec![Date::Mon];
+            let sorting_method = SortingMethod::Date;
 
             UrlFileCustomChannel {
                 name,
                 update_on,
                 tag,
                 urls,
+                sorting_method,
             }
         }
     }
