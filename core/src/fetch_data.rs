@@ -6,7 +6,6 @@ use crate::data_types::{
 };
 use crate::history::read_history;
 use crate::url_file::{read_urls_file, UrlFileItem};
-use crate::SortingMethod;
 use chrono::prelude::*;
 use quick_xml::de::from_str;
 use reqwest::blocking::Client;
