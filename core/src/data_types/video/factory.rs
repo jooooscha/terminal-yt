@@ -10,6 +10,7 @@ pub struct VideoFactory {
     pub_date_set: bool,
     marked_set: bool,
     new_set: bool,
+    fav_set: bool,
 }
 
 impl VideoFactory {
@@ -22,6 +23,7 @@ impl VideoFactory {
             pub_date: String::new(),
             marked: false,
             new: true,
+            fav: false,
         };
 
         VideoFactory {
@@ -33,6 +35,7 @@ impl VideoFactory {
             pub_date_set: false,
             marked_set: false,
             new_set: false,
+            fav_set: false,
         }
     }
 
@@ -71,6 +74,11 @@ impl VideoFactory {
         self.new_set = true;
     }
 
+    pub fn set_fav(&mut self, is_fav: bool) {
+        self.video.fav = is_fav;
+        self.fav_set = true;
+    }
+
     pub fn commit(self) -> Result<Video, String> {
         if !self.title_set {
             return Err(String::from("Title not set"));
@@ -98,6 +106,10 @@ impl VideoFactory {
 
         if !self.new_set {
             return Err(String::from("New not set"));
+        }
+
+        if !self.fav_set {
+            return Err(String::from("Fav not set"));
         }
 
         Ok(self.video) // if all correct return video

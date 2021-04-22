@@ -42,6 +42,7 @@ pub enum Action {
     NextChannel,
     PrevChannel,
     Open,
+    SetVideoFav,
 }
 
 #[derive(PartialEq, Clone, Debug)]

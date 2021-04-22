@@ -15,6 +15,8 @@ pub struct Video {
     pub(super) origin_url: String,
     pub(super) origin_channel_name: String,
     pub(super) marked: bool,
+    #[serde(default)]
+    pub(super) fav: bool,
 
     #[serde(rename = "pubDate")]
     pub(super) pub_date: String,
@@ -26,6 +28,14 @@ pub struct Video {
 impl Video {
     pub fn mark(&mut self, value: bool) {
         self.marked = value;
+    }
+
+    pub fn is_fav(&self) -> bool {
+        self.fav
+    }
+
+    pub fn set_fav(&mut self, is_fav: bool) {
+        self.fav = is_fav;
     }
 
     pub fn title(&self) -> &String {
@@ -56,20 +66,25 @@ impl Video {
         self.new
     }
 
-    /* pub(super) fn add_origin(&mut self, url: &String, channel_name: &String) {
-     *     self.origin_url = url.to_string();
-     *     self.origin_channel_name = channel_name.to_string();
-     * } */
 }
 
 impl Ord for Video {
     fn cmp(&self, other: &Self) -> Ordering {
-        if self.marked && !other.marked {
+        let mut i = 0;
+        let mut j = 0;
+
+        if !self.is_fav() { i  += 100; }
+        if !other.is_fav() { j += 100; }
+
+        if self.marked { i    += 10; }
+        if other.marked { j   += 10; }
+
+        if i > j {
             Greater
-        } else if !self.marked && other.marked {
-            Less
+        } else if i == j {
+            self.title().cmp(other.title())
         } else {
-            Equal
+            Less
         }
     }
 }
@@ -88,7 +103,6 @@ impl PartialEq<Video> for Video {
 
 impl ToTuiListItem for Video {
     fn to_list_item(&self) -> ListItem {
-        /* let d = match DateTime::parse_from_rfc3339(&self.pub_date); */
         let pre_title = if self.new && !self.marked {
             String::from("   new   - ")
         } else {
@@ -111,7 +125,11 @@ impl ToTuiListItem for Video {
             style_title = Style::default().fg(Color::Yellow);
             style_new = Style::default().fg(Color::LightGreen);
         } else {
-            style_title = Style::default().fg(Color::Yellow);
+            style_title = if self.is_fav() {
+                Style::default().fg(Color::Green)
+            } else {
+                Style::default().fg(Color::Yellow)
+            };
             style_new = style_title.clone();
         }
 

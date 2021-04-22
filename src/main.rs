@@ -91,6 +91,15 @@ fn main() {
                     core.action(PrevChannel);
                     core.draw();
                 }
+                Key::Char('f') => {
+                    match core.current_screen {
+                        Channels => {}
+                        Videos => {
+                            core.action(SetVideoFav);
+                        }
+                    }
+                    core.draw();
+                }
                 Key::Char('\n') | Key::Char('l') | Key::Right | Key::Char('o') => {
                     match core.current_screen {
                         Channels => core.action(Enter),

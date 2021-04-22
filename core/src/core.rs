@@ -194,6 +194,12 @@ impl Core {
                     self.action(Enter);
                 }
             },
+            SetVideoFav => {
+                if let Some(ref mut video) = self.get_selected_video_mut() {
+                    video.set_fav(!video.is_fav());
+                    self.save();
+                }
+            },
             Open => {
                 let video = match self.get_selected_video_mut() {
                     Some(v) => v.clone(),

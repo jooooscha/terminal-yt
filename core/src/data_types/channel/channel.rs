@@ -164,6 +164,7 @@ impl Channel {
     pub fn sort(&mut self) {
         match self.sorting_method {
             SortingMethod::Date => {
+                self.videos.sort();
                 self.videos.sort_by_key(|video| video.pub_date().clone());
                 self.videos.reverse();
             },
