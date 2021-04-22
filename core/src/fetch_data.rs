@@ -70,13 +70,11 @@ fn fetch_channel_updates<T: 'static + UrlFileItem + std::marker::Send>(
     pool.execute(move || {
         let today = Local::now().weekday();
 
-        let mut channel_factory = if false && item.update_on().iter().any(|w| w.eq_to(&today)) {
+        let mut channel_factory = if item.update_on().iter().any(|w| w.eq_to(&today)) {
             download_channel_updates(&urls)
         } else {
             ChannelFactory::create()
         };
-
-        /* let channel_factory = download_channel_updates(&urls); */
 
         // set videos from history
         let (history_videos, history_name) = match history.get_by_id(&item.id()) {
@@ -138,6 +136,7 @@ fn download_channel_updates(urls: &Vec<String>) -> ChannelFactory {
             vf.set_origin_channel_name(feed.name.clone());
             vf.set_marked(false);
             vf.set_new(true);
+            vf.set_fav(false);
         }
         cf.add_new_videos(feed.videos);
     }

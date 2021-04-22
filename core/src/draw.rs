@@ -46,7 +46,7 @@ pub struct View {
     >,
     config: Config,
     update_line: String,
-    show_channel_block: bool,
+    show_videos: bool,
     channel_list: ChannelList,
     current_selected: Channel,
     selected_channel_name: String,
@@ -68,7 +68,7 @@ impl From<&Core> for View {
             terminal,
             config,
             update_line,
-            show_channel_block,
+            show_videos: show_channel_block,
             channel_list,
             current_selected,
             selected_channel_name,
@@ -84,12 +84,12 @@ pub fn draw(app: View) {
             .borders(Borders::ALL)
             .border_type(BorderType::Rounded);
 
-        let symbol = match app.show_channel_block {
+        let symbol = match app.show_videos {
             true => "-",
             false => ">>",
         };
 
-        let constraints = if app.show_channel_block {
+        let constraints = if app.show_videos {
             [Constraint::Percentage(35), Constraint::Percentage(65)].as_ref()
         } else {
             [Constraint::Percentage(100)].as_ref()
@@ -130,18 +130,24 @@ pub fn draw(app: View) {
                 .split(f.size());
 
             // --------------------------
-            let new_and_playback = Layout::default()
+            // LAYOUT (Blocks)
+            // --------------------------
+
+            // main two parts split
+            let channel_list_and_history = Layout::default()
                 .direction(Direction::Vertical)
                 .margin(0)
                 .constraints([Constraint::Percentage(80), Constraint::Percentage(20)])
                 .split(main_structure[0]);
 
-            // --------------------------
+            // split of channels and their videos
             let channel_and_video = Layout::default()
                 .direction(Direction::Horizontal)
                 .margin(0)
                 .constraints(constraints)
-                .split(new_and_playback[0]);
+                .split(channel_list_and_history[0]);
+
+            // --------------------------
 
             let list = List::new(chan)
                 .block(block.clone())
@@ -149,7 +155,7 @@ pub fn draw(app: View) {
                 .highlight_symbol(symbol);
             f.render_stateful_widget(list, channel_and_video[0], &mut channels.state());
 
-            if app.show_channel_block {
+            if app.show_videos {
                 block = block.title(format!(" {} ", app.selected_channel_name));
 
                 let list = List::new(vid.clone())
@@ -164,7 +170,7 @@ pub fn draw(app: View) {
                 .block(block.clone())
                 .highlight_style(Style::default())
                 .highlight_symbol(symbol);
-            f.render_widget(playback_history, new_and_playback[1]);
+            f.render_widget(playback_history, channel_list_and_history[1]);
 
             let par_1 = Paragraph::new(Span::from(app.update_line.clone()))
                 .style(Style::default())
