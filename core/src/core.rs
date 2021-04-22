@@ -116,7 +116,7 @@ impl Core {
             current_filter,
             playback_history,
             status_sender,
-            status_receiver
+            status_receiver,
         }
     }
 
@@ -166,7 +166,14 @@ impl Core {
             },
             Down => match self.current_screen {
                 Channels => self.get_filtered_channel_list_mut().next(),
-                Videos => self.get_selected_channel_mut().next(),
+                Videos => {
+                    if self.get_selected_video().is_some() {
+                        self.status_sender
+                            .send(self.get_selected_video().unwrap().get_details())
+                            .unwrap();
+                    }
+                    self.get_selected_channel_mut().next();
+                }
             },
             Enter => {
                 /* notify_user(&format!("{}, {}", self.get_selected_channel_index(), self.get_selected_channel().id)); */
@@ -199,7 +206,7 @@ impl Core {
                     video.set_fav(!video.is_fav());
                     self.save();
                 }
-            },
+            }
             Open => {
                 let video = match self.get_selected_video_mut() {
                     Some(v) => v.clone(),
@@ -352,6 +359,11 @@ impl Core {
     pub fn get_selected_channel_mut(&mut self) -> &mut Channel {
         let i = self.get_selected_channel_index();
         self.get_filtered_channel_list_mut().get_mut(i).unwrap()
+    }
+
+    pub fn get_selected_video(&self) -> Option<&Video> {
+        let i = self.get_selected_channel().selected()?;
+        self.get_selected_channel().get(i)
     }
 
     pub fn get_selected_video_mut(&mut self) -> Option<&mut Video> {

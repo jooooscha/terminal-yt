@@ -66,6 +66,9 @@ impl Video {
         self.new
     }
 
+    pub fn get_details(&self) -> String {
+        format!("{}", self.title)
+    }
 }
 
 impl Ord for Video {
