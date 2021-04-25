@@ -120,8 +120,8 @@ impl Core {
         }
     }
 
-    fn post(&mut self, _msg: String) {
-        /* self.status_sender.send(msg); */
+    fn post(&mut self, msg: String) {
+        self.status_sender.send(msg).unwrap();
     }
 
     pub fn update_status_line(&mut self) -> bool {
@@ -132,7 +132,6 @@ impl Core {
         } else {
             return false;
         }
-
         true
     }
 
@@ -168,9 +167,7 @@ impl Core {
                 Channels => self.get_filtered_channel_list_mut().next(),
                 Videos => {
                     if self.get_selected_video().is_some() {
-                        self.status_sender
-                            .send(self.get_selected_video().unwrap().get_details())
-                            .unwrap();
+                        self.post(self.get_selected_video().unwrap().get_details())
                     }
                     self.get_selected_channel_mut().next();
                 }
@@ -314,9 +311,7 @@ impl Core {
     pub fn update_channel(&mut self, updated_channel: Channel) {
         let mut channel_list = self.get_filtered_channel_list().clone();
 
-        self.status_sender
-            .send(format!("Updated: {}", &updated_channel.name()))
-            .unwrap();
+        self.post(format!("Updated: {}", &updated_channel.name()));
 
         if let Some(channel) = channel_list.get_mut_by_id(&updated_channel.id()) {
             channel.merge_videos(updated_channel.videos); // add video to channel
