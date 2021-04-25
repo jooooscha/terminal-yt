@@ -147,14 +147,14 @@ fn main() {
                 _ => {}
             },
             Event::Tick => {
-                if tick_counter == 2 {
+                if tick_counter == 0 {
                     let actually_updated = core.update_status_line();
                     if actually_updated {
                         core.draw();
+                        tick_counter = 4;
                     }
-                    tick_counter = 0;
                 } else {
-                    tick_counter += 1;
+                    tick_counter -= 1
                 }
 
                 if core.terminal.clone().lock().unwrap().size().unwrap() != size.clone() {
