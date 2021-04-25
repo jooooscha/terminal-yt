@@ -1,11 +1,12 @@
-use crate::data_types::feed_types::{atom, rss};
-use crate::data_types::{
-    channel::{channel::Channel, factory::ChannelFactory},
-    channel_list::ChannelList,
-    feed_types::Feed,
-};
 use crate::history::read_history;
 use crate::url_file::{read_urls_file, UrlFileItem};
+use crate::{
+    data_types::{
+        channel::{channel::Channel, factory::ChannelFactory},
+        channel_list::ChannelList,
+        feed_types::{atom, rss, Feed},
+    },
+};
 use chrono::prelude::*;
 use quick_xml::de::from_str;
 use reqwest::blocking::Client;
