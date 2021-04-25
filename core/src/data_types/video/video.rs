@@ -79,13 +79,13 @@ impl Ord for Video {
         if !self.is_fav() { i  += 100; }
         if !other.is_fav() { j += 100; }
 
-        if self.marked { i    += 10; }
-        if other.marked { j   += 10; }
+        if self.marked { i     += 10; }
+        if other.marked { j    += 10; }
 
         if i > j {
             Greater
         } else if i == j {
-            self.title().cmp(other.title())
+            Equal
         } else {
             Less
         }
