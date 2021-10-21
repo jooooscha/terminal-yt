@@ -136,14 +136,14 @@ impl Core {
     }
 
     /// Contains every possible action.
-    pub fn action(&mut self, action: Action) {
+    pub fn action(&mut self, action: Action) -> Option<String> {
         match action {
             Mark | Unmark => {
                 if self.current_screen == Videos {
                     let state = action == Mark;
                     match self.get_selected_video_mut() {
                         Some(video) => video.mark(state),
-                        None => return,
+                        None => (),
                     }
 
                     if !self.get_selected_channel_mut().has_new()
@@ -159,9 +159,7 @@ impl Core {
             }
             Up => match self.current_screen {
                 Channels => self.get_filtered_channel_list_mut().prev(),
-                Videos => {
-                    self.get_selected_channel_mut().prev();
-                }
+                Videos => self.get_selected_channel_mut().prev()
             },
             Down => match self.current_screen {
                 Channels => self.get_filtered_channel_list_mut().next(),
@@ -173,7 +171,6 @@ impl Core {
                 }
             },
             Enter => {
-                /* notify_user(&format!("{}, {}", self.get_selected_channel_index(), self.get_selected_channel().id)); */
                 self.current_screen = Videos;
                 self.get_selected_channel_mut().select(Some(0));
             }
@@ -205,22 +202,31 @@ impl Core {
                 }
             }
             Open => {
+                // get video
                 let video = match self.get_selected_video_mut() {
                     Some(v) => v.clone(),
-                    None => return,
+                    None => return None,
                 };
 
-                let history_video = MinimalVideo::from(video.clone());
+                // mark video
+                if self.config.mark_on_open {
+                    self.action(Mark);
+                }
+
+                // for playback history
+                let mimimal_video = MinimalVideo::from(video.clone());
 
                 for i in 0..self.playback_history.len() {
-                    if self.playback_history[i] == history_video {
+                    if self.playback_history[i] == mimimal_video {
                         self.playback_history.remove(i);
                         break;
                     }
                 }
-                self.playback_history.push(history_video);
+                self.playback_history.push(mimimal_video);
 
                 write_playback_history(&self.playback_history);
+
+                // call video player
 
                 if let Err(error) = Command::new("setsid")
                     .arg("-f")
@@ -231,19 +237,10 @@ impl Core {
                 {
                     self.post(error.to_string());
                 }
-
-                if self.config.use_notify_send {
-                    if let Err(err) = Command::new("notify-send")
-                        .arg("Open video")
-                        .arg(video.title())
-                        .stderr(Stdio::null())
-                        .spawn()
-                    {
-                        self.post(format!("Could not start notify-send: {}", err))
-                    };
-                }
+                return Some(video.get_details())
             }
         }
+        None
     }
 
     pub fn draw(&self) {

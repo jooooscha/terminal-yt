@@ -6,7 +6,7 @@ use core::{
     Screen::*,
 };
 use events::*;
-use notification::notify::notify_user;
+use notification::notify::*;
 use std::{
     sync::mpsc::{channel, Sender},
     thread,
@@ -70,7 +70,7 @@ fn main() {
                     // ---------------------- back --------------
                     match core.current_screen {
                         Channels => {}
-                        Videos => core.action(Leave),
+                        Videos => { let _ = core.action(Leave); }
                     }
                     core.draw();
                 }
@@ -102,11 +102,15 @@ fn main() {
                 }
                 Key::Char('\n') | Key::Char('l') | Key::Right | Key::Char('o') => {
                     match core.current_screen {
-                        Channels => core.action(Enter),
+                        Channels => { let _ = core.action(Enter); }
                         Videos => {
-                            core.action(Open);
-                            if core.config.mark_on_open {
-                                core.action(Mark);
+                            let video_details = core.action(Open);
+                            /* if core.config.mark_on_open {
+                             *     core.action(Mark);
+                             * } */
+                            match video_details {
+                                Some(vd) => { let _ = notify_open(&vd); }
+                                None => ()
                             }
                         }
                     }
@@ -140,7 +144,7 @@ fn main() {
                     Videos => {
                         let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
                         let link = core.get_selected_video_link();
-                        notify_user(&link);
+                        notify_link(&link);
                         ctx.set_contents(link).unwrap();
                     }
                 },
@@ -165,3 +169,4 @@ fn main() {
         }
     }
 }
+
