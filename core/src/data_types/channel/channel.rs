@@ -231,12 +231,12 @@ impl ToTuiListItem for Channel {
 
         let spacer = String::from(" - ");
 
-        if num_marked > &0 {
-            let light_green = Style::default().fg(Color::LightGreen);
-            let yellow = Style::default().fg(Color::Yellow);
-            let blue = Style::default().fg(Color::Blue);
-            let gray = Style::default().fg(Color::DarkGray).add_modifier(Modifier::ITALIC);
+        let light_green = Style::default().fg(Color::LightGreen);
+        let yellow = Style::default().fg(Color::Yellow);
+        let blue = Style::default().fg(Color::Blue);
+        let gray = Style::default().fg(Color::DarkGray).add_modifier(Modifier::ITALIC);
 
+        if num_marked > &0 {
             ListItem::new(Spans::from(vec![
                 Span::styled(new, light_green),
                 Span::styled(name, yellow),
@@ -245,14 +245,12 @@ impl ToTuiListItem for Channel {
                 Span::styled(video_count, gray),
             ]))
         } else {
-            let style = Style::default().fg(Color::DarkGray).add_modifier(Modifier::ITALIC);
-
             ListItem::new(Spans::from(vec![
-                Span::styled(new, style),
-                Span::styled(name, style),
-                Span::styled(tag, style),
-                Span::styled(spacer, style),
-                Span::styled(video_count, style),
+                Span::styled(new, gray),
+                Span::styled(name, gray),
+                Span::styled(tag, gray),
+                Span::styled(spacer, gray),
+                Span::styled(video_count, gray),
             ]))
         }
     }

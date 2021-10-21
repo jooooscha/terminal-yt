@@ -123,12 +123,21 @@ impl ToTuiListItem for Video {
         let yellow = Style::default().fg(Color::Yellow);
         let gray = Style::default().fg(Color::DarkGray).add_modifier(Modifier::ITALIC);
 
-        ListItem::new(Spans::from(vec![
-            Span::styled(new, yellow),
-            Span::styled(title, yellow),
-            Span::styled(spacer, gray),
-            Span::styled(date, gray),
-        ]))
+        if self.marked {
+            ListItem::new(Spans::from(vec![
+                Span::styled(new, gray),
+                Span::styled(title, gray),
+                Span::styled(spacer, gray),
+                Span::styled(date, gray),
+            ]))
+        } else {
+            ListItem::new(Spans::from(vec![
+                Span::styled(new, yellow),
+                Span::styled(title, yellow),
+                Span::styled(spacer, gray),
+                Span::styled(date, gray),
+            ]))
+        }
     }
 }
 
