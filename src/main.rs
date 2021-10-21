@@ -2,11 +2,11 @@ mod events;
 
 use clipboard::{ClipboardContext, ClipboardProvider};
 use core::{
-    core::Core, data_types::channel::channel::Channel, fetch_data::fetch_new_videos, Action::*, Filter,
+    core::Core, data_types::channel::channel::Channel, fetch_data::fetch_new_videos, Action::*,
     Screen::*,
 };
 use events::*;
-use notification::notify::*;
+use notification::notify::{notify_open, notify_link};
 use std::{
     sync::mpsc::{channel, Sender},
     thread,
@@ -14,23 +14,12 @@ use std::{
 use termion::event::Key;
 
 fn update_channel_list(
-    status_update_sender: Sender<String>,
     channel_update_sender: Sender<Channel>,
 ) {
     thread::spawn(move || {
-        fetch_new_videos(status_update_sender, channel_update_sender);
+        fetch_new_videos(channel_update_sender);
     });
 }
-
-/* fn main() {
- *     let result = std::panic::catch_unwind(|| {
- *         run();
- *     });
- *
- *     if let Err(error_text) = result {
- *         panic!(error_text);
- *     }
- * } */
 
 fn main() {
     let mut core = Core::new_with_history();
@@ -42,8 +31,8 @@ fn main() {
 
     let (channel_update_sender, channel_update_receiver) = channel();
 
-    if core.config.update_at_start {
-        update_channel_list(core.status_sender.clone(), channel_update_sender.clone());
+    if core.update_at_start() {
+        update_channel_list(channel_update_sender.clone());
     }
 
     loop {
@@ -58,7 +47,7 @@ fn main() {
             Event::Input(input) => match input {
                 Key::Char('q') => {
                     // ----------------- close -----------------------
-                    match core.current_screen {
+                    match core.get_current_screen() {
                         Channels => break,
                         Videos => {
                             core.action(Leave);
@@ -68,7 +57,7 @@ fn main() {
                 }
                 Key::Esc | Key::Char('h') | Key::Left => {
                     // ---------------------- back --------------
-                    match core.current_screen {
+                    match core.get_current_screen() {
                         Channels => {}
                         Videos => { let _ = core.action(Leave); }
                     }
@@ -92,7 +81,7 @@ fn main() {
                     core.draw();
                 }
                 Key::Char('f') => {
-                    match core.current_screen {
+                    match core.get_current_screen() {
                         Channels => {}
                         Videos => {
                             core.action(SetVideoFav);
@@ -101,13 +90,10 @@ fn main() {
                     core.draw();
                 }
                 Key::Char('\n') | Key::Char('l') | Key::Right | Key::Char('o') => {
-                    match core.current_screen {
+                    match core.get_current_screen() {
                         Channels => { let _ = core.action(Enter); }
                         Videos => {
                             let video_details = core.action(Open);
-                            /* if core.config.mark_on_open {
-                             *     core.action(Mark);
-                             * } */
                             match video_details {
                                 Some(vd) => { let _ = notify_open(&vd); }
                                 None => ()
@@ -127,19 +113,14 @@ fn main() {
                     core.draw();
                 }
                 Key::Char('r') => {
-                    update_channel_list(core.status_sender.clone(), channel_update_sender.clone());
+                    update_channel_list(channel_update_sender.clone());
                     core.action(Leave);
                 }
                 Key::Char('t') => {
-                    core.config.show_empty_channels = !core.config.show_empty_channels;
-                    let new_filter = match core.current_filter {
-                        Filter::NoFilter => Filter::OnlyNew,
-                        Filter::OnlyNew => Filter::NoFilter,
-                    };
-                    core.set_filter(new_filter);
+                    core.set_show_empty(!core.get_show_empty());
                     core.draw();
                 }
-                Key::Char('c') => match core.current_screen {
+                Key::Char('c') => match core.get_current_screen() {
                     Channels => (),
                     Videos => {
                         let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();

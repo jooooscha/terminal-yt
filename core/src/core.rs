@@ -58,13 +58,13 @@ pub struct Core {
             >,
         >,
     >,
-    pub config: Config,
+    pub(crate) config: Config,
     pub(crate) update_line: String,
-    pub current_screen: Screen,
-    pub current_filter: Filter,
+    pub(crate) current_screen: Screen,
+    pub(crate) current_filter: Filter,
     channel_list: ChannelList,
     pub(crate) playback_history: Vec<MinimalVideo>,
-    pub status_sender: Sender<String>,
+    pub(crate) status_sender: Sender<String>,
     pub(crate) status_receiver: Receiver<String>,
 }
 
@@ -112,7 +112,6 @@ impl Core {
             current_screen: Channels,
             channel_list,
             update_line: String::new(),
-            /* msg_array: Vec::new(), */
             current_filter,
             playback_history,
             status_sender,
@@ -120,9 +119,11 @@ impl Core {
         }
     }
 
-    fn post(&mut self, msg: String) {
+    pub fn post(&mut self, msg: String) {
         self.status_sender.send(msg).unwrap();
     }
+
+    // gettter and setter
 
     pub fn update_status_line(&mut self) -> bool {
         if let Ok(line) = self.status_receiver.try_recv() {
@@ -135,6 +136,29 @@ impl Core {
         true
     }
 
+    pub fn get_show_empty(&self) -> bool {
+        self.config.show_empty_channels
+    }
+    pub fn set_show_empty(&mut self, b: bool) {
+        self.config.show_empty_channels = b;
+
+        let new_filter = match self.current_filter {
+            Filter::NoFilter => Filter::OnlyNew,
+            Filter::OnlyNew => Filter::NoFilter,
+        };
+        self.set_filter(new_filter);
+    }
+
+    pub fn update_at_start(&self) -> bool {
+        self.config.update_at_start
+    }
+
+    pub fn get_current_screen(&self) -> &Screen {
+        &self.current_screen
+    }
+
+    // --- actions -----
+
     /// Contains every possible action.
     pub fn action(&mut self, action: Action) -> Option<String> {
         match action {
@@ -146,9 +170,7 @@ impl Core {
                         None => (),
                     }
 
-                    if !self.get_selected_channel_mut().has_new()
-                        && self.current_filter == Filter::OnlyNew
-                    {
+                    if !self.get_selected_channel_mut().has_new() && self.current_filter == Filter::OnlyNew {
                         self.action(Leave);
                     } else if self.config.down_on_mark {
                         self.get_selected_channel_mut().next();
@@ -163,12 +185,7 @@ impl Core {
             },
             Down => match self.current_screen {
                 Channels => self.get_filtered_channel_list_mut().next(),
-                Videos => {
-                    if self.get_selected_video().is_some() {
-                        self.post(self.get_selected_video().unwrap().get_details())
-                    }
-                    self.get_selected_channel_mut().next();
-                }
+                Videos => self.get_selected_channel_mut().next(),
             },
             Enter => {
                 self.current_screen = Videos;
@@ -248,7 +265,7 @@ impl Core {
     }
 
     /// Set a filter
-    pub fn set_filter(&mut self, filter: Filter) {
+    fn set_filter(&mut self, filter: Filter) {
         self.current_filter = filter;
         self.set_channel_list(self.channel_list.clone());
     }

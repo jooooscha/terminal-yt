@@ -14,7 +14,6 @@ use std::sync::{mpsc::channel, mpsc::Sender};
 use threadpool::ThreadPool;
 
 pub fn fetch_new_videos(
-    _status_update_sender: Sender<String>,
     channel_update_sender: Sender<Channel>,
 ) {
     let url_file_content = read_urls_file();
