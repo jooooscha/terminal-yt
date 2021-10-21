@@ -214,41 +214,47 @@ impl ToTuiListItem for Channel {
             .len();
         let has_new = self.videos.iter().any(|video| video.new());
 
-        let num = format!("{:>3}/{:<4}", num_marked, &self.videos.len());
-        let bar = String::from(" | ");
-        let new = if has_new {
-            format!(" new")
-        } else {
-            String::new()
-        };
-        let name = format!("{}", &self.name);
         let tag = if self.tag.is_empty() {
             String::from("")
         } else {
-            format!("[{}] ", &self.tag)
+            format!(" [{}]", &self.tag)
         };
 
-        let base_style;
-        let tag_style;
-        let new_style;
+        let video_count = format!("{}", &self.videos.len());
+
+        let new = if has_new {
+            format!(" * ")
+        } else {
+            String::from(" ")
+        };
+        let name = format!("{}", &self.name);
+
+        let spacer = String::from(" - ");
 
         if num_marked > &0 {
-            base_style = Style::default().fg(Color::Yellow);
-            tag_style = Style::default().fg(Color::Blue);
-            new_style = Style::default().fg(Color::LightGreen);
-        } else {
-            base_style = Style::default().fg(Color::DarkGray);
-            new_style = base_style.clone();
-            tag_style = base_style.clone();
-        }
+            let light_green = Style::default().fg(Color::LightGreen);
+            let yellow = Style::default().fg(Color::Yellow);
+            let blue = Style::default().fg(Color::Blue);
+            let gray = Style::default().fg(Color::DarkGray).add_modifier(Modifier::ITALIC);
 
-        ListItem::new(Spans::from(vec![
-            Span::styled(num, base_style),
-            Span::styled(bar, base_style),
-            Span::styled(tag, tag_style),
-            Span::styled(name, base_style.add_modifier(Modifier::ITALIC)),
-            Span::styled(new, new_style),
-        ]))
+            ListItem::new(Spans::from(vec![
+                Span::styled(new, light_green),
+                Span::styled(name, yellow),
+                Span::styled(tag, blue),
+                Span::styled(spacer, gray),
+                Span::styled(video_count, gray),
+            ]))
+        } else {
+            let style = Style::default().fg(Color::DarkGray).add_modifier(Modifier::ITALIC);
+
+            ListItem::new(Spans::from(vec![
+                Span::styled(new, style),
+                Span::styled(name, style),
+                Span::styled(tag, style),
+                Span::styled(spacer, style),
+                Span::styled(video_count, style),
+            ]))
+        }
     }
 }
 

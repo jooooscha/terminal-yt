@@ -106,39 +106,28 @@ impl PartialEq<Video> for Video {
 
 impl ToTuiListItem for Video {
     fn to_list_item(&self) -> ListItem {
-        let pre_title = if self.new && !self.marked {
-            String::from("   new   - ")
+
+        let new = if self.new {
+            format!(" * ")
         } else {
-            if let Ok(date_) = DateTime::parse_from_rfc3339(&self.pub_date) {
-                format!("{:>4} - ", &date_.format("%d.%m.%y"))
-            } else {
-                String::from(" NODATE  - ")
-            }
+            String::from(" ")
+        };
+        let title = format!("{}", &self.title);
+        let date = match DateTime::parse_from_rfc3339(&self.pub_date) {
+            Ok(date_) => format!("{:>4}", &date_.format("%d.%m.%y")),
+            Err(_) => String::new(),
         };
 
-        let title = format!("{}", &self.title);
+        let spacer = String::from(" - ");
 
-        let style_title;
-        let style_new;
-
-        if self.marked {
-            style_title = Style::default().fg(Color::DarkGray);
-            style_new = style_title.clone();
-        } else if self.new {
-            style_title = Style::default().fg(Color::Yellow);
-            style_new = Style::default().fg(Color::LightGreen);
-        } else {
-            style_title = if self.is_fav() {
-                Style::default().fg(Color::Green)
-            } else {
-                Style::default().fg(Color::Yellow)
-            };
-            style_new = style_title.clone();
-        }
+        let yellow = Style::default().fg(Color::Yellow);
+        let gray = Style::default().fg(Color::DarkGray).add_modifier(Modifier::ITALIC);
 
         ListItem::new(Spans::from(vec![
-            Span::styled(pre_title, style_new),
-            Span::styled(title, style_title.add_modifier(Modifier::ITALIC)),
+            Span::styled(new, yellow),
+            Span::styled(title, yellow),
+            Span::styled(spacer, gray),
+            Span::styled(date, gray),
         ]))
     }
 }
