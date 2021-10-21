@@ -7,7 +7,7 @@ The default player is mpv. However, this can be changed in the settings.
 
 Tyt was build with [tui](https://github.com/fdehau/tui-rs) and termion as backend.
 
-![Screenshot](https://user-images.githubusercontent.com/57965027/114238595-2c6d6900-9985-11eb-8d2f-d035bb3ffce5.png)
+![Screenshot](https://user-images.githubusercontent.com/57965027/138331749-8eed019d-8825-459f-bd87-177a98eaf61b.png)
 
 ## Features
 
