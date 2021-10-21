@@ -250,6 +250,7 @@ impl Core {
                     .arg(&self.config.video_player)
                     .arg(video.link())
                     .stderr(Stdio::null())
+                    .stdout(Stdio::null())
                     .spawn()
                 {
                     self.post(error.to_string());
