@@ -107,7 +107,9 @@ impl PartialEq<Video> for Video {
 impl ToTuiListItem for Video {
     fn to_list_item(&self) -> ListItem {
 
-        let new = if self.new {
+        let new = if self.is_fav() {
+            format!(" ⭐ ")
+        } else if self.new {
             format!(" * ")
         } else {
             String::from(" ")
@@ -122,6 +124,12 @@ impl ToTuiListItem for Video {
 
         let yellow = Style::default().fg(Color::Yellow);
         let gray = Style::default().fg(Color::DarkGray).add_modifier(Modifier::ITALIC);
+
+        /* let text_color = if self.is_fav() {
+         *     green
+         * } else {
+         *     yellow
+         * }; */
 
         if self.marked {
             ListItem::new(Spans::from(vec![

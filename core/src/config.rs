@@ -17,7 +17,6 @@ const MASSAGE_TIMEOUT_DEFAULT: usize = 20;
 const USE_NOTIFY_SEND_DEFAULT: bool = true;
 const VIDEO_PLAYER_DEFAULT: &str = "mpv";
 const DEFAULT_SORT: SortingMethod = SortingMethod::Date;
-const SPACER: &str = " | ";
 
 #[derive(Clone, Deserialize, Serialize)]
 #[serde(default)]
@@ -32,7 +31,6 @@ pub struct Config {
     pub use_notify_send: bool,
     pub video_player: String,
     pub default_sorting_method: SortingMethod,
-    pub spacer: String
 }
 
 impl Default for Config {
@@ -48,7 +46,6 @@ impl Default for Config {
             use_notify_send: USE_NOTIFY_SEND_DEFAULT,
             video_player: VIDEO_PLAYER_DEFAULT.into(),
             default_sorting_method: DEFAULT_SORT,
-            spacer: SPACER.into(),
         }
     }
 }
