@@ -1,0 +1,22 @@
+[package]
+name = "tyt"
+version = "1.1.0"
+authors = ["joooscha <j.loos@posteo.net>"]
+edition = "2021"
+
+[dependencies]
+termion = "1.5.6"
+tui = "0.12.0"
+
+alphanumeric-sort = "1.4.1"
+dirs-next = "2.0.0"
+chrono = "0.4.19"
+threadpool = "1.8.1"
+
+serde = { version = "1.0.124", features = ["derive"] }
+serde_json = "1.0.64"
+serde_yaml = "0.8.17"
+quick-xml = { version = "0.22.0", features = ["serialize"] }
+reqwest = { version = "*", features = ["blocking"] }
+
+clipboard = "0.5.0"
