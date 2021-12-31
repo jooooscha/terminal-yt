@@ -1,10 +1,13 @@
 use dirs_next::home_dir;
 use serde::{Deserialize, Serialize};
 use std::{
-    fs::File,
-    io::{Read, Write},
+    fs::OpenOptions,
+    io::{Read, Write, ErrorKind},
 };
-use crate::backend::SortingMethod;
+use crate::{
+    backend::SortingMethod,
+    notification::notify_error,
+};
 
 const CONFIG_FILE_PATH: &str = ".config/tyt/config.yml";
 const SCHOW_EMPTY_CHANNEL_DEFAULT: bool = true;
@@ -51,35 +54,75 @@ impl Default for Config {
 }
 
 impl Config {
+    /// Inits the Config struct. Write default config, if config could not be found
     pub(crate) fn init() -> Self {
-        let mut path = home_dir().unwrap();
+        let mut path = match home_dir() {
+            Some(p) => p,
+            None => {
+                notify_error("could not read home dir");
+                return Self::default();
+            }
+        };
         path.push(CONFIG_FILE_PATH);
 
-        match File::open(path.clone()) {
-            Ok(mut file) => {
-                let mut reader = String::new();
-                file.read_to_string(&mut reader).unwrap();
-                let config: Config = match serde_yaml::from_str(&reader) {
-                    Ok(file) => file,
-                    Err(e) => panic!("could not parse config file: {}", e),
-                };
+        let file_result = OpenOptions::new()
+            .read(true)
+            .create(true)
+            .open(path);
 
-                config
-            }
-            Err(_) => {
-                match File::create(path) {
-                    Ok(mut file) => {
-                        let def_config = Config::default();
-                        let string = serde_yaml::to_string(&def_config).unwrap();
-
-                        match file.write_all(string.as_bytes()) {
-                            Ok(_) => Config::init(),
-                            Err(e) => panic!("could not write default config: {}", e),
-                        }
-                    }
-                    Err(e) => panic!("could not create config file: {}", e),
+        if let Err(error) = file_result {
+            match error.kind() {
+                ErrorKind::NotFound => {
+                    Self::write_default();
                 }
+                ErrorKind::PermissionDenied => {
+                    notify_error("Permission to config denied");
+                }
+                _ => {},
             }
+            return Self::default();
         }
+
+        // save because we return on Err(...)
+        let mut file = file_result.unwrap();
+
+        let mut buffer = String::new();
+        if let Err(e) = file.read_to_string(&mut buffer) {
+            notify_error(&format!("Data is no valid utf-8: {}", e));
+            return Self::default();
+        }
+
+        let config: Config = match serde_yaml::from_str(&buffer) {
+            Ok(config) => config,
+            Err(e) => {
+                notify_error(&format!("could not parse config file: {}", e));
+                return Self::default();
+            }
+        };
+
+        config
+    }
+
+    /// Writes the default config
+    /// # Panics
+    /// Panics if file could not be opended or already exists
+    fn write_default() {
+        let mut path = match home_dir() {
+            Some(p) => p,
+            None => {
+                notify_error("could not read home dir");
+                return;
+            }
+        };
+
+        path.push(CONFIG_FILE_PATH);
+        let mut file = OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(path)
+            .unwrap();
+
+        let string = serde_yaml::to_string(&Config::default()).unwrap();
+        let _ = file.write_all(string.as_bytes());
     }
 }
