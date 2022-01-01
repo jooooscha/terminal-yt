@@ -1,14 +1,11 @@
 pub(crate) mod data;
 pub(crate) mod core;
 
-pub(super) mod config;
+pub(super) mod io;
 mod draw;
-mod history;
-mod url_file;
 
 use serde::{Deserialize, Serialize};
 use tui::widgets::ListItem;
-use crate::backend::config::Config;
 
 use std::{
     io::{Stdout, stdout, stdin},
@@ -114,6 +111,6 @@ pub enum SortingMethod {
 
 impl Default for SortingMethod {
     fn default() -> Self {
-        Config::init().default_sorting_method
+        Self::UnseenDate
     }
 }

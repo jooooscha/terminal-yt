@@ -3,8 +3,7 @@ pub(crate) mod video;
 pub(crate) mod channel_list;
 mod feed;
 
-use crate::backend::history::read_history;
-use crate::backend::url_file::{read_urls_file, UrlFileItem};
+use crate::backend::io::subscriptions::{SubscriptionItem, Subscriptions};
 use crate::backend::{
     data::channel::Channel,
     data::feed::Feed,
@@ -37,17 +36,17 @@ impl Data {
 
     /// start fetching process
     pub(crate) fn update(&self) {
-        let url_file_content = read_urls_file();
+        let subs = Subscriptions::read();
 
         // load already known items
-        let history: ChannelList = read_history();
+        let history = ChannelList::load();
 
         // prepate threads
         let worker_num = 4;
         let pool = ThreadPool::new(worker_num);
 
         // load "normal" channels
-        for item in url_file_content.channels {
+        for item in subs.channels {
             let sender_clone = self.sender.clone();
             let hc = history.clone();
             let item = item.clone();
@@ -59,7 +58,7 @@ impl Data {
         }
 
         // load custom channels
-        for item in url_file_content.custom_channels {
+        for item in subs.custom_channels {
             let sender_clone = self.sender.clone();
             let hc = history.clone();
             let item = item.clone();
@@ -72,7 +71,7 @@ impl Data {
     }
 }
 
-fn fetch_channel_updates<T: 'static + UrlFileItem + std::marker::Send>(
+fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
     channel_sender: Sender<Channel>,
     history: ChannelList,
     item: T,

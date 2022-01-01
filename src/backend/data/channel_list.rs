@@ -1,9 +1,14 @@
-use crate::backend::{
-    data::channel::Channel,
-    url_file::{read_urls_file, UrlFile, UrlFileItem},
-    Filter::{self, *},
-    ToTuiListItem,
+use crate::{
+    backend::{
+        data::channel::Channel,
+        io::subscriptions::{Subscriptions, SubscriptionItem},
+        Filter::{self, *},
+        ToTuiListItem,
+        io::{read_config, FileType::DbFile},
+    },
+    notification::notify_error,
 };
+use std::cmp::min;
 use serde::{Deserialize, Serialize};
 use tui::widgets::{ListItem, ListState};
 
@@ -16,16 +21,31 @@ pub struct ChannelList {
     backup: Vec<Channel>,
 }
 
-//----------------------------------
+impl Default for ChannelList {
+    fn default() -> Self {
+        Self {
+            channels: vec![Channel::default()],
+            list_state: ListState::default(),
+            backup: Vec::new(),
+        }
+    }
+}
 
 impl ChannelList {
-    #[allow(dead_code)]
-    pub fn new() -> Self {
-        ChannelList {
-            channels: Vec::new(),
-            backup: Vec::new(),
-            list_state: ListState::default(),
-        }
+    pub(crate) fn load() -> Self {
+        let db_file = read_config(DbFile);
+
+        let mut channel_list: ChannelList = match serde_json::from_str(&db_file) {
+            Ok(channels) => channels,
+            Err(e) => {
+                notify_error(&format!("could not read history file: {}", e));
+                Self::default()
+            }
+        };
+
+        channel_list.apply_url_file_changes();
+
+        channel_list
     }
 
     #[allow(dead_code)]
@@ -67,7 +87,12 @@ impl ChannelList {
     }
 
     pub fn select(&mut self, i: Option<usize>) {
-        self.list_state.select(i);
+        if self.len() == 0 || i.is_none() {
+            self.list_state.select(None);
+        } else {
+            let pos = min(i.unwrap(), self.len());
+            self.list_state.select(Some(pos));
+        }
     }
 
     pub fn selected(&self) -> Option<usize> {
@@ -112,7 +137,7 @@ impl ChannelList {
     }
 
     /// Filter all channels that are not in the UrlFile anymore
-    fn remove_old(&mut self, url_file: &UrlFile) {
+    fn remove_old(&mut self, url_file: &Subscriptions) {
         self.channels = self
             .channels
             .iter()
@@ -135,33 +160,33 @@ impl ChannelList {
         }
     }
 
-    fn update_channels_from_url_file(&mut self, url_file_content: &UrlFile) {
+    fn update_channels_from_url_file(&mut self, subs: &Subscriptions) {
         // update all "normal" channels
-        for item in url_file_content.channels.iter() {
+        for item in subs.channels.iter() {
             if let Some(ref mut chan) = self.get_mut_by_id(&item.id()) {
-                chan.update_from_url_file(item as &dyn UrlFileItem);
+                chan.update_from_url_subs(item as &dyn SubscriptionItem);
             }
         }
 
         // update all custom channels
-        for item in url_file_content.custom_channels.iter() {
+        for item in subs.custom_channels.iter() {
             if let Some(ref mut chan) = self.get_mut_by_id(&item.id()) {
-                chan.update_from_url_file(item as &dyn UrlFileItem);
+                chan.update_from_url_subs(item as &dyn SubscriptionItem);
             }
         }
     }
 
     pub fn apply_url_file_changes(&mut self) {
-        let url_file_content = read_urls_file();
+        let subs = Subscriptions::read();
 
-        self.remove_old(&url_file_content);
-        self.update_channels_from_url_file(&url_file_content);
+        self.remove_old(&subs);
+        self.update_channels_from_url_file(&subs);
     }
 
     //---------------------------------------------------------------
 
     #[allow(dead_code)]
-    pub fn get_not_empty(&self) -> ChannelList {
+    pub fn get_not_empty(&self) -> Self {
         let mut channels = Vec::new();
         for channel in self.channels.iter().cloned() {
             let num_marked = channel
@@ -175,9 +200,9 @@ impl ChannelList {
                 channels.push(channel);
             }
         }
-        ChannelList {
+        Self {
             channels,
-            ..ChannelList::new()
+            ..Self::default()
         }
     }
 

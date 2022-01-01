@@ -2,22 +2,20 @@ mod events;
 mod backend;
 
 use clipboard::{ClipboardContext, ClipboardProvider};
-use crate::{
-    backend::{
-        data::Data,
-        core::Core,
-        Action::*,
-        Screen::*,
-    },
+use crate::backend::{
+    data::Data,
+    core::Core,
+    Action::*,
+    Screen::*,
 };
 use events::*;
-use crate::notification::{notify_open, notify_link};
+use crate::notification::notify_link;
 use termion::event::Key;
 
 mod notification;
 
 fn main() {
-    let mut core = Core::new_with_history();
+    let mut core = Core::load();
 
     let events = Events::new();
 
@@ -87,10 +85,7 @@ fn main() {
                     match core.get_current_screen() {
                         Channels => { let _ = core.action(Enter); }
                         Videos => {
-                            let video_details = core.action(Open);
-                            if let Some(vd) = video_details {
-                                let _ = notify_open(&vd);
-                            }
+                            core.action(Open);
                         }
                     }
                     core.draw();

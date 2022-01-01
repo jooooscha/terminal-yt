@@ -5,8 +5,9 @@ use crate::backend::{
         video::Video,
         channel::builder::ChannelBuilder,
     },
-    url_file::UrlFileItem, SortingMethod, ToTuiListItem
+    io::subscriptions::SubscriptionItem, SortingMethod, ToTuiListItem
 };
+use std::cmp::min;
 use serde::{Deserialize, Serialize};
 use tui::{
     style::{Color, Modifier, Style},
@@ -29,7 +30,6 @@ pub struct Channel {
 }
 
 impl Channel {
-
     pub fn builder() -> ChannelBuilder {
         ChannelBuilder::default()
     }
@@ -68,7 +68,7 @@ impl Channel {
         self.videos.iter().any(|v| !v.marked())
     }
 
-    pub(crate) fn update_from_url_file(&mut self, url_file_channel: &dyn UrlFileItem) {
+    pub(crate) fn update_from_url_subs(&mut self, url_file_channel: &dyn SubscriptionItem) {
         // set name - prefere name declard in url-file
         if !url_file_channel.name().is_empty() {
             self.name = url_file_channel.name()
@@ -89,8 +89,17 @@ impl Channel {
         &self.name
     }
 
+    pub fn len(&self) -> usize {
+        self.videos.len()
+    }
+
     pub fn select(&mut self, i: Option<usize>) {
-        self.list_state.select(i);
+        if self.len() == 0 || i.is_none() {
+            self.list_state.select(None);
+        } else {
+            let pos = min(i.unwrap(), self.len());
+            self.list_state.select(Some(pos));
+        }
     }
 
     pub fn selected(&self) -> Option<usize> {
