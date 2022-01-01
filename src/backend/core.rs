@@ -17,7 +17,7 @@ use crate::{
     notification::{notify_error, notify_open},
 };
 use std::{
-    cmp,
+    cmp::min,
     process::{Command, Stdio},
     sync::mpsc::{channel, Receiver, Sender},
 };
@@ -49,8 +49,8 @@ impl Core {
         };
 
         let mut channel_list = ChannelList::load();
-        /* channel_list.select(Some(0)); */
-        /* channel_list.filter(current_filter, config.sort_by_tag); */
+        channel_list.select(Some(0));
+        channel_list.filter(current_filter, config.sort_by_tag);
         /* println!("{:?}", channel_list); */
 
         let playback_history = History::load();
@@ -271,16 +271,25 @@ impl Core {
 
         self.channel_list.select(selected_channel_index);
 
-        if on_videos && selected_channel_index.is_some() {
+        // if on_videos && selected_channel_index.is_some() {
+        if on_videos {
             self.action(Enter);
             if let Some(channel) = self.get_selected_channel_mut() {
                 channel.select(video_pos);
             }
+        } else {
+            if selected_channel_index.is_some() {
+                self.channel_list.select(selected_channel_index); 
+            } else {
+                // try setting it to the first element
+                self.channel_list.select(Some(0));
+            }
         }
+
     }
 
     pub fn select(&mut self, p: usize) {
-        let pos = cmp::min(self.channel_list.len()-1, p);
+        let pos = min(self.channel_list.len()-1, p);
         self.channel_list.select(Some(pos));
     }
 

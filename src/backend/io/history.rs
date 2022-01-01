@@ -41,6 +41,8 @@ impl History {
             }
         }
 
+        self.list.push(mimimal_video);
+
         self.save()
     }
 

@@ -27,7 +27,7 @@ pub struct ChannelSubscription {
 impl Default for ChannelSubscription {
     fn default() -> Self {
         Self {
-            url: "https://www.youtube.com/c/TomScottGo".to_string(),
+            url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A".to_string(),
             name: "Tom Scott".to_string(),
             update_on: vec![Date::default()],
             tag: "Interresting".to_string(),

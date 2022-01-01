@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use chrono::Weekday;
 
 #[derive(Clone, Deserialize, Serialize, Debug)]
-/* #[serde(rename_all = "lowercase")] */
+#[serde(rename_all = "lowercase")]
 pub enum Date {
     Mon,
     Tue,

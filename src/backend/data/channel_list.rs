@@ -38,7 +38,7 @@ impl ChannelList {
         let mut channel_list: ChannelList = match serde_json::from_str(&db_file) {
             Ok(channels) => channels,
             Err(e) => {
-                notify_error(&format!("could not read history file: {}", e));
+                /* notify_error(&format!("could not read history file: {}", e)); */
                 Self::default()
             }
         };
