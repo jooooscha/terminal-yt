@@ -18,7 +18,10 @@ pub(crate) struct History {
 impl History {
     pub(crate) fn load() -> Self {
         let history = read_config(HistoryFile);
-        serde_json::from_str::<Self>(&history).unwrap_or_default()
+        match serde_json::from_str(&history) {
+            Ok(list) => Self { list },
+            Err(_) =>  Self::default(),
+        }
     }
 
     fn save(&self) {

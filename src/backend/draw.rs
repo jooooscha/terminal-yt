@@ -24,35 +24,34 @@ use tui::{
 const INFO_LINE: &str =
     "q close; o open video/select; Enter/l select; Esc/h go back; m mark; M unmark";
 
-pub struct AppDraw {
+pub struct AppState {
     terminal: Terminal,
     config: Config,
     update_line: String,
     screen: Screen,
     channel_list: ChannelList,
-    current_selected: Option<Channel>,
-    /* selected_channel_name: String, */
-    playback_history: History,
+    channel: Option<Channel>,
+    history: History,
 }
 
-impl From<&Core> for AppDraw {
+impl From<&Core> for AppState {
     fn from(core: &Core) -> Self {
         let terminal = core.terminal.clone();
         let config = core.config.clone();
         let update_line = core.update_line.clone();
         let screen = core.current_screen.clone();
         let channel_list = core.get_filtered_channel_list().clone();
-        let current_selected = core.get_selected_channel().cloned();
-        let playback_history = core.playback_history.clone();
+        let channel = core.get_selected_channel().cloned();
+        let history = core.playback_history.clone();
 
-        AppDraw {
+        AppState {
             terminal,
             config,
             update_line,
             screen,
             channel_list,
-            current_selected,
-            playback_history,
+            channel,
+            history,
         }
     }
 }
@@ -165,32 +164,23 @@ impl AppLayout {
 }
 
 #[allow(clippy::unnecessary_unwrap)]
-pub fn draw(app: AppDraw) {
+pub fn draw(app: AppState) {
     thread::spawn(move || {
-/*         let mut block = Block::default()
- *             .title(app.config.app_title.clone())
- *             .borders(Borders::ALL)
- *             .border_type(BorderType::Rounded);
- *
- *         let symbol = match app.screen == Videos {
- *             true => "-",
- *             false => ">>",
- *         }; */
+
 
         // all channels - left view
         let channels = app.channel_list.clone();
 
-        /* let chan: Vec<ListItem> = channels.get_spans_list(); */
-
         // all videos - right view
-        let current_channel = app.current_selected.clone();
+        /* let current_channel = app.current_selected.clone(); */
 
-        // playback history - bottom view
-        /* let playback_history = app.playback_history.to_list_items(); */
-
+        let channel_symbol = match app.screen {
+            Channels => ">> ",
+            Videos => "-",
+        };
         let chan_widget = Widget::builder()
             .with_title("Test name")
-            .with_symbol(">> ")
+            .with_symbol(channel_symbol)
             .with_list(channels.get_spans_list());
 
         let _ = app.terminal.term.clone().lock().unwrap().draw(|f| {
@@ -199,8 +189,8 @@ pub fn draw(app: AppDraw) {
 
             f.render_stateful_widget(chan_widget.render(), layout.channels(), &mut channels.state());
 
-            if current_channel.is_some() {
-                let channel = current_channel.unwrap();
+            if app.current_selected.is_some() {
+                /* let channel = current_channel.unwrap(); */
 
                 let video_widget = Widget::builder()
                     .with_title(&format!(" {} ", channel.name()))
@@ -212,7 +202,7 @@ pub fn draw(app: AppDraw) {
             
             let history_widget = Widget::builder()
                 .with_title(" Playback History ")
-                .with_list(app.playback_history.to_list_items());
+                .with_list(app.history.to_list_items());
 
             f.render_widget(history_widget.render(), layout.history());
             
