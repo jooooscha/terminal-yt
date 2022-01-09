@@ -14,7 +14,7 @@ Tyt was build with [tui](https://github.com/fdehau/tui-rs) and termion as backen
 - Fetch video from atom and RSS feeds
 - Open videos in a video player (per link)
 - Mark videos played
-- Specify [when](#how-do-i-subscribe) channels are updated
+- Specify when channels are updated with the [update_on](#how-do-i-subscribe) tag
 - Filter "empty" channels
 - Combine several feed in one [Custom Channel](#how-do-i-subscribe)
 
