@@ -27,14 +27,14 @@ pub trait ToTuiListItem {
     fn to_list_item(&self) -> ListItem;
 }
 
-#[cfg(test)]
-type TermScreen = AlternateScreen<MouseTerminal<Stdout>>;
 #[cfg(not(test))]
-type TermScreen = AlternateScreen<MouseTerminal<RawTerminal<Stdout>>>;
+type TermScreen = MouseTerminal<RawTerminal<Stdout>>;
+#[cfg(test)]
+type TermScreen = MouseTerminal<Stdout>;
 
-type Backend = TuiTerminal<TermionBackend<TermScreen>>;
+type Backend = TermionBackend<AlternateScreen<TermScreen>>;
 
-type Term = Arc<Mutex<Backend>>;
+type Term = Arc<Mutex<TuiTerminal<Backend>>>;
 
 #[derive(Clone)]
 pub(crate) struct Terminal {
