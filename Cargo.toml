@@ -1,7 +1,7 @@
 [package]
 name = "tyt"
-version = "1.1.0"
-authors = ["joooscha <j.loos@posteo.net>"]
+version = "1.2.0"
+authors = ["jooooscha <j.loos@posteo.net>"]
 edition = "2021"
 
 [dependencies]
