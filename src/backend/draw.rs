@@ -57,12 +57,33 @@ impl From<&Core> for AppDraw {
     }
 }
 
+#[derive(Default)]
 struct Widget<'a> {
     title: String,
+    symbol: &'a str,
     list: Vec<ListItem<'a>>,
 }
 
 impl<'a> Widget<'a> {
+    fn builder() -> Self {
+        Self::default()
+    }
+
+    fn with_title(mut self, title: &str) -> Self {
+        self.title = title.to_string();
+        self
+    }
+
+    fn with_list(mut self, list: Vec<ListItem<'a>>) -> Self {
+        self.list = list;
+        self
+    }
+
+    fn with_symbol(mut self, symbol: &'a str) -> Self {
+        self.symbol = symbol;
+        self
+    }
+
     fn render(self) -> List<'a> {
         let block = Block::default()
             .title(self.title)
@@ -72,7 +93,7 @@ impl<'a> Widget<'a> {
         List::new(self.list)
             .block(block)
             .highlight_style(Style::default())
-            .highlight_symbol(">>")
+            .highlight_symbol(self.symbol)
     }
 }
 
@@ -93,7 +114,7 @@ impl AppLayout {
             },
         };
 
-        let main_split = vec![ Percentage(80), Percentage(17), Percentage(2), Percentage(1) ];
+        let main_split = vec![ Percentage(80), Percentage(17), Percentage(2), Percentage(1)];
         let content_split = vec![Percentage(100 - video_size), Percentage(video_size)];
         let other_split = vec![Percentage(50), Percentage(50)];
 
@@ -146,66 +167,56 @@ impl AppLayout {
 #[allow(clippy::unnecessary_unwrap)]
 pub fn draw(app: AppDraw) {
     thread::spawn(move || {
-        let mut block = Block::default()
-            .title(app.config.app_title.clone())
-            .borders(Borders::ALL)
-            .border_type(BorderType::Rounded);
-
-        let symbol = match app.screen == Videos {
-            true => "-",
-            false => ">>",
-        };
+/*         let mut block = Block::default()
+ *             .title(app.config.app_title.clone())
+ *             .borders(Borders::ALL)
+ *             .border_type(BorderType::Rounded);
+ *
+ *         let symbol = match app.screen == Videos {
+ *             true => "-",
+ *             false => ">>",
+ *         }; */
 
         // all channels - left view
         let channels = app.channel_list.clone();
 
-        let chan: Vec<ListItem> = channels.get_spans_list();
+        /* let chan: Vec<ListItem> = channels.get_spans_list(); */
 
         // all videos - right view
         let current_channel = app.current_selected.clone();
 
         // playback history - bottom view
-        let playback_history = app.playback_history.to_list_items();
+        /* let playback_history = app.playback_history.to_list_items(); */
 
-        let chan_part = Widget {
-            title: "test name".to_string(),
-            list: channels.get_spans_list(),
-        };
+        let chan_widget = Widget::builder()
+            .with_title("Test name")
+            .with_symbol(">> ")
+            .with_list(channels.get_spans_list());
 
         let _ = app.terminal.term.clone().lock().unwrap().draw(|f| {
 
             let layout = AppLayout::load(f, &app.screen);
 
-/*             let list = List::new(chan)
- *                 .block(block.clone())
- *                 .highlight_style(Style::default())
- *                 .highlight_symbol(symbol);
- *
- *             f.render_stateful_widget(list, layout.channels(), &mut channels.state()); */
-
-            f.render_stateful_widget(chan_part.render(), layout.channels(), &mut channels.state());
+            f.render_stateful_widget(chan_widget.render(), layout.channels(), &mut channels.state());
 
             if current_channel.is_some() {
                 let channel = current_channel.unwrap();
-                let name = channel.name();
-                let state = &mut channel.state();
-                let videos = channel.get_spans_list();
 
-                block = block.title(format!(" {} ", name));
+                let video_widget = Widget::builder()
+                    .with_title(&format!(" {} ", channel.name()))
+                    .with_symbol(">> ")
+                    .with_list(channel.get_spans_list());
 
-                let list = List::new(videos)
-                    .block(block.clone())
-                    .highlight_style(Style::default())
-                    .highlight_symbol(">> ");
-                f.render_stateful_widget(list, layout.videos(), state);
+                f.render_stateful_widget(video_widget.render(), layout.videos(), &mut channel.state());
             }
+            
+            let history_widget = Widget::builder()
+                .with_title(" Playback History ")
+                .with_list(app.playback_history.to_list_items());
 
-            block = block.title(" Playback History ");
-            let playback_history = List::new(playback_history)
-                .block(block.clone())
-                .highlight_style(Style::default())
-                .highlight_symbol(symbol);
-            f.render_widget(playback_history, layout.history());
+            f.render_widget(history_widget.render(), layout.history());
+            
+            //////////////////////////////
 
             let par_1 = Paragraph::new(Span::from(app.update_line.clone()))
                 .style(Style::default())
