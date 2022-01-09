@@ -9,16 +9,14 @@ pub fn notify_open(video_title: &str) {
     send("Video Opening", video_title)
 }
 
-pub fn notify_error(e: &str) {
-    send("Error", e)
+pub fn notify_error(error: &str) {
+    send("Error", error)
 }
 
 fn send(title: &str, msg: &str) {
-    // Command::new("notify-send").arg(title).arg(msg).output().expect("failed")
-    let notifyer = Config::read().notify_with;
-    let output = Command::new(notifyer).arg(title).arg(msg).output();
-    if let Err(err) = output {
-        /* println!("Could not send notification: {} with msg {}", err, msg); */
+    if let Ok(config) = Config::read() {
+        let notifyer = config.notify_with;
+        let _ = Command::new(notifyer).arg(title).arg(msg).output();
     }
 }
     

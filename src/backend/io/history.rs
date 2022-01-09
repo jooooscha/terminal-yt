@@ -18,11 +18,7 @@ pub(crate) struct History {
 impl History {
     pub(crate) fn load() -> Self {
         let history = read_config(HistoryFile);
-        let list = serde_json::from_str(&history).unwrap_or_default();
-
-        Self {
-            list,
-        }
+        serde_json::from_str::<Self>(&history).unwrap_or_default()
     }
 
     fn save(&self) {
@@ -54,10 +50,6 @@ impl History {
     }
 
 }
-
-/* impl ToTuiListItem for History {
- *     self.
- * } */
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 struct MinimalVideo {

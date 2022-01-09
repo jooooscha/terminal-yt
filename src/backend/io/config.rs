@@ -3,8 +3,9 @@ use crate::{
     backend::{
         SortingMethod,
         io::{read_config, FileType::ConfigFile},
+        Result,
+        Error::ParseConfig,
     },
-    notification::notify_error,
 };
 
 const SCHOW_EMPTY_CHANNEL_DEFAULT: bool = true;
@@ -52,17 +53,11 @@ impl Default for Config {
 
 impl Config {
     /// Inits the Config struct. Write default config, if config could not be found
-    pub(crate) fn read() -> Self {
-        let config_file = read_config(ConfigFile);
-
-        let config: Config = match serde_yaml::from_str(&config_file) {
-            Ok(config) => config,
-            Err(e) => {
-                notify_error(&format!("could not parse config file: {}", e));
-                return Self::default();
-            }
-        };
-
-        config
+    pub(crate) fn read() -> Result<Self> {
+        let config_str = read_config(ConfigFile);
+        match serde_yaml::from_str(&config_str) {
+            Ok(config) => Ok(config),
+            Err(error) => Err(ParseConfig(error))
+        }
     }
 }

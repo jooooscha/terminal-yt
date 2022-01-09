@@ -13,6 +13,7 @@ use crate::{
         Filter, Screen,
         Screen::*,
         Terminal,
+        Result,
     },
     notification::{notify_error, notify_open},
 };
@@ -23,7 +24,7 @@ use std::{
 };
 
 // The main struct containing everything important
-pub struct Core {
+pub(crate) struct Core {
     pub(crate) terminal: Terminal,
     pub(crate) config: Config,
     pub(crate) update_line: String,
@@ -37,10 +38,10 @@ pub struct Core {
 
 impl Core {
     /// Load core
-    pub fn load() -> Self {
+    pub(crate) fn load() -> Result<Self> {
         let terminal = Terminal::default();
 
-        let config = Config::read();
+        let config = Config::read()?;
 
         let current_filter = if config.show_empty_channels {
             Filter::NoFilter
@@ -48,16 +49,18 @@ impl Core {
             Filter::OnlyNew
         };
 
-        let mut channel_list = ChannelList::load();
+        let mut channel_list = ChannelList::load().unwrap_or_else(|error| {
+            notify_error(&format!("Could not load DB file: {:?}", error));
+            ChannelList::default()
+        });
         channel_list.select(Some(0));
         channel_list.filter(current_filter, config.sort_by_tag);
-        /* println!("{:?}", channel_list); */
 
         let playback_history = History::load();
 
         let (status_sender, status_receiver) = channel();
 
-        Core {
+        let core = Core {
             terminal,
             config,
             current_screen: Channels,
@@ -67,10 +70,12 @@ impl Core {
             playback_history,
             status_sender,
             status_receiver,
-        }
+        };
+
+        Ok(core)
     }
 
-    pub fn save(&mut self) {
+    pub(crate) fn save(&mut self) {
         let f = self.current_filter;
         self.set_filter(Filter::NoFilter);
         let string = serde_json::to_string(self.get_filtered_channel_list()).unwrap();
@@ -78,13 +83,13 @@ impl Core {
         self.set_filter(f);
     }
 
-    pub fn post(&mut self, msg: String) {
+    pub(crate) fn post(&mut self, msg: String) {
         self.status_sender.send(msg).unwrap();
     }
 
     //-------- gettter and setter ----------------------
 
-    pub fn update_status_line(&mut self) -> bool {
+    pub(crate) fn update_status_line(&mut self) -> bool {
         if let Ok(line) = self.status_receiver.try_recv() {
             self.update_line = line;
         } else if !self.update_line.is_empty() {
@@ -95,10 +100,10 @@ impl Core {
         true
     }
 
-    pub fn get_show_empty(&self) -> bool {
+    pub(crate) fn get_show_empty(&self) -> bool {
         self.config.show_empty_channels
     }
-    pub fn set_show_empty(&mut self, b: bool) {
+    pub(crate) fn set_show_empty(&mut self, b: bool) {
         self.config.show_empty_channels = b;
 
         let new_filter = match self.current_filter {
@@ -108,18 +113,18 @@ impl Core {
         self.set_filter(new_filter);
     }
 
-    pub fn update_at_start(&self) -> bool {
+    pub(crate) fn update_at_start(&self) -> bool {
         self.config.update_at_start
     }
 
-    pub fn get_current_screen(&self) -> &Screen {
+    pub(crate) fn get_current_screen(&self) -> &Screen {
         &self.current_screen
     }
 
     // --- actions -----
 
     /// Contains every possible action.
-    pub fn action(&mut self, action: Action) {
+    pub(crate) fn action(&mut self, action: Action) {
         let _ = || -> Option<()> {
             match action {
                 Mark(state) => {
@@ -216,7 +221,7 @@ impl Core {
         }(); // TODO test closure
     }
 
-    pub fn draw(&self) {
+    pub(crate) fn draw(&self) {
         draw(self.into());
     }
 
@@ -277,24 +282,22 @@ impl Core {
             if let Some(channel) = self.get_selected_channel_mut() {
                 channel.select(video_pos);
             }
+        } else if selected_channel_index.is_some() {
+            self.channel_list.select(selected_channel_index); 
         } else {
-            if selected_channel_index.is_some() {
-                self.channel_list.select(selected_channel_index); 
-            } else {
-                // try setting it to the first element
-                self.channel_list.select(Some(0));
-            }
+            // try setting it to the first element
+            self.channel_list.select(Some(0));
         }
 
     }
 
-    pub fn select(&mut self, p: usize) {
+    pub(crate) fn select(&mut self, p: usize) {
         let pos = min(self.channel_list.len()-1, p);
         self.channel_list.select(Some(pos));
     }
 
     /// Search for the channel in channel_list by id. If found insert videos that are not already in channel.videos; else insert channel to channel_list.
-    pub fn update_channel(&mut self, updated_channel: Channel) {
+    pub(crate) fn update_channel(&mut self, updated_channel: Channel) {
         let mut channel_list = self.get_filtered_channel_list().clone();
 
         self.post(format!("Updated: {}", &updated_channel.name()));
@@ -312,37 +315,37 @@ impl Core {
         &mut self.channel_list
     }
 
-    pub fn get_filtered_channel_list(&self) -> &ChannelList {
+    pub(crate) fn get_filtered_channel_list(&self) -> &ChannelList {
         &self.channel_list
     }
 
-    pub fn get_selected_video_link(&mut self) -> String {
+    pub(crate) fn get_selected_video_link(&mut self) -> String {
         match self.get_selected_video_mut() {
             Some(v) => v.link().clone(),
             None => String::from("none"),
         }
     }
 
-    pub fn get_selected_channel_index(&self) -> Option<usize> {
+    pub(crate) fn get_selected_channel_index(&self) -> Option<usize> {
         self.get_filtered_channel_list().selected()
     }
 
-    pub fn get_selected_channel(&self) -> Option<&Channel> {
+    pub(crate) fn get_selected_channel(&self) -> Option<&Channel> {
         let i = self.get_selected_channel_index()?;
         self.get_filtered_channel_list().get(i)
     }
 
-    pub fn get_selected_channel_mut(&mut self) -> Option<&mut Channel> {
+    pub(crate) fn get_selected_channel_mut(&mut self) -> Option<&mut Channel> {
         let i = self.get_selected_channel_index()?;
         self.get_filtered_channel_list_mut().get_mut(i)
     }
 
-    /* pub fn get_selected_video(&self) -> Option<&Video> {
+    /* pub(crate) fn get_selected_video(&self) -> Option<&Video> {
      *     let i = self.get_selected_channel()?.selected()?;
      *     self.get_selected_channel()?.get(i)
      * } */
 
-    pub fn get_selected_video_mut(&mut self) -> Option<&mut Video> {
+    pub(crate) fn get_selected_video_mut(&mut self) -> Option<&mut Video> {
         let i = self.get_selected_channel()?.selected()?;
         self.get_selected_channel_mut()?.get_mut(i)
     }

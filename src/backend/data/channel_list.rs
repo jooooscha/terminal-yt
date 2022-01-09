@@ -5,15 +5,16 @@ use crate::{
         Filter::{self, *},
         ToTuiListItem,
         io::{read_config, FileType::DbFile},
+        Result,
+        Error::ParseDB,
     },
-    notification::notify_error,
 };
 use std::cmp::min;
 use serde::{Deserialize, Serialize};
 use tui::widgets::{ListItem, ListState};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ChannelList {
+pub(crate) struct ChannelList {
     channels: Vec<Channel>,
     #[serde(skip)]
     list_state: ListState,
@@ -31,25 +32,23 @@ impl Default for ChannelList {
     }
 }
 
+#[allow(clippy::unnecessary_unwrap)]
 impl ChannelList {
-    pub(crate) fn load() -> Self {
+    pub(crate) fn load() -> Result<Self> {
         let db_file = read_config(DbFile);
 
-        let mut channel_list: ChannelList = match serde_json::from_str(&db_file) {
-            Ok(channels) => channels,
-            Err(e) => {
-                /* notify_error(&format!("could not read history file: {}", e)); */
-                Self::default()
-            }
-        };
+        match serde_json::from_str::<Self>(&db_file) {
+            Ok(mut channel_list) => {
+                channel_list.apply_url_file_changes();
+                Ok(channel_list)
+            },
+            Err(error) => Err(ParseDB(error))
+        }
 
-        channel_list.apply_url_file_changes();
-
-        channel_list
     }
 
     #[allow(dead_code)]
-    pub fn next(&mut self) {
+    pub(crate) fn next(&mut self) {
         let state = &self.list_state;
         let index = match state.selected() {
             Some(i) => {
@@ -65,7 +64,7 @@ impl ChannelList {
     }
 
     #[allow(dead_code)]
-    pub fn prev(&mut self) {
+    pub(crate) fn prev(&mut self) {
         let state = &self.list_state;
         let index = match state.selected() {
             Some(i) => {
@@ -82,7 +81,7 @@ impl ChannelList {
 
     //---------------------------------------------------------------
 
-    pub fn len(&self) -> usize {
+    pub(crate) fn len(&self) -> usize {
         self.channels.len()
     }
 
@@ -95,41 +94,41 @@ impl ChannelList {
         }
     }
 
-    pub fn selected(&self) -> Option<usize> {
+    pub(crate) fn selected(&self) -> Option<usize> {
         self.list_state.selected()
     }
 
-    pub fn state(&self) -> ListState {
+    pub(crate) fn state(&self) -> ListState {
         self.list_state.clone()
     }
 
-    pub fn push(&mut self, channel: Channel) {
+    pub(crate) fn push(&mut self, channel: Channel) {
         self.channels.push(channel);
     }
 
-    pub fn get(&self, index: usize) -> Option<&Channel> {
+    pub(crate) fn get(&self, index: usize) -> Option<&Channel> {
         self.channels.get(index)
     }
 
-    pub fn get_mut(&mut self, index: usize) -> Option<&mut Channel> {
+    pub(crate) fn get_mut(&mut self, index: usize) -> Option<&mut Channel> {
         self.channels.get_mut(index)
     }
 
-    pub fn get_by_id(&self, id: &str) -> Option<&Channel> {
+    pub(crate) fn get_by_id(&self, id: &str) -> Option<&Channel> {
         let p = self.get_position_by_id(id)?;
         self.channels.get(p)
     }
 
-    pub fn get_mut_by_id(&mut self, id: &str) -> Option<&mut Channel> {
+    pub(crate) fn get_mut_by_id(&mut self, id: &str) -> Option<&mut Channel> {
         let p = self.get_position_by_id(id)?;
         self.channels.get_mut(p)
     }
 
-    pub fn get_position_by_id(&self, id: &str) -> Option<usize> {
+    pub(crate) fn get_position_by_id(&self, id: &str) -> Option<usize> {
         self.channels.iter().position(|channel| channel.id() == id)
     }
 
-    pub fn get_spans_list(&self) -> Vec<ListItem> {
+    pub(crate) fn get_spans_list(&self) -> Vec<ListItem> {
         self.channels
             .iter()
             .map(|channel| channel.to_list_item())
@@ -176,17 +175,17 @@ impl ChannelList {
         }
     }
 
-    pub fn apply_url_file_changes(&mut self) {
-        let subs = Subscriptions::read();
-
-        self.remove_old(&subs);
-        self.update_channels_from_url_file(&subs);
+    pub(crate) fn apply_url_file_changes(&mut self) {
+        if let Ok(subs) = Subscriptions::read() {
+            self.remove_old(&subs);
+            self.update_channels_from_url_file(&subs);
+        }
     }
 
     //---------------------------------------------------------------
 
     #[allow(dead_code)]
-    pub fn get_not_empty(&self) -> Self {
+    pub(crate) fn get_not_empty(&self) -> Self {
         let mut channels = Vec::new();
         for channel in self.channels.iter().cloned() {
             let num_marked = channel
@@ -206,7 +205,7 @@ impl ChannelList {
         }
     }
 
-    pub fn filter(&mut self, filter: Filter, sort_by_tag: bool) {
+    pub(crate) fn filter(&mut self, filter: Filter, sort_by_tag: bool) {
         // merge changes to backup
         let tmp = self.backup.clone();
         self.backup = self.channels.clone();

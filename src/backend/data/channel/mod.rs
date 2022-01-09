@@ -29,6 +29,7 @@ pub struct Channel {
     list_state: ListState,
 }
 
+#[allow(clippy::unnecessary_unwrap)]
 impl Channel {
     pub fn builder() -> ChannelBuilder {
         ChannelBuilder::default()

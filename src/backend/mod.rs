@@ -114,3 +114,13 @@ impl Default for SortingMethod {
         Self::UnseenDate
     }
 }
+
+#[derive(Debug)]
+#[allow(clippy::enum_variant_names)]
+pub enum Error {
+    ParseConfig(serde_yaml::Error),
+    ParseDB(serde_json::Error),
+    ParseSubscription(serde_yaml::Error),
+}
+
+pub type Result<T> = std::result::Result<T, Error>;

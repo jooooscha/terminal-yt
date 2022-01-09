@@ -2,11 +2,14 @@ mod events;
 mod backend;
 
 use clipboard::{ClipboardContext, ClipboardProvider};
-use crate::backend::{
-    data::Data,
-    core::Core,
-    Action::*,
-    Screen::*,
+use crate::{
+    backend::{
+        data::Data,
+        core::Core,
+        Action::*,
+        Screen::*,
+        Error,
+    },
 };
 use events::*;
 use crate::notification::notify_link;
@@ -14,8 +17,13 @@ use termion::event::Key;
 
 mod notification;
 
-fn main() {
-    let mut core = Core::load();
+fn main() -> Result<(), Error> {
+    let mut core = match Core::load() {
+        Ok(core) => core,
+        Err(error) => {
+            return Err(error);
+        },
+    };
 
     let events = Events::new();
 
@@ -135,5 +143,7 @@ fn main() {
             }
         }
     }
+
+    Ok(())
 }
 

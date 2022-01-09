@@ -3,10 +3,13 @@ pub(crate) mod video;
 pub(crate) mod channel_list;
 mod feed;
 
-use crate::backend::io::subscriptions::{SubscriptionItem, Subscriptions};
-use crate::backend::{
-    data::channel::Channel,
-    data::feed::Feed,
+use crate::{
+    backend::{
+        data::channel::Channel,
+        data::feed::Feed,
+        io::subscriptions::{SubscriptionItem, Subscriptions},
+    },
+    notification::notify_error,
 };
 use self::channel_list::ChannelList;
 use reqwest::blocking::Client;
@@ -36,10 +39,22 @@ impl Data {
 
     /// start fetching process
     pub(crate) fn update(&self) {
-        let subs = Subscriptions::read();
+        let subs = match Subscriptions::read() {
+            Ok(subs) => subs,
+            Err(error) => {
+                notify_error(&format!("Could not fetch updates: {:?}", error));
+                return;
+            },
+        };
 
         // load already known items
-        let history = ChannelList::load();
+        let history = match ChannelList::load() {
+            Ok(history) => history,
+            Err(error) => {
+                notify_error(&format!("Could not fetch updates: {:?}", error));
+                return;
+            },
+        };
 
         // prepate threads
         let worker_num = 4;

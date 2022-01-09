@@ -2,28 +2,24 @@ use crate::{
     backend::{
         SortingMethod,
         io::{read_config, FileType::SubscriptionsFile},
+        Error::ParseSubscription,
+        Result,
     },
-    notification::notify_error,
 };
 use serde::{Deserialize, Serialize};
+use chrono::Weekday;
 use channel::ChannelSubscription;
 use custom_channel::CustomChannelSubscription;
-use date::Date;
 
-mod date;
 mod channel;
 mod custom_channel;
 
-pub type ChannelId = String;
-pub type ChannelTag = String;
-pub type ChannelName = String;
-
 /// Trait for all channel types
 pub(crate) trait SubscriptionItem {
-    fn id(&self) -> ChannelId;
+    fn id(&self) -> String;
     fn active(&self) -> bool;
-    fn tag(&self) -> ChannelTag;
-    fn name(&self) -> ChannelName;
+    fn tag(&self) -> String;
+    fn name(&self) -> String;
     fn sorting_method(&self) -> SortingMethod;
 }
 
@@ -52,18 +48,15 @@ impl Default for Subscriptions {
 
 impl Subscriptions {
     /// Read Subscriptions file or create default
-    pub(crate) fn read() -> Self {
+    pub(crate) fn read() -> Result<Self> {
         let config_file = read_config(SubscriptionsFile);
 
-        let subs: Subscriptions = match serde_yaml::from_str(&config_file) {
-            Ok(file) => file,
-            Err(e) => {
-                notify_error(&format!("could not parse subscriptions file: {}", e));
-                return Self::default();
+        match serde_yaml::from_str::<Self>(&config_file) {
+            Ok(file) => Ok(file),
+            Err(error) => {
+                Err(ParseSubscription(error))
             }
-        };
-
-        subs
+        }
     }
 
     /// checks wheather the url file contains a channel with the given id
@@ -78,78 +71,45 @@ impl Subscriptions {
     }
 }
 
-/* pub(crate) fn read_urls_file() -> SubscriptionsFile {
- *     let mut path = home_dir().unwrap();
- *     path.push(URLS_FILE_PATH);
- *
- *     match File::open(path.clone()) {
- *         Ok(mut file) => {
- *             let mut reader = String::new();
- *             file.read_to_string(&mut reader).unwrap();
- *             let items: SubscriptionsFile = match serde_yaml::from_str(&reader) {
- *                 Ok(file) => file,
- *                 Err(e) => panic!("could not parse yaml url_file: {}", e),
- *             };
- *
- *             items
- *         }
- *         Err(_) => {
- *             let mut file = File::create(path).unwrap();
- *             let channel: SubscriptionsFile = SubscriptionsFile {
- *                 channels: Vec::new(),
- *                 custom_channels: Vec::new(),
- *             };
- *             let string = serde_yaml::to_string(&channel).unwrap();
- *             match file.write_all(string.as_bytes()) {
- *                 Ok(_) => read_urls_file(),
- *                 Err(e) => panic!("{}", e),
- *             }
- *         }
- *     }
- * } */
+#[derive(Clone, Deserialize, Serialize, Debug)]
+#[serde(rename_all = "lowercase")]
+pub(crate) enum Date {
+    Mon,
+    Tue,
+    Wed,
+    Thu,
+    Fri,
+    Sat,
+    Sun,
+    Workday,
+    Weekend,
+    Always,
+    Never,
+}
 
-/* #[cfg(test)]
- * pub mod tests {
- *     use super::{Date, *};
- *
- *     impl UrlFileChannel {
- *         pub fn test(name: String, tag: String, url: String) -> Self {
- *             let update_on = vec![Date::Mon];
- *             let sorting_method = SortingMethod::Date;
- *
- *             UrlFileChannel {
- *                 name,
- *                 update_on,
- *                 tag,
- *                 url,
- *                 sorting_method,
- *             }
- *         }
- *     }
- *
- *     impl UrlFileCustomChannel {
- *         pub fn test(name: String, tag: String, urls: Vec<String>) -> Self {
- *             let update_on = vec![Date::Mon];
- *             let sorting_method = SortingMethod::Date;
- *
- *             UrlFileCustomChannel {
- *                 name,
- *                 update_on,
- *                 tag,
- *                 urls,
- *                 sorting_method,
- *             }
- *         }
- *     }
- *
- *     impl UrlFile {
- *         pub fn test(custom_channels: Vec<UrlFileCustomChannel>) -> Self {
- *             let channels = Vec::new();
- *
- *             UrlFile {
- *                 channels,
- *                 custom_channels,
- *             }
- *         }
- *     }
- * } */
+impl Default for Date {
+    fn default() -> Self {
+        Self::Always
+    }
+}
+
+impl Date {
+    pub(crate) fn eq_to(&self, other: &Weekday) -> bool {
+        matches!((self, other), (Date::Mon, Weekday::Mon)
+            | (Date::Tue, Weekday::Tue)
+            | (Date::Wed, Weekday::Wed)
+            | (Date::Thu, Weekday::Thu)
+            | (Date::Fri, Weekday::Fri)
+            | (Date::Sat, Weekday::Sat)
+            | (Date::Sun, Weekday::Sun)
+            | (Date::Workday, Weekday::Mon)
+            | (Date::Workday, Weekday::Tue)
+            | (Date::Workday, Weekday::Wed)
+            | (Date::Workday, Weekday::Thu)
+            | (Date::Workday, Weekday::Fri)
+            | (Date::Weekend, Weekday::Sat)
+            | (Date::Weekend, Weekday::Sun)
+            | (Date::Always, _)
+        )
+    }
+}

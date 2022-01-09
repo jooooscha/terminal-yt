@@ -56,6 +56,7 @@ impl From<&Core> for View {
     }
 }
 
+#[allow(clippy::unnecessary_unwrap)]
 pub fn draw(app: View) {
     thread::spawn(move || {
         let mut block = Block::default()
