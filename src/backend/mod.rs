@@ -1,14 +1,11 @@
 pub(crate) mod data;
 pub(crate) mod core;
 
-pub(super) mod config;
+pub(super) mod io;
 mod draw;
-mod history;
-mod url_file;
 
 use serde::{Deserialize, Serialize};
 use tui::widgets::ListItem;
-use crate::backend::config::Config;
 
 use std::{
     io::{Stdout, stdout, stdin},
@@ -114,6 +111,16 @@ pub enum SortingMethod {
 
 impl Default for SortingMethod {
     fn default() -> Self {
-        Config::init().default_sorting_method
+        Self::UnseenDate
     }
 }
+
+#[derive(Debug)]
+#[allow(clippy::enum_variant_names)]
+pub enum Error {
+    ParseConfig(serde_yaml::Error),
+    ParseDB(serde_json::Error),
+    ParseSubscription(serde_yaml::Error),
+}
+
+pub type Result<T> = std::result::Result<T, Error>;

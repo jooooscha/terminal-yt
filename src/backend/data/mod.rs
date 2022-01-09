@@ -3,11 +3,13 @@ pub(crate) mod video;
 pub(crate) mod channel_list;
 mod feed;
 
-use crate::backend::history::read_history;
-use crate::backend::url_file::{read_urls_file, UrlFileItem};
-use crate::backend::{
-    data::channel::Channel,
-    data::feed::Feed,
+use crate::{
+    backend::{
+        data::channel::Channel,
+        data::feed::Feed,
+        io::subscriptions::{SubscriptionItem, Subscriptions},
+    },
+    notification::notify_error,
 };
 use self::channel_list::ChannelList;
 use reqwest::blocking::Client;
@@ -37,17 +39,29 @@ impl Data {
 
     /// start fetching process
     pub(crate) fn update(&self) {
-        let url_file_content = read_urls_file();
+        let subs = match Subscriptions::read() {
+            Ok(subs) => subs,
+            Err(error) => {
+                notify_error(&format!("Could not fetch updates: {:?}", error));
+                return;
+            },
+        };
 
         // load already known items
-        let history: ChannelList = read_history();
+        let history = match ChannelList::load() {
+            Ok(history) => history,
+            Err(error) => {
+                notify_error(&format!("Could not fetch updates: {:?}", error));
+                return;
+            },
+        };
 
         // prepate threads
         let worker_num = 4;
         let pool = ThreadPool::new(worker_num);
 
         // load "normal" channels
-        for item in url_file_content.channels {
+        for item in subs.channels {
             let sender_clone = self.sender.clone();
             let hc = history.clone();
             let item = item.clone();
@@ -59,7 +73,7 @@ impl Data {
         }
 
         // load custom channels
-        for item in url_file_content.custom_channels {
+        for item in subs.custom_channels {
             let sender_clone = self.sender.clone();
             let hc = history.clone();
             let item = item.clone();
@@ -72,7 +86,7 @@ impl Data {
     }
 }
 
-fn fetch_channel_updates<T: 'static + UrlFileItem + std::marker::Send>(
+fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
     channel_sender: Sender<Channel>,
     history: ChannelList,
     item: T,

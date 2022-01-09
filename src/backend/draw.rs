@@ -1,13 +1,12 @@
 use crate::backend::{
-    config::Config,
+    io::config::Config,
     core::Core,
     data::{
         channel::Channel,
         channel_list::ChannelList,
     },
-    history::MinimalVideo,
+    io::history::History,
     Screen::*,
-    ToTuiListItem,
     Terminal,
 };
 use std::thread;
@@ -28,9 +27,9 @@ pub struct View {
     update_line: String,
     show_videos: bool,
     channel_list: ChannelList,
-    current_selected: Channel,
-    selected_channel_name: String,
-    playback_history: Vec<MinimalVideo>,
+    current_selected: Option<Channel>,
+    /* selected_channel_name: String, */
+    playback_history: History,
 }
 
 impl From<&Core> for View {
@@ -40,8 +39,8 @@ impl From<&Core> for View {
         let update_line = core.update_line.clone();
         let show_channel_block = core.current_screen == Videos;
         let channel_list = core.get_filtered_channel_list().clone();
-        let current_selected = core.get_selected_channel().clone();
-        let selected_channel_name = current_selected.name().clone();
+        let current_selected = core.get_selected_channel().cloned();
+        /* let selected_channel_name = current_selected.name().clone(); */
         let playback_history = core.playback_history.clone();
 
         View {
@@ -51,12 +50,13 @@ impl From<&Core> for View {
             show_videos: show_channel_block,
             channel_list,
             current_selected,
-            selected_channel_name,
+            /* selected_channel_name, */
             playback_history,
         }
     }
 }
 
+#[allow(clippy::unnecessary_unwrap)]
 pub fn draw(app: View) {
     thread::spawn(move || {
         let mut block = Block::default()
@@ -85,17 +85,15 @@ pub fn draw(app: View) {
         // all videos - right view
         let current_channel = app.current_selected.clone();
 
-        let mut vid_state = current_channel.state();
-
-        let vid = current_channel.get_spans_list();
+/*         let mut vid_state = match current_channel {
+ *             Some(channel) => Some(channel.state()),
+ *             None => None,
+ *         }
+ *
+ *         let vid = current_channel.get_spans_list(); */
 
         // playback history - bottom view
-        let playback_history: Vec<ListItem> = app
-            .playback_history
-            .iter()
-            .map(|v| v.to_list_item())
-            .rev()
-            .collect();
+        let playback_history = app.playback_history.to_list_items();
 
         let _res = app.terminal.term.clone().lock().unwrap().draw(|f| {
             // --------------------------
@@ -135,14 +133,19 @@ pub fn draw(app: View) {
                 .highlight_symbol(symbol);
             f.render_stateful_widget(list, channel_and_video[0], &mut channels.state());
 
-            if app.show_videos {
-                block = block.title(format!(" {} ", app.selected_channel_name));
+            if app.show_videos && current_channel.is_some() {
+                let channel = current_channel.unwrap();
+                let name = channel.name();
+                let state = &mut channel.state();
+                let videos = channel.get_spans_list();
 
-                let list = List::new(vid.clone())
+                block = block.title(format!(" {} ", name));
+
+                let list = List::new(videos)
                     .block(block.clone())
                     .highlight_style(Style::default())
                     .highlight_symbol(">> ");
-                f.render_stateful_widget(list, channel_and_video[1], &mut vid_state);
+                f.render_stateful_widget(list, channel_and_video[1], state);
             }
 
             block = block.title(" Playback History ");
