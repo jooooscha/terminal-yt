@@ -193,7 +193,7 @@ pub fn draw(app: AppState) {
 
             let mut list = Vec::new();
             for line in app.status {
-                list.push(line.to_list_item());
+                list.push(line.into_list_item());
             }
             let widget_height = layout.status().height as usize - 2; // minus two for the borders
             list.reverse();

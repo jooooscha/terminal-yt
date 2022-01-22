@@ -38,7 +38,7 @@ pub(crate) struct StatusUpdate {
 
 /* impl ToTuiListItem for StatusUpdate { */
 impl StatusUpdate {
-    pub(crate) fn to_list_item(self) -> ListItem<'static> {
+    pub(crate) fn into_list_item(self) -> ListItem<'static> {
         let status_color = match &self.status {
             Status::Loading => Style::default().fg(Color::Magenta),
             Status::Fetched => Style::default().fg(Color::Green),
