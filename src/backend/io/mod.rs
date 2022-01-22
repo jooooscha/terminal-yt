@@ -1,24 +1,20 @@
+use crate::{
+    backend::{
+        data::channel_list::ChannelList,
+        io::{config::Config, history::History, subscriptions::Subscriptions},
+    },
+    notification::notify_error,
+};
 use dirs_next::home_dir;
 use std::{
-    fs::{OpenOptions, create_dir_all},
+    fs::{create_dir_all, OpenOptions},
+    io::{ErrorKind, Read, Write},
     path::PathBuf,
-    io::{Read, Write, ErrorKind},
-};
-use crate::{
-    notification::notify_error,
-    backend::{
-        io::{
-            config::Config,
-            subscriptions::Subscriptions,
-            history::History,
-        },
-        data::channel_list::ChannelList,
-    },
 };
 
-pub(crate) mod subscriptions;
 pub(crate) mod config;
 pub(crate) mod history;
+pub(crate) mod subscriptions;
 
 const CONFIG_PATH: &str = ".config/tyt/";
 
@@ -60,15 +56,9 @@ impl FileType {
     // writes and returns default
     fn write_default(self) -> String {
         let string = match self {
-            FileType::ConfigFile => {
-                serde_yaml::to_string(&Config::default()).unwrap()
-            }
-            FileType::DbFile => {
-                serde_json::to_string(&ChannelList::default()).unwrap()
-            }
-            FileType::HistoryFile => {
-                serde_json::to_string(&History::default()).unwrap()
-            }
+            FileType::ConfigFile => serde_yaml::to_string(&Config::default()).unwrap(),
+            FileType::DbFile => serde_json::to_string(&ChannelList::default()).unwrap(),
+            FileType::HistoryFile => serde_json::to_string(&History::default()).unwrap(),
             FileType::SubscriptionsFile => {
                 serde_yaml::to_string(&Subscriptions::default()).unwrap()
             }
@@ -81,14 +71,11 @@ impl FileType {
 
 /// Read in config dir
 pub(crate) fn read_config(file_type: FileType) -> String {
-
     let config_dir = get_config_dir();
 
     let file_path = config_dir.join(file_type.file());
 
-    let file_result = OpenOptions::new()
-        .read(true)
-        .open(file_path);
+    let file_result = OpenOptions::new().read(true).open(file_path);
 
     // return content (or default on error)
     match file_result {
@@ -100,15 +87,11 @@ pub(crate) fn read_config(file_type: FileType) -> String {
 
             buffer
         }
-        Err(error) => {
-            match error.kind() {
-                ErrorKind::NotFound => {
-                    file_type.write_default()
-                },
-                other_error => {
-                    notify_error(&format!("Could not read file: {:?}", other_error));
-                    panic!("Could not read file: {:?}", other_error);
-               },
+        Err(error) => match error.kind() {
+            ErrorKind::NotFound => file_type.write_default(),
+            other_error => {
+                notify_error(&format!("Could not read file: {:?}", other_error));
+                panic!("Could not read file: {:?}", other_error);
             }
         },
     }
@@ -149,7 +132,7 @@ fn get_config_dir() -> PathBuf {
     let path = home_dir.join(CONFIG_PATH);
     if let Err(error) = create_dir_all(&path) {
         if error.kind() == ErrorKind::PermissionDenied {
-                notify_error("Permission to config dir denied");
+            notify_error("Permission to config dir denied");
         }
     }
 

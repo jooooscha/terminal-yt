@@ -1,9 +1,9 @@
-pub(in super) mod builder;
+pub(super) mod builder;
 
 use crate::backend::ToTuiListItem;
-use std::cmp::Ordering;
 use chrono::DateTime;
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 use tui::{
     style::{Color, Modifier, Style},
     text::{Span, Spans},
@@ -79,12 +79,20 @@ impl Ord for Video {
         let mut j = 0; // other
 
         // fav has highest prio
-        if !self.is_fav()  { i += 100; }
-        if !other.is_fav() { j += 100; }
+        if !self.is_fav() {
+            i += 100;
+        }
+        if !other.is_fav() {
+            j += 100;
+        }
 
         // marked has less prio
-        if self.marked     { i +=  10; }
-        if other.marked    { j +=  10; }
+        if self.marked {
+            i += 10;
+        }
+        if other.marked {
+            j += 10;
+        }
 
         i.cmp(&j)
     }
@@ -104,7 +112,6 @@ impl PartialEq<Video> for Video {
 
 impl ToTuiListItem for Video {
     fn to_list_item(&self) -> ListItem {
-
         let new = if self.is_fav() {
             " ⭐ ".to_string()
         } else if self.is_new {
@@ -121,7 +128,9 @@ impl ToTuiListItem for Video {
         let spacer = String::from(" - ");
 
         let yellow = Style::default().fg(Color::Yellow);
-        let gray = Style::default().fg(Color::DarkGray).add_modifier(Modifier::ITALIC);
+        let gray = Style::default()
+            .fg(Color::DarkGray)
+            .add_modifier(Modifier::ITALIC);
 
         if self.marked {
             ListItem::new(Spans::from(vec![

@@ -3,7 +3,8 @@ use serde::Deserialize;
 
 // Deserialize structs
 #[derive(Debug, Deserialize)]
-pub struct Feed { // like channel in rss / internal
+pub struct Feed {
+    // like channel in rss / internal
     #[serde(rename = "title")]
     pub name: String,
     #[serde(rename = "channelId")]

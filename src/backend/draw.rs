@@ -1,24 +1,20 @@
 use crate::backend::{
-    io::config::Config,
     core::Core,
-    data::{
-        channel::Channel,
-        channel_list::ChannelList,
-    },
+    data::{channel::Channel, channel_list::ChannelList},
+    io::config::Config,
     io::history::History,
-    Screen,
+    Backend, Screen,
     Screen::*,
     Terminal,
-    Backend,
 };
 use std::thread;
 use tui::widgets::ListItem;
 use tui::{
-    Frame,
     layout::{Alignment, Constraint::*, Direction, Layout, Rect},
     style::Style,
     text::Span,
     widgets::{Block, BorderType, Borders, List, Paragraph},
+    Frame,
 };
 
 const INFO_LINE: &str =
@@ -105,15 +101,11 @@ pub struct AppLayout {
 impl AppLayout {
     fn load(f: &mut Frame<'_, Backend>, screen: &Screen) -> Self {
         let video_size = match screen {
-            Channels => {
-                0
-            },
-            Videos => {
-                75 
-            },
+            Channels => 0,
+            Videos => 75,
         };
 
-        let main_split = vec![ Percentage(80), Percentage(17), Percentage(2), Percentage(1)];
+        let main_split = vec![Percentage(80), Percentage(17), Percentage(2), Percentage(1)];
         let content_split = vec![Percentage(100 - video_size), Percentage(video_size)];
         let other_split = vec![Percentage(50)];
 
@@ -153,7 +145,7 @@ impl AppLayout {
     fn history(&self) -> Rect {
         self.other[0]
     }
-    
+
     fn channels(&self) -> Rect {
         self.content[0]
     }
@@ -166,8 +158,6 @@ impl AppLayout {
 #[allow(clippy::unnecessary_unwrap)]
 pub fn draw(app: AppState) {
     thread::spawn(move || {
-
-
         // all channels - left view
         let channels = app.channel_list.clone();
 
@@ -184,27 +174,33 @@ pub fn draw(app: AppState) {
             .with_list(channels.get_spans_list());
 
         let _ = app.terminal.term.clone().lock().unwrap().draw(|f| {
-
             let layout = AppLayout::load(f, &app.screen);
 
-            f.render_stateful_widget(chan_widget.render(), layout.channels(), &mut channels.state());
+            f.render_stateful_widget(
+                chan_widget.render(),
+                layout.channels(),
+                &mut channels.state(),
+            );
 
             if let Some(channel) = app.channel {
-
                 let video_widget = Widget::builder()
                     .with_title(&format!(" {} ", channel.name()))
                     .with_symbol(">> ")
                     .with_list(channel.get_spans_list());
 
-                f.render_stateful_widget(video_widget.render(), layout.videos(), &mut channel.state());
+                f.render_stateful_widget(
+                    video_widget.render(),
+                    layout.videos(),
+                    &mut channel.state(),
+                );
             }
-            
+
             let history_widget = Widget::builder()
                 .with_title(" Playback History ")
                 .with_list(app.history.to_list_items());
 
             f.render_widget(history_widget.render(), layout.history());
-            
+
             //////////////////////////////
 
             let par_1 = Paragraph::new(Span::from(app.update_line.clone()))

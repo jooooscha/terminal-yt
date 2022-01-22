@@ -1,8 +1,9 @@
 pub(crate) mod channel;
-pub(crate) mod video;
 pub(crate) mod channel_list;
 mod feed;
+pub(crate) mod video;
 
+use self::channel_list::ChannelList;
 use crate::{
     backend::{
         data::channel::Channel,
@@ -11,9 +12,11 @@ use crate::{
     },
     notification::notify_error,
 };
-use self::channel_list::ChannelList;
 use reqwest::blocking::Client;
-use std::sync::{mpsc::channel, mpsc::{Sender, Receiver, TryRecvError}};
+use std::sync::{
+    mpsc::channel,
+    mpsc::{Receiver, Sender, TryRecvError},
+};
 use threadpool::ThreadPool;
 
 pub(crate) struct Data {
@@ -26,10 +29,7 @@ impl Data {
     pub(crate) fn init() -> Self {
         let (sender, receiver) = channel();
 
-        Self {
-            sender,
-            receiver,
-        }
+        Self { sender, receiver }
     }
 
     /// try receive data that was newly fetched
@@ -44,7 +44,7 @@ impl Data {
             Err(error) => {
                 notify_error(&format!("Could not fetch updates: {:?}", error));
                 return;
-            },
+            }
         };
 
         // load already known items
@@ -53,7 +53,7 @@ impl Data {
             Err(error) => {
                 notify_error(&format!("Could not fetch updates: {:?}", error));
                 return;
-            },
+            }
         };
 
         // prepate threads
@@ -134,7 +134,6 @@ fn download_feed(urls: &[String]) -> Feed {
 
     // one internal feed can consist of seveal "normal" feeds
     for url in urls.iter() {
-
         // download feed
         let text = match client.get(url).send() {
             Ok(res) => res.text().unwrap_or_default(),

@@ -1,18 +1,10 @@
-mod events;
 mod backend;
+mod events;
 
-use clipboard::{ClipboardContext, ClipboardProvider};
-use crate::{
-    backend::{
-        data::Data,
-        core::Core,
-        Action::*,
-        Screen::*,
-        Error,
-    },
-};
-use events::*;
+use crate::backend::{core::Core, data::Data, Action::*, Error, Screen::*};
 use crate::notification::notify_link;
+use clipboard::{ClipboardContext, ClipboardProvider};
+use events::*;
 use termion::event::Key;
 
 mod notification;
@@ -22,7 +14,7 @@ fn main() -> Result<(), Error> {
         Ok(core) => core,
         Err(error) => {
             return Err(error);
-        },
+        }
     };
 
     let events = Events::new();
@@ -59,7 +51,9 @@ fn main() -> Result<(), Error> {
                     // ---------------------- back --------------
                     match core.get_current_screen() {
                         Channels => {}
-                        Videos => { let _ = core.action(Leave); }
+                        Videos => {
+                            let _ = core.action(Leave);
+                        }
                     }
                     core.draw();
                 }
@@ -91,7 +85,9 @@ fn main() -> Result<(), Error> {
                 }
                 Key::Char('\n') | Key::Char('l') | Key::Right | Key::Char('o') => {
                     match core.get_current_screen() {
-                        Channels => { let _ = core.action(Enter); }
+                        Channels => {
+                            let _ = core.action(Enter);
+                        }
                         Videos => {
                             core.action(Open);
                         }
@@ -146,4 +142,3 @@ fn main() -> Result<(), Error> {
 
     Ok(())
 }
-

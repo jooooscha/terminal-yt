@@ -1,5 +1,5 @@
-use std::process::Command;
 use crate::backend::io::config::Config;
+use std::process::Command;
 
 pub fn notify_link(msg: &str) {
     send("Title", msg)
@@ -19,4 +19,3 @@ fn send(title: &str, msg: &str) {
         let _ = Command::new(notifyer).arg(title).arg(msg).output();
     }
 }
-    

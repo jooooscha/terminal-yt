@@ -1,24 +1,16 @@
 use crate::{
     backend::{
-        io::config::Config,
         data::{channel::Channel, channel_list::ChannelList, video::Video},
         draw::draw,
-        io::{
-            history::History,
-            write_config,
-            FileType::DbFile,
-        },
+        io::config::Config,
+        io::{history::History, write_config, FileType::DbFile},
         Action,
         Action::*,
-        Filter, Screen,
+        Filter, Result, Screen,
         Screen::*,
         Terminal,
-        Result,
     },
-    notification::{
-        notify_error,
-        notify_open
-    },
+    notification::{notify_error, notify_open},
 };
 use std::{
     cmp::min,
@@ -136,7 +128,9 @@ impl Core {
                             video.mark(state);
                         }
 
-                        if !self.get_selected_channel_mut()?.has_new() && self.current_filter == Filter::OnlyNew {
+                        if !self.get_selected_channel_mut()?.has_new()
+                            && self.current_filter == Filter::OnlyNew
+                        {
                             self.action(Leave);
                         } else if self.config.down_on_mark {
                             self.get_selected_channel_mut()?.next();
@@ -149,7 +143,7 @@ impl Core {
                 }
                 Up => match self.current_screen {
                     Channels => self.get_filtered_channel_list_mut().prev(),
-                    Videos => self.get_selected_channel_mut()?.prev()
+                    Videos => self.get_selected_channel_mut()?.prev(),
                 },
                 Down => match self.current_screen {
                     Channels => self.get_filtered_channel_list_mut().next(),
@@ -219,7 +213,6 @@ impl Core {
                         Ok(_) => notify_open(&video.get_details()),
                         Err(error) => notify_error(&error.to_string()),
                     };
-
                 }
             }
             None
@@ -268,7 +261,6 @@ impl Core {
         new_channel_list.filter(self.current_filter, self.config.sort_by_tag);
         self.channel_list = new_channel_list;
 
-        
         /* let selection = self
          *     .get_filtered_channel_list()
          *     .get_position_by_id(&selected_channel_id); */
@@ -288,16 +280,15 @@ impl Core {
                 channel.select(video_pos);
             }
         } else if selected_channel_index.is_some() {
-            self.channel_list.select(selected_channel_index); 
+            self.channel_list.select(selected_channel_index);
         } else {
             // try setting it to the first element
             self.channel_list.select(Some(0));
         }
-
     }
 
     pub(crate) fn select(&mut self, p: usize) {
-        let pos = min(self.channel_list.len()-1, p);
+        let pos = min(self.channel_list.len() - 1, p);
         self.channel_list.select(Some(pos));
     }
 

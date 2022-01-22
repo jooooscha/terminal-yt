@@ -1,11 +1,7 @@
-use serde::{Deserialize, Serialize};
-use chrono::prelude::*;
-use super::{
-    Date,
-    SubscriptionItem,
-    date_always,
-};
+use super::{date_always, Date, SubscriptionItem};
 use crate::backend::SortingMethod;
+use chrono::prelude::*;
+use serde::{Deserialize, Serialize};
 
 // url file video type
 #[derive(Clone, Deserialize, Serialize, Debug)]
@@ -24,7 +20,8 @@ pub struct ChannelSubscription {
 impl Default for ChannelSubscription {
     fn default() -> Self {
         Self {
-            url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A".to_string(),
+            url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A"
+                .to_string(),
             name: "Tom Scott".to_string(),
             update_on: vec![Date::default()],
             tag: "Interresting".to_string(),

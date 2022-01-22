@@ -1,27 +1,22 @@
-pub(crate) mod data;
 pub(crate) mod core;
+pub(crate) mod data;
 
-pub(super) mod io;
 mod draw;
+pub(super) mod io;
 
 use serde::{Deserialize, Serialize};
 use tui::widgets::ListItem;
 
 use std::{
-    io::{Stdout, stdout, stdin},
+    io::{stdin, stdout, Stdout},
     sync::{Arc, Mutex},
 };
 use termion::{
-    raw::{RawTerminal, IntoRawMode},
     input::MouseTerminal,
+    raw::{IntoRawMode, RawTerminal},
     screen::AlternateScreen,
 };
-use tui::{
-    layout::Rect,
-    backend::TermionBackend,
-    Terminal as TuiTerminal
-};
-
+use tui::{backend::TermionBackend, layout::Rect, Terminal as TuiTerminal};
 
 pub trait ToTuiListItem {
     fn to_list_item(&self) -> ListItem;

@@ -1,15 +1,12 @@
-use crate::{
-    backend::{
-        SortingMethod,
-        io::{read_config, FileType::SubscriptionsFile},
-        Error::ParseSubscription,
-        Result,
-    },
+use crate::backend::{
+    io::{read_config, FileType::SubscriptionsFile},
+    Error::ParseSubscription,
+    Result, SortingMethod,
 };
-use serde::{Deserialize, Serialize};
-use chrono::Weekday;
 use channel::ChannelSubscription;
+use chrono::Weekday;
 use custom_channel::CustomChannelSubscription;
+use serde::{Deserialize, Serialize};
 
 mod channel;
 mod custom_channel;
@@ -53,9 +50,7 @@ impl Subscriptions {
 
         match serde_yaml::from_str::<Self>(&config_file) {
             Ok(file) => Ok(file),
-            Err(error) => {
-                Err(ParseSubscription(error))
-            }
+            Err(error) => Err(ParseSubscription(error)),
         }
     }
 
@@ -95,21 +90,23 @@ impl Default for Date {
 
 impl Date {
     pub(crate) fn eq_to(&self, other: &Weekday) -> bool {
-        matches!((self, other), (Date::Mon, Weekday::Mon)
-            | (Date::Tue, Weekday::Tue)
-            | (Date::Wed, Weekday::Wed)
-            | (Date::Thu, Weekday::Thu)
-            | (Date::Fri, Weekday::Fri)
-            | (Date::Sat, Weekday::Sat)
-            | (Date::Sun, Weekday::Sun)
-            | (Date::Workday, Weekday::Mon)
-            | (Date::Workday, Weekday::Tue)
-            | (Date::Workday, Weekday::Wed)
-            | (Date::Workday, Weekday::Thu)
-            | (Date::Workday, Weekday::Fri)
-            | (Date::Weekend, Weekday::Sat)
-            | (Date::Weekend, Weekday::Sun)
-            | (Date::Always, _)
+        matches!(
+            (self, other),
+            (Date::Mon, Weekday::Mon)
+                | (Date::Tue, Weekday::Tue)
+                | (Date::Wed, Weekday::Wed)
+                | (Date::Thu, Weekday::Thu)
+                | (Date::Fri, Weekday::Fri)
+                | (Date::Sat, Weekday::Sat)
+                | (Date::Sun, Weekday::Sun)
+                | (Date::Workday, Weekday::Mon)
+                | (Date::Workday, Weekday::Tue)
+                | (Date::Workday, Weekday::Wed)
+                | (Date::Workday, Weekday::Thu)
+                | (Date::Workday, Weekday::Fri)
+                | (Date::Weekend, Weekday::Sat)
+                | (Date::Weekend, Weekday::Sun)
+                | (Date::Always, _)
         )
     }
 }

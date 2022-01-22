@@ -1,11 +1,7 @@
-use serde::{Deserialize, Serialize};
-use chrono::prelude::*;
-use super::{
-    Date,
-    SubscriptionItem,
-    date_always,
-};
+use super::{date_always, Date, SubscriptionItem};
 use crate::backend::SortingMethod;
+use chrono::prelude::*;
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Deserialize, Serialize, Debug)]
 pub struct CustomChannelSubscription {
