@@ -15,7 +15,10 @@ use crate::{
         Terminal,
         Result,
     },
-    notification::{notify_error, notify_open},
+    notification::{
+        notify_error,
+        notify_open
+    },
 };
 use std::{
     cmp::min,
@@ -200,6 +203,7 @@ impl Core {
                     }
 
                     // call video player
+                    #[cfg(not(debug_assertions))]
                     let command = Command::new("setsid")
                         .arg("-f")
                         .arg(&self.config.video_player)
@@ -210,6 +214,7 @@ impl Core {
 
                     self.playback_history.add(video.clone());
 
+                    #[cfg(not(debug_assertions))]
                     match command {
                         Ok(_) => notify_open(&video.get_details()),
                         Err(error) => notify_error(&error.to_string()),
