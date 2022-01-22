@@ -6,10 +6,10 @@ pub(crate) mod video;
 use self::channel_list::ChannelList;
 use crate::{
     backend::{
+        core::{Status, StatusUpdate},
         data::channel::Channel,
         data::feed::Feed,
         io::subscriptions::{SubscriptionItem, Subscriptions},
-        core::{StatusUpdate, Status},
     },
     notification::notify_error,
 };
@@ -31,7 +31,11 @@ impl Data {
     pub(crate) fn init(status_sender: Sender<StatusUpdate>) -> Self {
         let (sender, receiver) = channel();
 
-        Self { sender, receiver, status_sender }
+        Self {
+            sender,
+            receiver,
+            status_sender,
+        }
     }
 
     /// try receive data that was newly fetched
@@ -107,7 +111,9 @@ fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
     let feed = if item.active() {
         let n = item.name();
         if !n.is_empty() {
-            status_sender.send(StatusUpdate::new(n, Status::Loading)).unwrap();
+            status_sender
+                .send(StatusUpdate::new(n, Status::Loading))
+                .unwrap();
         }
         download_feed(&urls)
     } else {
@@ -122,7 +128,6 @@ fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
     } else {
         history_name
     };
-
 
     let channel = Channel::builder()
         .add_from_feed(feed)

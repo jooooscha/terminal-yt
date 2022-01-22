@@ -12,15 +12,15 @@ use crate::{
     },
     notification::{notify_error, notify_open},
 };
-use tui::{
-    style::{Color, Style},
-    text::{Span, Spans},
-    widgets::ListItem,
-};
 use std::{
     cmp::min,
     process::{Command, Stdio},
     sync::mpsc::{channel, Receiver, Sender},
+};
+use tui::{
+    style::{Color, Style},
+    text::{Span, Spans},
+    widgets::ListItem,
 };
 
 #[derive(Debug, Clone)]
@@ -58,10 +58,7 @@ impl StatusUpdate {
 
 impl StatusUpdate {
     pub(crate) fn new(text: String, status: self::Status) -> Self {
-        Self {
-            text,
-            status,
-        }
+        Self { text, status }
     }
 }
 
@@ -347,7 +344,10 @@ impl Core {
     pub(crate) fn update_channel(&mut self, updated_channel: Channel) {
         let mut channel_list = self.get_filtered_channel_list().clone();
 
-        self.status_update(StatusUpdate::new(updated_channel.name().clone(), Status::Fetched));
+        self.status_update(StatusUpdate::new(
+            updated_channel.name().clone(),
+            Status::Fetched,
+        ));
         // self.status_update(format!("Updated: {}", &updated_channel.name()));
 
         if let Some(channel) = channel_list.get_mut_by_id(updated_channel.id()) {
