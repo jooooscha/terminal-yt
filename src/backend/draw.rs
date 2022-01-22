@@ -1,7 +1,7 @@
 use crate::backend::{
     core::{Core, StatusUpdate},
     data::{channel::Channel, channel_list::ChannelList},
-    io::history::History,
+    io::{history::History, config::Config},
     Backend, Screen,
     Screen::*,
     Terminal,
@@ -26,6 +26,7 @@ pub struct AppState {
     screen: Screen,
     status: Vec<StatusUpdate>,
     terminal: Terminal,
+    config: Config,
 }
 
 impl From<&Core> for AppState {
@@ -36,6 +37,7 @@ impl From<&Core> for AppState {
         let screen = core.current_screen.clone();
         let status = core.status.clone();
         let terminal = core.terminal.clone();
+        let config = core.config.clone();
 
         AppState {
             channel,
@@ -44,6 +46,7 @@ impl From<&Core> for AppState {
             screen,
             status,
             terminal,
+            config,
         }
     }
 }
@@ -165,7 +168,7 @@ pub fn draw(app: AppState) {
             Videos => "-",
         };
         let chan_widget = Widget::builder()
-            .with_title("Test name")
+            .with_title(&app.config.app_title)
             .with_symbol(channel_symbol)
             .with_list(channels.get_spans_list());
 
