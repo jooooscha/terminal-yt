@@ -1,6 +1,5 @@
 use crate::{
     backend::{
-        ToTuiListItem,
         data::{channel::Channel, channel_list::ChannelList, video::Video},
         draw::draw,
         io::config::Config,
@@ -14,7 +13,7 @@ use crate::{
     notification::{notify_error, notify_open},
 };
 use tui::{
-    style::{Color, Modifier, Style},
+    style::{Color, Style},
     text::{Span, Spans},
     widgets::ListItem,
 };
@@ -22,25 +21,18 @@ use std::{
     cmp::min,
     process::{Command, Stdio},
     sync::mpsc::{channel, Receiver, Sender},
-    fmt,
 };
 
 #[derive(Debug, Clone)]
 pub(crate) enum Status {
     Loading,
     Fetched,
-    Error
+    // Error
 }
-
-// impl fmt::Display for Status {
-//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-//         fmt::Debug::fmt(self, f)
-//     }
-// }
 
 #[derive(Clone)]
 pub(crate) struct StatusUpdate {
-    channel: String,
+    text: String,
     status: self::Status,
 }
 
@@ -50,7 +42,7 @@ impl StatusUpdate {
         let status_color = match &self.status {
             Status::Loading => Style::default().fg(Color::Magenta),
             Status::Fetched => Style::default().fg(Color::Green),
-            Status::Error => Style::default().fg(Color::Red),
+            // Status::Error => Style::default().fg(Color::Red),
         };
 
         let text_color = Style::default().fg(Color::Yellow);
@@ -59,15 +51,15 @@ impl StatusUpdate {
 
         ListItem::new(Spans::from(vec![
             Span::styled(status_text, status_color),
-            Span::styled(self.channel, text_color),
+            Span::styled(self.text, text_color),
         ]))
     }
 }
 
 impl StatusUpdate {
-    pub(crate) fn new(channel: String, status: self::Status) -> Self {
+    pub(crate) fn new(text: String, status: self::Status) -> Self {
         Self {
-            channel,
+            text,
             status,
         }
     }
@@ -139,15 +131,21 @@ impl Core {
 
     //-------- gettter and setter ----------------------
 
+    /// receive all status updates from status channel
     pub(crate) fn update_status_line(&mut self) -> bool {
-        if let Ok(line) = self.status_receiver.try_recv() {
-            self.status.push(line);
-        // } else if !self.status.is_empty() {
-        //     self.status = String::new();
-        } else {
-            return false;
+        let mut found = false;
+        for item in self.status_receiver.try_iter() {
+            found = true;
+            for i in 0..self.status.len() {
+                if self.status[i].text == item.text {
+                    self.status.remove(i);
+                    break;
+                }
+            }
+            self.status.push(item);
         }
-        true
+
+        found
     }
 
     pub(crate) fn get_show_empty(&self) -> bool {
@@ -252,7 +250,6 @@ impl Core {
                     }
 
                     // call video player
-                    #[cfg(not(debug_assertions))]
                     let command = Command::new("setsid")
                         .arg("-f")
                         .arg(&self.config.video_player)
@@ -263,7 +260,6 @@ impl Core {
 
                     self.playback_history.add(video.clone());
 
-                    #[cfg(not(debug_assertions))]
                     match command {
                         Ok(_) => notify_open(&video.get_details()),
                         Err(error) => notify_error(&error.to_string()),

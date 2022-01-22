@@ -1,8 +1,6 @@
 use crate::backend::{
-    ToTuiListItem,
     core::{Core, StatusUpdate},
     data::{channel::Channel, channel_list::ChannelList},
-    io::config::Config,
     io::history::History,
     Backend, Screen,
     Screen::*,

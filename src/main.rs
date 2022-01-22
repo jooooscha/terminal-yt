@@ -21,7 +21,7 @@ fn main() -> Result<(), Error> {
 
     let mut tick_counter = 0;
 
-    let data = Data::init();
+    let data = Data::init(core.status_sender.clone());
 
     if core.update_at_start() {
         data.update();
