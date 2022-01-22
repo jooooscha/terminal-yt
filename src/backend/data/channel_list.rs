@@ -16,6 +16,7 @@ use tui::widgets::{ListItem, ListState};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub(crate) struct ChannelList {
     channels: Vec<Channel>,
+
     #[serde(skip)]
     list_state: ListState,
     #[serde(skip)]

@@ -39,6 +39,7 @@ const HISTORY_FILE: &str = "history_debug.json";
 const SUBSCRIPTIONS_FILE: &str = "subscriptions_debug.yml";
 
 #[allow(clippy::enum_variant_names)]
+#[derive(PartialEq)]
 pub(crate) enum FileType {
     ConfigFile,
     DbFile,
@@ -114,17 +115,23 @@ pub(crate) fn read_config(file_type: FileType) -> String {
 }
 
 /// Write in config dir
-pub(crate) fn write_config(type_: FileType, content: &str) {
+pub(crate) fn write_config(r#type: FileType, content: &str) {
     let config_dir = get_config_dir();
 
-    let file_path = config_dir.join(type_.file());
+    let file_path = config_dir.join(r#type.file());
 
     let mut file = OpenOptions::new()
         .write(true)
+        .truncate(true)
         .create(true)
         .open(file_path)
         .unwrap();
 
+    // if r#type == FileType::DbFile {
+    //     eprintln!("######");
+    //     eprintln!("content: {:?}", content);
+    //     eprintln!("######");
+    // }
     let _ = file.write_all(content.as_bytes());
 }
 
