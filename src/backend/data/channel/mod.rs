@@ -1,14 +1,12 @@
 mod builder;
 
 use crate::backend::{
-    data::{
-        video::Video,
-        channel::builder::ChannelBuilder,
-    },
-    io::subscriptions::SubscriptionItem, SortingMethod, ToTuiListItem
+    data::{channel::builder::ChannelBuilder, video::Video},
+    io::subscriptions::SubscriptionItem,
+    SortingMethod, ToTuiListItem,
 };
-use std::cmp::min;
 use serde::{Deserialize, Serialize};
+use std::cmp::min;
 use tui::{
     style::{Color, Modifier, Style},
     text::{Span, Spans},
@@ -119,7 +117,6 @@ impl Channel {
         self.videos.push(video);
     }
 
-
     pub fn get_mut(&mut self, index: usize) -> Option<&mut Video> {
         self.videos.get_mut(index)
     }
@@ -143,19 +140,23 @@ impl Channel {
                 self.videos.sort();
                 self.videos.sort_by_key(|video| video.pub_date().clone());
                 self.videos.reverse();
-            },
+            }
             SortingMethod::Text => {
-                self.videos.sort_by(|video_a, video_b| alphanumeric_sort::compare_str(video_a.title().clone(), video_b.title().clone()));
-            },
+                self.videos.sort_by(|video_a, video_b| {
+                    alphanumeric_sort::compare_str(video_a.title().clone(), video_b.title().clone())
+                });
+            }
             SortingMethod::UnseenDate => {
                 self.videos.sort_by_key(|video| video.pub_date().clone());
                 self.videos.reverse();
                 self.videos.sort();
-            },
+            }
             SortingMethod::UnseenText => {
-                self.videos.sort_by(|video_a, video_b| alphanumeric_sort::compare_str(video_a.title().clone(), video_b.title().clone()));
+                self.videos.sort_by(|video_a, video_b| {
+                    alphanumeric_sort::compare_str(video_a.title().clone(), video_b.title().clone())
+                });
                 self.videos.sort();
-            },
+            }
         }
     }
 
@@ -209,7 +210,9 @@ impl ToTuiListItem for Channel {
         let light_green = Style::default().fg(Color::LightGreen);
         let yellow = Style::default().fg(Color::Yellow);
         let blue = Style::default().fg(Color::Blue);
-        let gray = Style::default().fg(Color::DarkGray).add_modifier(Modifier::ITALIC);
+        let gray = Style::default()
+            .fg(Color::DarkGray)
+            .add_modifier(Modifier::ITALIC);
 
         if num_marked > &0 {
             ListItem::new(Spans::from(vec![

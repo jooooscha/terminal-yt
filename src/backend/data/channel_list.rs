@@ -1,21 +1,19 @@
-use crate::{
-    backend::{
-        data::channel::Channel,
-        io::subscriptions::{Subscriptions, SubscriptionItem},
-        Filter::{self, *},
-        ToTuiListItem,
-        io::{read_config, FileType::DbFile},
-        Result,
-        Error::ParseDB,
-    },
+use crate::backend::{
+    data::channel::Channel,
+    io::subscriptions::{SubscriptionItem, Subscriptions},
+    io::{read_config, FileType::DbFile},
+    Error::ParseDB,
+    Filter::{self, *},
+    Result, ToTuiListItem,
 };
-use std::cmp::min;
 use serde::{Deserialize, Serialize};
+use std::cmp::min;
 use tui::widgets::{ListItem, ListState};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub(crate) struct ChannelList {
     channels: Vec<Channel>,
+
     #[serde(skip)]
     list_state: ListState,
     #[serde(skip)]
@@ -41,10 +39,9 @@ impl ChannelList {
             Ok(mut channel_list) => {
                 channel_list.apply_url_file_changes();
                 Ok(channel_list)
-            },
-            Err(error) => Err(ParseDB(error))
+            }
+            Err(error) => Err(ParseDB(error)),
         }
-
     }
 
     #[allow(dead_code)]

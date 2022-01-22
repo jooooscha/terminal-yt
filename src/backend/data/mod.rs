@@ -1,35 +1,37 @@
 pub(crate) mod channel;
-pub(crate) mod video;
 pub(crate) mod channel_list;
 mod feed;
+pub(crate) mod video;
 
+use self::channel_list::ChannelList;
 use crate::{
     backend::{
         data::channel::Channel,
         data::feed::Feed,
         io::subscriptions::{SubscriptionItem, Subscriptions},
+        core::{StatusUpdate, Status},
     },
     notification::notify_error,
 };
-use self::channel_list::ChannelList;
 use reqwest::blocking::Client;
-use std::sync::{mpsc::channel, mpsc::{Sender, Receiver, TryRecvError}};
+use std::sync::{
+    mpsc::channel,
+    mpsc::{Receiver, Sender, TryRecvError},
+};
 use threadpool::ThreadPool;
 
 pub(crate) struct Data {
     sender: Sender<Channel>,
     receiver: Receiver<Channel>,
+    status_sender: Sender<StatusUpdate>,
 }
 
 impl Data {
     /// Init
-    pub(crate) fn init() -> Self {
+    pub(crate) fn init(status_sender: Sender<StatusUpdate>) -> Self {
         let (sender, receiver) = channel();
 
-        Self {
-            sender,
-            receiver,
-        }
+        Self { sender, receiver, status_sender }
     }
 
     /// try receive data that was newly fetched
@@ -44,7 +46,7 @@ impl Data {
             Err(error) => {
                 notify_error(&format!("Could not fetch updates: {:?}", error));
                 return;
-            },
+            }
         };
 
         // load already known items
@@ -53,7 +55,7 @@ impl Data {
             Err(error) => {
                 notify_error(&format!("Could not fetch updates: {:?}", error));
                 return;
-            },
+            }
         };
 
         // prepate threads
@@ -67,8 +69,9 @@ impl Data {
             let item = item.clone();
             let urls = vec![item.url.clone()];
 
+            let sender = self.status_sender.clone();
             pool.execute(move || {
-                fetch_channel_updates(sender_clone, hc, item, urls); // updates will be send with `channel_sender`
+                fetch_channel_updates(sender_clone, hc, item, urls, sender); // updates will be send with `channel_sender`
             })
         }
 
@@ -79,8 +82,9 @@ impl Data {
             let item = item.clone();
             let urls = item.urls.clone();
 
+            let sender = self.status_sender.clone();
             pool.execute(move || {
-                fetch_channel_updates(sender_clone, hc, item, urls); // updates will be send with `channel_sender`
+                fetch_channel_updates(sender_clone, hc, item, urls, sender); // updates will be send with `channel_sender`
             })
         }
     }
@@ -91,6 +95,7 @@ fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
     history: ChannelList,
     item: T,
     urls: Vec<String>,
+    status_sender: Sender<StatusUpdate>,
 ) {
     // get videos from history file
     let (history_videos, history_name) = match history.get_by_id(&item.id()) {
@@ -100,6 +105,10 @@ fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
 
     // download feed (if active)
     let feed = if item.active() {
+        let n = item.name();
+        if !n.is_empty() {
+            status_sender.send(StatusUpdate::new(n, Status::Loading)).unwrap();
+        }
         download_feed(&urls)
     } else {
         Feed::default()
@@ -113,6 +122,7 @@ fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
     } else {
         history_name
     };
+
 
     let channel = Channel::builder()
         .add_from_feed(feed)
@@ -134,7 +144,6 @@ fn download_feed(urls: &[String]) -> Feed {
 
     // one internal feed can consist of seveal "normal" feeds
     for url in urls.iter() {
-
         // download feed
         let text = match client.get(url).send() {
             Ok(res) => res.text().unwrap_or_default(),

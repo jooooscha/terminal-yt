@@ -1,6 +1,6 @@
 use crate::backend::{
-    io::{read_config, write_config, FileType::HistoryFile},
     data::video::Video,
+    io::{read_config, write_config, FileType::HistoryFile},
     ToTuiListItem,
 };
 use serde::{Deserialize, Serialize};
@@ -18,7 +18,10 @@ pub(crate) struct History {
 impl History {
     pub(crate) fn load() -> Self {
         let history = read_config(HistoryFile);
-        serde_json::from_str::<Self>(&history).unwrap_or_default()
+        match serde_json::from_str(&history) {
+            Ok(list) => Self { list },
+            Err(_) => Self::default(),
+        }
     }
 
     fn save(&self) {
@@ -43,12 +46,8 @@ impl History {
     }
 
     pub(crate) fn to_list_items(&self) -> Vec<ListItem> {
-        self.list.iter()
-            .map(|v| v.to_list_item())
-            .rev()
-            .collect()
+        self.list.iter().map(|v| v.to_list_item()).rev().collect()
     }
-
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -80,7 +79,7 @@ impl From<Video> for MinimalVideo {
     }
 }
 
-/* 
+/*
  * #[cfg(test)]
  * pub mod tests {
  *     use super::*;

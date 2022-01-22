@@ -32,11 +32,9 @@ impl Events {
             })
         };
         let tick_handle = {
-            thread::spawn(move || {
-                loop {
-                    tx.send(Event::Tick).unwrap();
-                    thread::sleep(Duration::from_millis(50));
-                }
+            thread::spawn(move || loop {
+                tx.send(Event::Tick).unwrap();
+                thread::sleep(Duration::from_millis(50));
             })
         };
         Events {

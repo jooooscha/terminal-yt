@@ -1,170 +1,228 @@
 use crate::backend::{
-    io::config::Config,
-    core::Core,
-    data::{
-        channel::Channel,
-        channel_list::ChannelList,
-    },
+    core::{Core, StatusUpdate},
+    data::{channel::Channel, channel_list::ChannelList},
     io::history::History,
+    Backend, Screen,
     Screen::*,
     Terminal,
 };
 use std::thread;
 use tui::widgets::ListItem;
 use tui::{
-    layout::{Alignment, Constraint, Direction, Layout},
+    layout::{Alignment, Constraint::*, Direction, Layout, Rect},
     style::Style,
     text::Span,
     widgets::{Block, BorderType, Borders, List, Paragraph},
+    Frame,
 };
 
 const INFO_LINE: &str =
     "q close; o open video/select; Enter/l select; Esc/h go back; m mark; M unmark";
 
-pub struct View {
-    terminal: Terminal,
-    config: Config,
-    update_line: String,
-    show_videos: bool,
+pub struct AppState {
+    channel: Option<Channel>,
     channel_list: ChannelList,
-    current_selected: Option<Channel>,
-    /* selected_channel_name: String, */
-    playback_history: History,
+    history: History,
+    screen: Screen,
+    status: Vec<StatusUpdate>,
+    terminal: Terminal,
 }
 
-impl From<&Core> for View {
+impl From<&Core> for AppState {
     fn from(core: &Core) -> Self {
-        let terminal = core.terminal.clone();
-        let config = core.config.clone();
-        let update_line = core.update_line.clone();
-        let show_channel_block = core.current_screen == Videos;
+        let channel = core.get_selected_channel().cloned();
         let channel_list = core.get_filtered_channel_list().clone();
-        let current_selected = core.get_selected_channel().cloned();
-        /* let selected_channel_name = current_selected.name().clone(); */
-        let playback_history = core.playback_history.clone();
+        let history = core.playback_history.clone();
+        let screen = core.current_screen.clone();
+        let status = core.status.clone();
+        let terminal = core.terminal.clone();
 
-        View {
-            terminal,
-            config,
-            update_line,
-            show_videos: show_channel_block,
+        AppState {
+            channel,
             channel_list,
-            current_selected,
-            /* selected_channel_name, */
-            playback_history,
+            history,
+            screen,
+            status,
+            terminal,
         }
     }
 }
 
-#[allow(clippy::unnecessary_unwrap)]
-pub fn draw(app: View) {
-    thread::spawn(move || {
-        let mut block = Block::default()
-            .title(app.config.app_title.clone())
+#[derive(Default)]
+struct Widget<'a> {
+    title: String,
+    symbol: &'a str,
+    list: Vec<ListItem<'a>>,
+}
+
+impl<'a> Widget<'a> {
+    fn builder() -> Self {
+        Self::default()
+    }
+
+    fn with_title(mut self, title: &str) -> Self {
+        self.title = title.to_string();
+        self
+    }
+
+    fn with_list(mut self, list: Vec<ListItem<'a>>) -> Self {
+        self.list = list;
+        self
+    }
+
+    fn with_symbol(mut self, symbol: &'a str) -> Self {
+        self.symbol = symbol;
+        self
+    }
+
+    fn render(self) -> List<'a> {
+        let block = Block::default()
+            .title(self.title)
             .borders(Borders::ALL)
             .border_type(BorderType::Rounded);
 
-        let symbol = match app.show_videos {
-            true => "-",
-            false => ">>",
+        List::new(self.list)
+            .block(block)
+            .highlight_style(Style::default())
+            .highlight_symbol(self.symbol)
+    }
+}
+
+pub struct AppLayout {
+    main: Vec<Rect>,
+    content: Vec<Rect>,
+    other: Vec<Rect>,
+}
+
+impl AppLayout {
+    fn load(f: &mut Frame<'_, Backend>, screen: &Screen) -> Self {
+        let video_size = match screen {
+            Channels => 0,
+            Videos => 75,
         };
 
-        let constraints = if app.show_videos {
-            [Constraint::Percentage(35), Constraint::Percentage(65)].as_ref()
-        } else {
-            [Constraint::Percentage(100)].as_ref()
-        };
+        let main_split = vec![Percentage(80), Percentage(19), Percentage(1)];
+        let content_split = vec![Percentage(100 - video_size), Percentage(video_size)];
+        let other_split = vec![Percentage(50), Percentage(50)];
 
-        // -------------------------------------------
+        let main = Layout::default()
+            .direction(Direction::Vertical)
+            .margin(0)
+            .constraints(main_split)
+            .split(f.size());
 
+        let content = Layout::default()
+            .direction(Direction::Horizontal)
+            .margin(0)
+            .constraints(content_split)
+            .split(main[0]);
+
+        let other = Layout::default()
+            .direction(Direction::Horizontal)
+            .margin(0)
+            .constraints(other_split)
+            .split(main[1]);
+
+        Self {
+            main,
+            content,
+            other,
+        }
+    }
+
+    fn status(&self) -> Rect {
+        self.other[1]
+    }
+
+    fn info(&self) -> Rect {
+        self.main[2]
+    }
+
+    fn history(&self) -> Rect {
+        self.other[0]
+    }
+
+    fn channels(&self) -> Rect {
+        self.content[0]
+    }
+
+    fn videos(&self) -> Rect {
+        self.content[1]
+    }
+}
+
+#[allow(clippy::unnecessary_unwrap)]
+pub fn draw(app: AppState) {
+    thread::spawn(move || {
         // all channels - left view
         let channels = app.channel_list.clone();
 
-        let chan: Vec<ListItem> = channels.get_spans_list();
-
         // all videos - right view
-        let current_channel = app.current_selected.clone();
+        /* let current_channel = app.current_selected.clone(); */
 
-/*         let mut vid_state = match current_channel {
- *             Some(channel) => Some(channel.state()),
- *             None => None,
- *         }
- *
- *         let vid = current_channel.get_spans_list(); */
+        let channel_symbol = match app.screen {
+            Channels => ">> ",
+            Videos => "-",
+        };
+        let chan_widget = Widget::builder()
+            .with_title("Test name")
+            .with_symbol(channel_symbol)
+            .with_list(channels.get_spans_list());
 
-        // playback history - bottom view
-        let playback_history = app.playback_history.to_list_items();
+        let _ = app.terminal.term.clone().lock().unwrap().draw(|f| {
+            let layout = AppLayout::load(f, &app.screen);
 
-        let _res = app.terminal.term.clone().lock().unwrap().draw(|f| {
-            // --------------------------
-            let main_structure = Layout::default()
-                .direction(Direction::Vertical)
-                .margin(0)
-                .constraints([
-                    Constraint::Percentage(97),
-                    Constraint::Percentage(2),
-                    Constraint::Percentage(1),
-                ])
-                .split(f.size());
+            f.render_stateful_widget(
+                chan_widget.render(),
+                layout.channels(),
+                &mut channels.state(),
+            );
 
-            // --------------------------
-            // LAYOUT (Blocks)
-            // --------------------------
+            if let Some(channel) = app.channel {
+                let video_widget = Widget::builder()
+                    .with_title(&format!(" {} ", channel.name()))
+                    .with_symbol(">> ")
+                    .with_list(channel.get_spans_list());
 
-            // main two parts split
-            let channel_list_and_history = Layout::default()
-                .direction(Direction::Vertical)
-                .margin(0)
-                .constraints([Constraint::Percentage(80), Constraint::Percentage(20)])
-                .split(main_structure[0]);
-
-            // split of channels and their videos
-            let channel_and_video = Layout::default()
-                .direction(Direction::Horizontal)
-                .margin(0)
-                .constraints(constraints)
-                .split(channel_list_and_history[0]);
-
-            // --------------------------
-
-            let list = List::new(chan)
-                .block(block.clone())
-                .highlight_style(Style::default())
-                .highlight_symbol(symbol);
-            f.render_stateful_widget(list, channel_and_video[0], &mut channels.state());
-
-            if app.show_videos && current_channel.is_some() {
-                let channel = current_channel.unwrap();
-                let name = channel.name();
-                let state = &mut channel.state();
-                let videos = channel.get_spans_list();
-
-                block = block.title(format!(" {} ", name));
-
-                let list = List::new(videos)
-                    .block(block.clone())
-                    .highlight_style(Style::default())
-                    .highlight_symbol(">> ");
-                f.render_stateful_widget(list, channel_and_video[1], state);
+                f.render_stateful_widget(
+                    video_widget.render(),
+                    layout.videos(),
+                    &mut channel.state(),
+                );
             }
 
-            block = block.title(" Playback History ");
-            let playback_history = List::new(playback_history)
-                .block(block.clone())
-                .highlight_style(Style::default())
-                .highlight_symbol(symbol);
-            f.render_widget(playback_history, channel_list_and_history[1]);
+            let mut list = Vec::new();
+            for line in app.status {
+                list.push(line.into_list_item());
+            }
+            let widget_height = layout.status().height as usize - 2; // minus two for the borders
+            list.reverse();
+            list.truncate(widget_height);
+            list.reverse();
+            let status = Widget::builder()
+                .with_title("Download Status")
+                .with_list(list);
 
-            let par_1 = Paragraph::new(Span::from(app.update_line.clone()))
-                .style(Style::default())
-                .alignment(Alignment::Left);
-            f.render_widget(par_1, main_structure[1]);
+            f.render_widget(status.render(), layout.status());
+
+            let history_widget = Widget::builder()
+                .with_title(" Playback History ")
+                .with_list(app.history.to_list_items());
+
+            f.render_widget(history_widget.render(), layout.history());
+
+            //////////////////////////////
+
+            // let par_1 = Paragraph::new(Span::from(app.status.clone()))
+            //     .style(Style::default())
+            //     .alignment(Alignment::Left);
+            // f.render_widget(par_1, layout.status());
 
             let par_2 = Paragraph::new(Span::from(INFO_LINE))
                 .style(Style::default())
                 .alignment(Alignment::Left);
 
-            f.render_widget(par_2, main_structure[2]);
+            f.render_widget(par_2, layout.info());
         });
     });
 }

@@ -12,15 +12,14 @@ pub(crate) struct Feed {
 
 impl Feed {
     pub fn parse_text(feed: String) -> Result<Self, String> {
-
         // try to parse as atom
         if let Ok(feed) = from_str::<atom::Feed>(&feed) {
-            return Ok(feed.into())
+            return Ok(feed.into());
         }
 
         // try to parse as rss
         if let Ok(feed) = from_str::<rss::Feed>(&feed) {
-            return Ok(feed.into())
+            return Ok(feed.into());
         }
 
         Err(String::from("Could not parse feed"))
@@ -46,11 +45,7 @@ impl From<rss::Feed> for Feed {
         let name = feed.name;
         /* let id = feed.link; */
 
-        let videos = feed
-            .videos
-            .into_iter()
-            .map(VideoBuilder::from)
-            .collect();
+        let videos = feed.videos.into_iter().map(VideoBuilder::from).collect();
 
         // Feed { name, id, videos }
         Feed { name, videos }
@@ -62,11 +57,7 @@ impl From<atom::Feed> for Feed {
         let name = feed.name;
         /* let id = format!("https://www.youtube.com/channel/{}", feed.channel_id); */
 
-        let videos = feed
-            .videos
-            .into_iter()
-            .map(VideoBuilder::from)
-            .collect();
+        let videos = feed.videos.into_iter().map(VideoBuilder::from).collect();
 
         // Feed { name, id, videos }
         Feed { name, videos }

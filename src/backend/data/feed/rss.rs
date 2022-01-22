@@ -1,11 +1,6 @@
 use serde::{
-    Deserialize,
-    Deserializer,
-    de::{
-        self,
-        Visitor,
-        MapAccess,
-    },
+    de::{self, MapAccess, Visitor},
+    Deserialize, Deserializer,
 };
 use std::fmt;
 
@@ -14,7 +9,7 @@ pub struct Feed {
     pub channel: Channel,
 }
 
-#[derive(Debug,)]
+#[derive(Debug)]
 pub struct Channel {
     pub name: String,
     pub link: String,
@@ -30,10 +25,13 @@ pub struct Video {
 
 impl<'de> Deserialize<'de> for Video {
     fn deserialize<D: Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
-
         #[derive(Deserialize, Debug)]
         #[serde(field_identifier, rename_all = "lowercase")]
-        enum Field { Title, Link, PubDate }
+        enum Field {
+            Title,
+            Link,
+            PubDate,
+        }
 
         struct VideoVisitor;
 
@@ -51,7 +49,7 @@ impl<'de> Deserialize<'de> for Video {
                 while let Some(key) = match map.next_key::<String>() {
                     Ok(s) => s,
                     Err(e) => return Err(e),
-                }{
+                } {
                     match key.as_str() {
                         "title" => {
                             title = Some(map.next_value()?);
@@ -61,13 +59,13 @@ impl<'de> Deserialize<'de> for Video {
                                 return Err(de::Error::duplicate_field("link"));
                             }
                             link = Some(map.next_value()?);
-                        },
+                        }
                         "pubDate" => {
                             if pub_date.is_some() {
                                 return Err(de::Error::duplicate_field("pub_date"));
                             }
                             pub_date = Some(map.next_value()?);
-                        },
+                        }
                         _ => map.next_value()?,
                     }
                 }
@@ -91,10 +89,13 @@ impl<'de> Deserialize<'de> for Video {
 
 impl<'de> Deserialize<'de> for Channel {
     fn deserialize<D: Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
-
         #[derive(Deserialize, Debug)]
         #[serde(field_identifier, rename_all = "lowercase")]
-        enum Field { Title, Link, Videos }
+        enum Field {
+            Title,
+            Link,
+            Videos,
+        }
 
         struct ChannelVisitor;
 
@@ -112,23 +113,23 @@ impl<'de> Deserialize<'de> for Channel {
                 while let Some(key) = match map.next_key::<String>() {
                     Ok(s) => s,
                     Err(e) => return Err(e),
-                }{
+                } {
                     match key.as_str() {
                         "title" => {
                             if title.is_some() {
                                 return Err(de::Error::duplicate_field("title"));
                             }
                             title = Some(map.next_value()?);
-                        },
+                        }
                         "link" => {
                             if link.is_some() {
                                 // nothing
                             }
                             link = Some(map.next_value()?);
-                        },
+                        }
                         "item" => {
                             videos.push(map.next_value()?);
-                        },
+                        }
                         _ => map.next_value()?,
                     }
                 }
@@ -138,11 +139,7 @@ impl<'de> Deserialize<'de> for Channel {
                     return Err(de::Error::missing_field("videos_channel"));
                 }
 
-                let chan = Channel {
-                    name,
-                    link,
-                    videos,
-                };
+                let chan = Channel { name, link, videos };
                 Ok(chan)
             }
         }

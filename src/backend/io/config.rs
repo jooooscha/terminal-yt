@@ -1,12 +1,9 @@
-use serde::{Deserialize, Serialize};
-use crate::{
-    backend::{
-        SortingMethod,
-        io::{read_config, FileType::ConfigFile},
-        Result,
-        Error::ParseConfig,
-    },
+use crate::backend::{
+    io::{read_config, FileType::ConfigFile},
+    Error::ParseConfig,
+    Result, SortingMethod,
 };
+use serde::{Deserialize, Serialize};
 
 const SCHOW_EMPTY_CHANNEL_DEFAULT: bool = true;
 const MARK_ON_OPEN_DEFAULT: bool = true;
@@ -57,7 +54,7 @@ impl Config {
         let config_str = read_config(ConfigFile);
         match serde_yaml::from_str(&config_str) {
             Ok(config) => Ok(config),
-            Err(error) => Err(ParseConfig(error))
+            Err(error) => Err(ParseConfig(error)),
         }
     }
 }

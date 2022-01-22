@@ -1,11 +1,8 @@
 use crate::backend::{
     data::{
-        feed::Feed,
         channel::Channel,
-        video::{
-            Video,
-            builder::VideoBuilder,
-        },
+        feed::Feed,
+        video::{builder::VideoBuilder, Video},
     },
     SortingMethod,
 };
