@@ -1,5 +1,6 @@
 use crate::{
     backend::{
+        ToTuiListItem,
         data::{channel::Channel, channel_list::ChannelList, video::Video},
         draw::draw,
         io::config::Config,
@@ -12,23 +13,77 @@ use crate::{
     },
     notification::{notify_error, notify_open},
 };
+use tui::{
+    style::{Color, Modifier, Style},
+    text::{Span, Spans},
+    widgets::ListItem,
+};
 use std::{
     cmp::min,
     process::{Command, Stdio},
     sync::mpsc::{channel, Receiver, Sender},
+    fmt,
 };
+
+#[derive(Debug, Clone)]
+pub(crate) enum Status {
+    Loading,
+    Fetched,
+    Error
+}
+
+// impl fmt::Display for Status {
+//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//         fmt::Debug::fmt(self, f)
+//     }
+// }
+
+#[derive(Clone)]
+pub(crate) struct StatusUpdate {
+    channel: String,
+    status: self::Status,
+}
+
+/* impl ToTuiListItem for StatusUpdate { */
+impl StatusUpdate {
+    pub(crate) fn to_list_item(self) -> ListItem<'static> {
+        let status_color = match &self.status {
+            Status::Loading => Style::default().fg(Color::Magenta),
+            Status::Fetched => Style::default().fg(Color::Green),
+            Status::Error => Style::default().fg(Color::Red),
+        };
+
+        let text_color = Style::default().fg(Color::Yellow);
+
+        let status_text = format!("{:?} ", self.status);
+
+        ListItem::new(Spans::from(vec![
+            Span::styled(status_text, status_color),
+            Span::styled(self.channel, text_color),
+        ]))
+    }
+}
+
+impl StatusUpdate {
+    pub(crate) fn new(channel: String, status: self::Status) -> Self {
+        Self {
+            channel,
+            status,
+        }
+    }
+}
 
 // The main struct containing everything important
 pub(crate) struct Core {
     pub(crate) terminal: Terminal,
     pub(crate) config: Config,
-    pub(crate) update_line: String,
+    pub(crate) status: Vec<StatusUpdate>,
     pub(crate) current_screen: Screen,
     pub(crate) current_filter: Filter,
     channel_list: ChannelList,
     pub(crate) playback_history: History,
-    pub(crate) status_sender: Sender<String>,
-    pub(crate) status_receiver: Receiver<String>,
+    pub(crate) status_sender: Sender<StatusUpdate>,
+    pub(crate) status_receiver: Receiver<StatusUpdate>,
 }
 
 impl Core {
@@ -60,7 +115,7 @@ impl Core {
             config,
             current_screen: Channels,
             channel_list,
-            update_line: String::new(),
+            status: Vec::new(),
             current_filter,
             playback_history,
             status_sender,
@@ -78,7 +133,7 @@ impl Core {
         self.set_filter(f);
     }
 
-    pub(crate) fn post(&mut self, msg: String) {
+    pub(crate) fn status_update(&mut self, msg: StatusUpdate) {
         self.status_sender.send(msg).unwrap();
     }
 
@@ -86,9 +141,9 @@ impl Core {
 
     pub(crate) fn update_status_line(&mut self) -> bool {
         if let Ok(line) = self.status_receiver.try_recv() {
-            self.update_line = line;
-        } else if !self.update_line.is_empty() {
-            self.update_line = String::new();
+            self.status.push(line);
+        // } else if !self.status.is_empty() {
+        //     self.status = String::new();
         } else {
             return false;
         }
@@ -296,7 +351,8 @@ impl Core {
     pub(crate) fn update_channel(&mut self, updated_channel: Channel) {
         let mut channel_list = self.get_filtered_channel_list().clone();
 
-        self.post(format!("Updated: {}", &updated_channel.name()));
+        self.status_update(StatusUpdate::new(updated_channel.name().clone(), Status::Fetched));
+        // self.status_update(format!("Updated: {}", &updated_channel.name()));
 
         if let Some(channel) = channel_list.get_mut_by_id(updated_channel.id()) {
             channel.merge_videos(updated_channel.videos); // add video to channel

@@ -1,5 +1,6 @@
 use crate::backend::{
-    core::Core,
+    ToTuiListItem,
+    core::{Core, StatusUpdate},
     data::{channel::Channel, channel_list::ChannelList},
     io::config::Config,
     io::history::History,
@@ -21,33 +22,30 @@ const INFO_LINE: &str =
     "q close; o open video/select; Enter/l select; Esc/h go back; m mark; M unmark";
 
 pub struct AppState {
-    terminal: Terminal,
-    config: Config,
-    update_line: String,
-    screen: Screen,
-    channel_list: ChannelList,
     channel: Option<Channel>,
+    channel_list: ChannelList,
     history: History,
+    screen: Screen,
+    status: Vec<StatusUpdate>,
+    terminal: Terminal,
 }
 
 impl From<&Core> for AppState {
     fn from(core: &Core) -> Self {
-        let terminal = core.terminal.clone();
-        let config = core.config.clone();
-        let update_line = core.update_line.clone();
-        let screen = core.current_screen.clone();
-        let channel_list = core.get_filtered_channel_list().clone();
         let channel = core.get_selected_channel().cloned();
+        let channel_list = core.get_filtered_channel_list().clone();
         let history = core.playback_history.clone();
+        let screen = core.current_screen.clone();
+        let status = core.status.clone();
+        let terminal = core.terminal.clone();
 
         AppState {
-            terminal,
-            config,
-            update_line,
-            screen,
-            channel_list,
             channel,
+            channel_list,
             history,
+            screen,
+            status,
+            terminal,
         }
     }
 }
@@ -105,9 +103,9 @@ impl AppLayout {
             Videos => 75,
         };
 
-        let main_split = vec![Percentage(80), Percentage(17), Percentage(2), Percentage(1)];
+        let main_split = vec![Percentage(80), Percentage(19), Percentage(1)];
         let content_split = vec![Percentage(100 - video_size), Percentage(video_size)];
-        let other_split = vec![Percentage(50)];
+        let other_split = vec![Percentage(50), Percentage(50)];
 
         let main = Layout::default()
             .direction(Direction::Vertical)
@@ -135,11 +133,11 @@ impl AppLayout {
     }
 
     fn status(&self) -> Rect {
-        self.main[2]
+        self.other[1]
     }
 
     fn info(&self) -> Rect {
-        self.main[3]
+        self.main[2]
     }
 
     fn history(&self) -> Rect {
@@ -195,6 +193,20 @@ pub fn draw(app: AppState) {
                 );
             }
 
+            let mut list = Vec::new();
+            for line in app.status {
+                list.push(line.to_list_item());
+            }
+            let widget_height = layout.status().height as usize - 2; // minus two for the borders
+            list.reverse();
+            list.truncate(widget_height);
+            list.reverse();
+            let status = Widget::builder()
+                .with_title("Download Status")
+                .with_list(list);
+
+            f.render_widget(status.render(), layout.status());
+
             let history_widget = Widget::builder()
                 .with_title(" Playback History ")
                 .with_list(app.history.to_list_items());
@@ -203,10 +215,10 @@ pub fn draw(app: AppState) {
 
             //////////////////////////////
 
-            let par_1 = Paragraph::new(Span::from(app.update_line.clone()))
-                .style(Style::default())
-                .alignment(Alignment::Left);
-            f.render_widget(par_1, layout.status());
+            // let par_1 = Paragraph::new(Span::from(app.status.clone()))
+            //     .style(Style::default())
+            //     .alignment(Alignment::Left);
+            // f.render_widget(par_1, layout.status());
 
             let par_2 = Paragraph::new(Span::from(INFO_LINE))
                 .style(Style::default())
