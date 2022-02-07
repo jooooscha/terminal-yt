@@ -186,9 +186,10 @@ impl Core {
                             self.get_selected_channel_mut()?.next();
                         }
 
-                        let pos = self.get_selected_channel_index()?;
+                        // let pos = self.get_selected_channel_index();
+                        let pos = self.get_selected_channel()?.selected();
                         self.save();
-                        self.select(pos);
+                        self.get_selected_channel_mut().as_mut()?.select(pos);
                     }
                 }
                 Up => match self.current_screen {
