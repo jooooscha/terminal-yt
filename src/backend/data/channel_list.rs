@@ -86,7 +86,7 @@ impl ChannelList {
         if self.len() == 0 || i.is_none() {
             self.list_state.select(None);
         } else {
-            let pos = min(i.unwrap(), self.len());
+            let pos = min(i.unwrap(), self.len()-1);
             self.list_state.select(Some(pos));
         }
     }
