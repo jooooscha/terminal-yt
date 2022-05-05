@@ -1,4 +1,4 @@
-# .github/workflows/release.yml
+name: Build on release
 
 on:
   release:
