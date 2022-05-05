@@ -168,7 +168,7 @@ pub fn draw(app: AppState) {
             Videos => "-",
         };
         let chan_widget = Widget::builder()
-            .with_title(&app.config.app_title)
+            .with_title(&format!(" {} ", app.config.app_title))
             .with_symbol(channel_symbol)
             .with_list(channels.get_spans_list());
 
@@ -203,7 +203,7 @@ pub fn draw(app: AppState) {
             list.truncate(widget_height);
             list.reverse();
             let status = Widget::builder()
-                .with_title("Download Status")
+                .with_title(" Download Status ")
                 .with_list(list);
 
             f.render_widget(status.render(), layout.status());
