@@ -336,10 +336,10 @@ impl Core {
         }
     }
 
-    pub(crate) fn select(&mut self, p: usize) {
-        let pos = min(self.channel_list.len() - 1, p);
-        self.channel_list.select(Some(pos));
-    }
+    /* pub(crate) fn select(&mut self, p: usize) {
+     *     let pos = min(self.channel_list.len() - 1, p);
+     *     self.channel_list.select(Some(pos));
+     * } */
 
     /// Search for the channel in channel_list by id. If found insert videos that are not already in channel.videos; else insert channel to channel_list.
     pub(crate) fn update_channel(&mut self, updated_channel: Channel) {
