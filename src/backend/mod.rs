@@ -13,9 +13,11 @@ use std::{
 };
 use termion::{
     input::MouseTerminal,
-    raw::{IntoRawMode, RawTerminal},
     screen::AlternateScreen,
 };
+#[cfg(not(test))]
+use termion::raw::{IntoRawMode, RawTerminal};
+
 use tui::{backend::TermionBackend, layout::Rect, Terminal as TuiTerminal};
 
 pub trait ToTuiListItem {

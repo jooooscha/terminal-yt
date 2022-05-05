@@ -13,7 +13,6 @@ use crate::{
     notification::{notify_error, notify_open},
 };
 use std::{
-    cmp::min,
     process::{Command, Stdio},
     sync::mpsc::{channel, Receiver, Sender},
 };
