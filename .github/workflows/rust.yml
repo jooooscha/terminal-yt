@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Installing deps
-      run: sudo apt-get install -y libxcb
+      run: sudo apt-get install -y xcb
 
     - name: Build
       run: cargo build --verbose
