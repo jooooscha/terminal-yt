@@ -20,6 +20,6 @@ jobs:
       run: sudo apt-get install libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev libxcb-xfixes0-dev
 
     - name: Build
-      run: cargo build --verbose --release
-    #- name: Run tests
-    #  run: cargo test --verbose
+      run: cargo build --verbose
+    - name: Run tests
+      run: cargo test --verbose
