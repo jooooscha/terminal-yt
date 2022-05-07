@@ -3,5 +3,5 @@
 
   outputs = { self, nixpkgs }: {
     nixosModule = import ./module.nix;
-  }
+  };
 }
