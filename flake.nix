@@ -1,44 +1,32 @@
 {
-  inputs.easy.url = "github:jooooscha/easy-flake";
+  inputs = {
+    utils.url = "github:numtide/flake-utils";
+    naersk.url = "github:nix-community/naersk";
+  };
 
-  outputs = { easy, nixpkgs, ...}:
-  let
-    system = "x86_64-linux";
-    pkgs = import nixpkgs { inherit system; };
-  in easy.rust {
-      ssl = true;
-      inputs = with pkgs; [
-        xorg.libxcb
-      ];
-    };
+  outputs = { self, nixpkgs, utils, naersk }:
+    utils.lib.eachDefaultSystem (system: let
+      pkgs = nixpkgs.legacyPackages."${system}";
+      naersk-lib = naersk.lib."${system}";
+    in rec {
+      # `nix build`
+      packages.tyt = naersk-lib.buildPackage {
+        pname = "tyt";
+        root = ./.;
+        buildInputs = with pkgs; [ python310 pkgconfig openssl xorg.libxcb ];
+        nativeBuildInputs = with pkgs; [ python310 xorg.libxcb];
+      };
+      defaultPackage = packages.tyt;
+
+      # `nix run`
+      apps.tyt = utils.lib.mkApp {
+        drv = packages.tyt;
+      };
+      defaultApp = apps.tyt;
+
+      # `nix develop`
+      # devShell = pkgs.mkShell {
+      #   nativeBuildInputs = with pkgs; [ rustc cargo ];
+      # };
+    });
 }
-# {
-#   inputs = {
-#     utils.url = "github:numtide/flake-utils";
-#     naersk.url = "github:nix-community/naersk";
-#   };
-
-#   outputs = { self, nixpkgs, utils, naersk }:
-#     utils.lib.eachDefaultSystem (system: let
-#       pkgs = nixpkgs.legacyPackages."${system}";
-#       naersk-lib = naersk.lib."${system}";
-#     in rec {
-#       # `nix build`
-#       packages.my-project = naersk-lib.buildPackage {
-#         pname = "tyt";
-#         root = ./.;
-#       };
-#       defaultPackage = packages.my-project;
-
-#       # `nix run`
-#       apps.my-project = utils.lib.mkApp {
-#         drv = packages.my-project;
-#       };
-#       defaultApp = apps.my-project;
-
-#       # `nix develop`
-#       devShell = pkgs.mkShell {
-#         nativeBuildInputs = with pkgs; [ rustc cargo ];
-#       };
-#     });
-# }
