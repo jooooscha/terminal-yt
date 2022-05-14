@@ -18,6 +18,8 @@ Tyt was build with [tui](https://github.com/fdehau/tui-rs) and termion as backen
 - Filter "empty" channels
 - Combine several feed in one [Custom Channel](#how-do-i-subscribe)
 
+[![Rust build & test](https://github.com/jooooscha/terminal-yt/actions/workflows/rust.yml/badge.svg)](https://github.com/jooooscha/terminal-yt/actions/workflows/rust.yml)
+
 ## Usage
 
 | Action                                        | Button      |
