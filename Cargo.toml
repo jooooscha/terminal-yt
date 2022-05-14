@@ -19,4 +19,4 @@ serde_yaml = "0.8.17"
 quick-xml = { version = "0.22.0", features = ["serialize"] }
 reqwest = { version = "*", features = ["blocking"] }
 
-clipboard = "0.5.0"
+copypasta = "0.7.1"
