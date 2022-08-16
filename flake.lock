@@ -8,8 +8,8 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1657546360,
-        "narHash": "sha256-5/418Aw0KRWeISIoBcV3d3+qVYFhYTHmXE1TA6qLu4E=",
+        "lastModified": 1660633092,
+        "narHash": "sha256-r/MZGr+rwkFL5deK/cBx34Qyjla+q4kaGRyrb3OAmso=",
         "path": "/home/joscha/main/programming/nix/easy-flake",
         "type": "path"
       },
