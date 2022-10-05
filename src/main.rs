@@ -2,8 +2,8 @@ mod backend;
 mod events;
 
 use crate::backend::{core::Core, data::Data, Action::*, Error, Screen::*};
-use crate::notification::notify_link;
-use copypasta::{ClipboardContext, ClipboardProvider};
+use crate::notification::*;
+use arboard::Clipboard;
 use events::*;
 use termion::event::Key;
 
@@ -114,10 +114,13 @@ fn main() -> Result<(), Error> {
                 Key::Char('c') => match core.get_current_screen() {
                     Channels => (),
                     Videos => {
-                        let mut ctx = ClipboardContext::new().unwrap();
                         let link = core.get_selected_video_link();
                         notify_link(&link);
-                        ctx.set_contents(link).unwrap();
+
+                        let mut clipboard = Clipboard::new().unwrap();
+                        if let Err(err) = clipboard.set_text(link) {
+                            notify_error(&format!("{:?}", err));
+                        }
                     }
                 },
                 _ => {}
