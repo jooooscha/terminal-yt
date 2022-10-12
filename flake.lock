@@ -31,14 +31,17 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1663962300,
-        "narHash": "sha256-roDg6FnqRtzrM05e9ddP9O0n15Tji5icNlU1LTYicAE=",
-        "path": "/home/joscha/main/programming/nix/easy-flake",
-        "type": "path"
+        "lastModified": 1663962297,
+        "narHash": "sha256-zcWGLFQgcCEVUlhmpMWhzGlTG7z+QH8y6Z17d/Pej3g=",
+        "owner": "jooooscha",
+        "repo": "easy-flake",
+        "rev": "ffe53b948fc33d63531d31b4dd3c0add47cd5e71",
+        "type": "github"
       },
       "original": {
-        "path": "/home/joscha/main/programming/nix/easy-flake",
-        "type": "path"
+        "owner": "jooooscha",
+        "repo": "easy-flake",
+        "type": "github"
       }
     },
     "flake-compat": {
