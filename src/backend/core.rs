@@ -22,31 +22,41 @@ use tui::{
     widgets::ListItem,
 };
 
-#[derive(Debug, Clone)]
-pub(crate) enum Status {
+#[derive(Clone, Debug)]
+pub enum FetchState {
+    Error,
+    Waiting,
     Loading,
     Fetched,
-    // Error
+}
+
+impl Default for FetchState {
+    fn default() -> Self {
+        Self::Waiting
+    }
 }
 
 #[derive(Clone)]
-pub(crate) struct StatusUpdate {
+pub(crate) struct StateUpdate {
     text: String,
-    status: self::Status,
+    state: self::FetchState,
 }
 
 /* impl ToTuiListItem for StatusUpdate { */
-impl StatusUpdate {
+impl StateUpdate {
     pub(crate) fn into_list_item(self) -> ListItem<'static> {
-        let status_color = match &self.status {
-            Status::Loading => Style::default().fg(Color::Magenta),
-            Status::Fetched => Style::default().fg(Color::Green),
+        let status_color = match &self.state {
+            FetchState::Loading => Style::default().fg(Color::Magenta),
+            FetchState::Fetched => Style::default().fg(Color::Green),
+            FetchState::Waiting => todo!(),
+            FetchState::Error => todo!(),
             // Status::Error => Style::default().fg(Color::Red),
+
         };
 
         let text_color = Style::default().fg(Color::Yellow);
 
-        let status_text = format!("{:?} ", self.status);
+        let status_text = format!("{:?} ", self.state);
 
         ListItem::new(Spans::from(vec![
             Span::styled(status_text, status_color),
@@ -55,9 +65,9 @@ impl StatusUpdate {
     }
 }
 
-impl StatusUpdate {
-    pub(crate) fn new(text: String, status: self::Status) -> Self {
-        Self { text, status }
+impl StateUpdate {
+    pub(crate) fn new(text: String, status: self::FetchState) -> Self {
+        Self { text, state: status }
     }
 }
 
@@ -65,13 +75,13 @@ impl StatusUpdate {
 pub(crate) struct Core {
     pub(crate) terminal: Terminal,
     pub(crate) config: Config,
-    pub(crate) status: Vec<StatusUpdate>,
+    pub(crate) status: Vec<StateUpdate>,
     pub(crate) current_screen: Screen,
     pub(crate) current_filter: Filter,
     channel_list: ChannelList,
     pub(crate) playback_history: History,
-    pub(crate) status_sender: Sender<StatusUpdate>,
-    pub(crate) status_receiver: Receiver<StatusUpdate>,
+    pub(crate) status_sender: Sender<StateUpdate>,
+    pub(crate) status_receiver: Receiver<StateUpdate>,
 }
 
 impl Core {
@@ -121,7 +131,7 @@ impl Core {
         self.set_filter(f);
     }
 
-    pub(crate) fn status_update(&mut self, msg: StatusUpdate) {
+    pub(crate) fn status_update(&mut self, msg: StateUpdate) {
         self.status_sender.send(msg).unwrap();
     }
 
@@ -129,19 +139,27 @@ impl Core {
 
     /// receive all status updates from status channel
     pub(crate) fn update_status_line(&mut self) -> bool {
-        let mut found = false;
+        // let mut found = false;
         for item in self.status_receiver.try_iter() {
-            found = true;
-            for i in 0..self.status.len() {
-                if self.status[i].text == item.text {
-                    self.status.remove(i);
-                    break;
-                }
+            // found = true;
+            // for i in 0..self.status.len() {
+            //     if self.status[i].text == item.text {
+            //         self.status.remove(i);
+            //         break;
+            //     }
+            // }
+
+            if let Some(mut channel) = self.channel_list.get_mut_unfiltered_by_id(&item.text) {
+                channel.fetch_state = item.state.clone();
+            } else {
+               self.status.push(item)
             }
-            self.status.push(item);
+
+            // self.status.push(item);
         }
 
-        found
+        // found
+        true
     }
 
     pub(crate) fn get_show_empty(&self) -> bool {
@@ -343,12 +361,6 @@ impl Core {
     /// Search for the channel in channel_list by id. If found insert videos that are not already in channel.videos; else insert channel to channel_list.
     pub(crate) fn update_channel(&mut self, updated_channel: Channel) {
         let mut channel_list = self.get_filtered_channel_list().clone();
-
-        self.status_update(StatusUpdate::new(
-            updated_channel.name().clone(),
-            Status::Fetched,
-        ));
-        // self.status_update(format!("Updated: {}", &updated_channel.name()));
 
         if let Some(channel) = channel_list.get_mut_by_id(updated_channel.id()) {
             channel.merge_videos(updated_channel.videos); // add video to channel

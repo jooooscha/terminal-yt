@@ -1,5 +1,5 @@
 use crate::backend::{
-    core::{Core, StatusUpdate},
+    core::{Core, StateUpdate},
     data::{channel::Channel, channel_list::ChannelList},
     io::{history::History, config::Config},
     Backend, Screen,
@@ -24,7 +24,7 @@ pub struct AppState {
     channel_list: ChannelList,
     history: History,
     screen: Screen,
-    status: Vec<StatusUpdate>,
+    status: Vec<StateUpdate>,
     terminal: Terminal,
     config: Config,
 }

@@ -1,9 +1,10 @@
 mod builder;
 
 use crate::backend::{
-    data::{channel::builder::ChannelBuilder, video::Video},
+    data::{channel::builder::ChannelBuilder, video::Video,},
     io::subscriptions::SubscriptionItem,
     SortingMethod, ToTuiListItem,
+    core::FetchState,
 };
 use serde::{Deserialize, Serialize};
 use std::cmp::min;
@@ -25,6 +26,9 @@ pub struct Channel {
     pub(super) tag: String,
     #[serde(skip)]
     list_state: ListState,
+
+    #[serde(skip)]
+    pub fetch_state: FetchState,
 }
 
 #[allow(clippy::unnecessary_unwrap)]
@@ -198,6 +202,8 @@ impl ToTuiListItem for Channel {
 
         let video_count = format!("{}/{}", num_marked, &self.videos.len());
 
+        let fetch_state = format!(" - {:?}", self.fetch_state);
+
         let new = if has_new {
             " * ".to_string()
         } else {
@@ -214,6 +220,7 @@ impl ToTuiListItem for Channel {
             .fg(Color::DarkGray)
             .add_modifier(Modifier::ITALIC);
 
+        // Combine displayed information to string
         if num_marked > &0 {
             ListItem::new(Spans::from(vec![
                 Span::styled(new, light_green),
@@ -221,6 +228,7 @@ impl ToTuiListItem for Channel {
                 Span::styled(tag, blue),
                 Span::styled(spacer, gray),
                 Span::styled(video_count, gray),
+                Span::styled(fetch_state, gray),
             ]))
         } else {
             ListItem::new(Spans::from(vec![
@@ -229,6 +237,7 @@ impl ToTuiListItem for Channel {
                 Span::styled(tag, gray),
                 Span::styled(spacer, gray),
                 Span::styled(video_count, gray),
+                Span::styled(fetch_state, gray),
             ]))
         }
     }

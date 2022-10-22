@@ -6,7 +6,7 @@ pub(crate) mod video;
 use self::channel_list::ChannelList;
 use crate::{
     backend::{
-        core::{Status, StatusUpdate},
+        core::{FetchState, StateUpdate},
         data::channel::Channel,
         data::feed::Feed,
         io::subscriptions::{SubscriptionItem, Subscriptions},
@@ -23,12 +23,12 @@ use threadpool::ThreadPool;
 pub(crate) struct Data {
     sender: Sender<Channel>,
     receiver: Receiver<Channel>,
-    status_sender: Sender<StatusUpdate>,
+    status_sender: Sender<StateUpdate>,
 }
 
 impl Data {
     /// Init
-    pub(crate) fn init(status_sender: Sender<StatusUpdate>) -> Self {
+    pub(crate) fn init(status_sender: Sender<StateUpdate>) -> Self {
         let (sender, receiver) = channel();
 
         Self {
@@ -99,7 +99,7 @@ fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
     history: ChannelList,
     item: T,
     urls: Vec<String>,
-    status_sender: Sender<StatusUpdate>,
+    status_sender: Sender<StateUpdate>,
 ) {
     // get videos from history file
     let (history_videos, history_name) = match history.get_by_id(&item.id()) {
@@ -109,10 +109,10 @@ fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
 
     // download feed (if active)
     let feed = if item.active() {
-        let n = item.name();
+        let n = item.id();
         if !n.is_empty() {
             status_sender
-                .send(StatusUpdate::new(n, Status::Loading))
+                .send(StateUpdate::new(n, FetchState::Loading))
                 .unwrap();
         }
         download_feed(&urls)
@@ -138,6 +138,7 @@ fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
         .with_sorting(item.sorting_method())
         .build();
 
+    status_sender.send(StateUpdate::new(item.id(), FetchState::Fetched)).unwrap();
     let _ = channel_sender.send(channel);
 }
 

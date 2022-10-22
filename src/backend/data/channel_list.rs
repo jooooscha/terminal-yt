@@ -17,7 +17,7 @@ pub(crate) struct ChannelList {
     #[serde(skip)]
     list_state: ListState,
     #[serde(skip)]
-    backup: Vec<Channel>,
+    channels_unfiltered: Vec<Channel>,
 }
 
 impl Default for ChannelList {
@@ -25,7 +25,7 @@ impl Default for ChannelList {
         Self {
             channels: vec![Channel::default()],
             list_state: ListState::default(),
-            backup: Vec::new(),
+            channels_unfiltered: Vec::new(),
         }
     }
 }
@@ -111,6 +111,14 @@ impl ChannelList {
         self.channels.get_mut(index)
     }
 
+    pub(crate) fn get_unfiltered(&self, index: usize) -> Option<&Channel> {
+        self.channels_unfiltered.get(index)
+    }
+
+    pub(crate) fn get_mut_unfiltered(&mut self, index: usize) -> Option<&mut Channel> {
+        self.channels_unfiltered.get_mut(index)
+    }
+
     pub(crate) fn get_by_id(&self, id: &str) -> Option<&Channel> {
         let p = self.get_position_by_id(id)?;
         self.channels.get(p)
@@ -121,8 +129,22 @@ impl ChannelList {
         self.channels.get_mut(p)
     }
 
+    pub(crate) fn get_unfiltered_by_id(&self, id: &str) -> Option<&Channel> {
+        let p = self.get_unfiltered_position_by_id(id)?;
+        self.channels_unfiltered.get(p)
+    }
+
+    pub(crate) fn get_mut_unfiltered_by_id(&mut self, id: &str) -> Option<&mut Channel> {
+        let p = self.get_unfiltered_position_by_id(id)?;
+        self.channels_unfiltered.get_mut(p)
+    }
+
     pub(crate) fn get_position_by_id(&self, id: &str) -> Option<usize> {
         self.channels.iter().position(|channel| channel.id() == id)
+    }
+
+    pub(crate) fn get_unfiltered_position_by_id(&self, id: &str) -> Option<usize> {
+        self.channels_unfiltered.iter().position(|channel| channel.id() == id)
     }
 
     pub(crate) fn get_spans_list(&self) -> Vec<ListItem> {
@@ -204,17 +226,17 @@ impl ChannelList {
 
     pub(crate) fn filter(&mut self, filter: Filter, sort_by_tag: bool) {
         // merge changes to backup
-        let tmp = self.backup.clone();
-        self.backup = self.channels.clone();
+        let tmp = self.channels_unfiltered.clone();
+        self.channels_unfiltered = self.channels.clone();
         for chan in tmp.iter() {
-            if !self.backup.iter().any(|c| c.id() == chan.id()) {
-                self.backup.push(chan.clone());
+            if !self.channels_unfiltered.iter().any(|c| c.id() == chan.id()) {
+                self.channels_unfiltered.push(chan.clone());
             }
         }
 
         // sort
         if sort_by_tag {
-            self.backup.sort_by_key(|channel|
+            self.channels_unfiltered.sort_by_key(|channel|
                 if channel.tag().is_empty() {
                     channel.name().clone().to_lowercase() // lowercase is sorted after uppercase
                 /* if channel.has_new() {
@@ -224,18 +246,18 @@ impl ChannelList {
                 }
             );
         } else {
-            self.backup
+            self.channels_unfiltered
                 .sort_by_key(|channel| channel.name().clone().to_lowercase());
         }
 
         // aply new changes
         match filter {
             NoFilter => {
-                self.channels = self.backup.clone();
+                self.channels = self.channels_unfiltered.clone();
             }
             OnlyNew => {
                 self.channels = self
-                    .backup
+                    .channels_unfiltered
                     .iter()
                     .cloned()
                     .filter(|c| c.videos.iter().any(|v| !v.marked()))
