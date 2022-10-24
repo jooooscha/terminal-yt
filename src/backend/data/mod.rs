@@ -113,12 +113,7 @@ fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
             .unwrap();
     }
 
-    // download feed (if active)
-    let (feed, num_failed) = if item.active() {
-        download_feed(&urls)
-    } else {
-        (Feed::default(), 0)
-    };
+    let (feed, num_failed) = download_feed(&urls);
 
     // choose item name first; if not given take feed name; take history name as last resort
     let name = if !item.name().is_empty() {
@@ -129,9 +124,14 @@ fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
         history_name
     };
 
-    let channel = Channel::builder()
-        .add_from_feed(feed)
-        .with_old_videos(history_videos)
+    let mut channel_builder = Channel::builder();
+
+    // only add new videos if active
+    if item.active() {
+        channel_builder = channel_builder.add_from_feed(feed)
+    }
+
+    let channel = channel_builder.with_old_videos(history_videos)
         .with_name(name)
         .with_id(item.id())
         .with_tag(item.tag())
