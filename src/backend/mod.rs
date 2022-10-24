@@ -73,10 +73,28 @@ impl Terminal {
     }
 }
 
-#[derive(PartialEq, Clone, Copy)]
+#[derive(PartialEq, Clone, Copy, Debug)]
 pub enum Filter {
     NoFilter,
     OnlyNew,
+}
+
+impl Default for Filter {
+    fn default() -> Self {
+        Self::NoFilter
+    }
+}
+
+#[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
+pub enum SortingMethodChannels {
+    AlphaNumeric,
+    ByTag,
+}
+
+impl Default for SortingMethodChannels {
+    fn default() -> Self {
+        Self::AlphaNumeric
+    }
 }
 
 #[derive(PartialEq)]
@@ -99,14 +117,14 @@ pub enum Screen {
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub enum SortingMethod {
+pub enum SortingMethodVideos {
     Date,
     Text,
     UnseenDate,
     UnseenText,
 }
 
-impl Default for SortingMethod {
+impl Default for SortingMethodVideos {
     fn default() -> Self {
         Self::UnseenDate
     }

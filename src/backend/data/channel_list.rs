@@ -1,9 +1,12 @@
+#![allow(unused)]
+
 use crate::backend::{
     data::channel::Channel,
     io::subscriptions::{SubscriptionItem, Subscriptions},
     io::{read_config, FileType::DbFile},
     Error::ParseDB,
     Filter::{self, *},
+    SortingMethodChannels,
     Result, ToTuiListItem,
 };
 use serde::{Deserialize, Serialize};
@@ -17,7 +20,7 @@ pub(crate) struct ChannelList {
     #[serde(skip)]
     list_state: ListState,
     #[serde(skip)]
-    backup: Vec<Channel>,
+    filter: Filter,
 }
 
 impl Default for ChannelList {
@@ -25,7 +28,7 @@ impl Default for ChannelList {
         Self {
             channels: vec![Channel::default()],
             list_state: ListState::default(),
-            backup: Vec::new(),
+            filter: Filter::NoFilter,
         }
     }
 }
@@ -44,12 +47,11 @@ impl ChannelList {
         }
     }
 
-    #[allow(dead_code)]
     pub(crate) fn next(&mut self) {
         let state = &self.list_state;
         let index = match state.selected() {
             Some(i) => {
-                if i + 1 < self.channels.len() {
+                if i + 1 < self.len() {
                     i + 1
                 } else {
                     i
@@ -60,7 +62,6 @@ impl ChannelList {
         self.list_state.select(Some(index));
     }
 
-    #[allow(dead_code)]
     pub(crate) fn prev(&mut self) {
         let state = &self.list_state;
         let index = match state.selected() {
@@ -79,7 +80,10 @@ impl ChannelList {
     //---------------------------------------------------------------
 
     pub(crate) fn len(&self) -> usize {
-        self.channels.len()
+        match self.filter {
+            NoFilter => self.channels.len(),
+            OnlyNew => self.channels.iter().filter(|c| c.videos.iter().any(|v| !v.marked())).count()
+        }
     }
 
     pub fn select(&mut self, i: Option<usize>) {
@@ -104,32 +108,126 @@ impl ChannelList {
     }
 
     pub(crate) fn get(&self, index: usize) -> Option<&Channel> {
+        match self.filter {
+            NoFilter => self.channels.get(index),
+            OnlyNew => self.channels.iter().filter(|c| c.videos.iter().any(|v| !v.marked())).nth(index)
+        }
+    }
+
+    pub(crate) fn get_unfiltered(&self, index: usize) -> Option<&Channel> {
         self.channels.get(index)
     }
 
     pub(crate) fn get_mut(&mut self, index: usize) -> Option<&mut Channel> {
+        match self.filter {
+            NoFilter => self.channels.get_mut(index),
+            OnlyNew => self.channels.iter_mut().filter(|c| c.videos.iter().any(|v| !v.marked())).nth(index)
+        }
+    }
+
+    pub(crate) fn get_unfiltered_mut(&mut self, index: usize) -> Option<&mut Channel> {
         self.channels.get_mut(index)
     }
 
-    pub(crate) fn get_by_id(&self, id: &str) -> Option<&Channel> {
+    pub fn get_by_id(&self, id: &str) -> Option<&Channel> {
         let p = self.get_position_by_id(id)?;
-        self.channels.get(p)
+        self.get(p)
     }
 
-    pub(crate) fn get_mut_by_id(&mut self, id: &str) -> Option<&mut Channel> {
-        let p = self.get_position_by_id(id)?;
-        self.channels.get_mut(p)
+    pub fn get_unfiltered_by_id(&self, id: &str) -> Option<&Channel> {
+        let p = self.get_unfiltered_position_by_id(id)?;
+        self.get_unfiltered(p)
     }
 
-    pub(crate) fn get_position_by_id(&self, id: &str) -> Option<usize> {
+    pub fn get_mut_by_id(&mut self, id: &str) -> Option<&mut Channel> {
+        let p = self.get_position_by_id(id)?;
+        self.get_mut(p)
+    }
+
+    pub fn get_unfiltered_mut_by_id(&mut self, id: &str) -> Option<&mut Channel> {
+        let p = self.get_unfiltered_position_by_id(id)?;
+        self.get_unfiltered_mut(p)
+    }
+
+
+    pub fn get_position_by_id(&self, id: &str) -> Option<usize> {
+        match self.filter {
+            NoFilter => self.channels.iter().position(|channel| channel.id() == id),
+            OnlyNew => {
+                self.channels.iter()
+                    .filter(|c| c.videos.iter().any(|v| !v.marked()))
+                    .position(|channel| channel.id() == id)
+            }
+        }
+    }
+
+    pub fn get_unfiltered_position_by_id(&self, id: &str) -> Option<usize> {
         self.channels.iter().position(|channel| channel.id() == id)
     }
 
+    pub fn set_filter(&mut self, filter: Filter) {
+        self.filter = filter;
+        self.select(self.selected()); // this resets the selection if it is out of bounds
+    }
+
+    pub fn get_filter(&self) -> Filter {
+        self.filter
+    }
+
+    pub fn toggle_filter(&mut self) {
+        match self.filter {
+            NoFilter => self.set_filter(OnlyNew),
+            OnlyNew => self.set_filter(NoFilter),
+        }
+    }
+
     pub(crate) fn get_spans_list(&self) -> Vec<ListItem> {
-        self.channels
-            .iter()
-            .map(|channel| channel.to_list_item())
-            .collect()
+        match self.filter {
+            NoFilter => {
+                self.channels
+                    .iter()
+                    .map(|channel| channel.to_list_item())
+                    .collect()
+            }
+            OnlyNew => {
+                self.channels
+                    .iter()
+                    .filter(|c| c.videos.iter().any(|v| !v.marked()))
+                    .map(|channel| channel.to_list_item())
+                    .collect()
+            }
+        }
+    }
+
+    /// Add new videos to already known channel
+    pub fn update_channel(&mut self, updated_channel: Channel, sort: SortingMethodChannels) {
+        let filter = self.get_filter();
+        self.set_filter(Filter::NoFilter);
+
+        let old_channel = self.get_mut_by_id(updated_channel.id()); // get old channel
+
+        if let Some(channel) = old_channel {
+            channel.merge_videos(updated_channel.videos); // merge videos of new and old version
+        } else {
+            self.push(updated_channel);
+        }
+
+        match sort {
+            SortingMethodChannels::AlphaNumeric => {
+                self.channels.sort_by_key(|channel| channel.name().clone().to_lowercase());
+            }
+            SortingMethodChannels::ByTag => {
+                self.channels.sort_by_key(|channel| {
+                    if channel.tag().is_empty() {
+                        channel.name().clone().to_lowercase() // lowercase is sorted after uppercase
+                    } else {
+                        format!("{}{}", channel.tag().clone().to_uppercase(), channel.name().clone().to_uppercase())
+                    }
+                });
+            }
+        }
+
+        self.set_filter(filter);
     }
 
     /// Filter all channels that are not in the UrlFile anymore
@@ -199,48 +297,6 @@ impl ChannelList {
         Self {
             channels,
             ..Self::default()
-        }
-    }
-
-    pub(crate) fn filter(&mut self, filter: Filter, sort_by_tag: bool) {
-        // merge changes to backup
-        let tmp = self.backup.clone();
-        self.backup = self.channels.clone();
-        for chan in tmp.iter() {
-            if !self.backup.iter().any(|c| c.id() == chan.id()) {
-                self.backup.push(chan.clone());
-            }
-        }
-
-        // sort
-        if sort_by_tag {
-            self.backup.sort_by_key(|channel|
-                if channel.tag().is_empty() {
-                    channel.name().clone().to_lowercase() // lowercase is sorted after uppercase
-                /* if channel.has_new() {
-                 *     channel.name.clone().to_lowercase() // lowercase is sorted after uppercase */
-                } else {
-                    format!("{}{}", channel.tag().clone().to_uppercase(), channel.name().clone().to_uppercase())
-                }
-            );
-        } else {
-            self.backup
-                .sort_by_key(|channel| channel.name().clone().to_lowercase());
-        }
-
-        // aply new changes
-        match filter {
-            NoFilter => {
-                self.channels = self.backup.clone();
-            }
-            OnlyNew => {
-                self.channels = self
-                    .backup
-                    .iter()
-                    .cloned()
-                    .filter(|c| c.videos.iter().any(|v| !v.marked()))
-                    .collect();
-            }
         }
     }
 }

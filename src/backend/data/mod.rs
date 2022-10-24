@@ -6,7 +6,7 @@ pub(crate) mod video;
 use self::channel_list::ChannelList;
 use crate::{
     backend::{
-        core::{Status, StatusUpdate},
+        core::{FetchState, StateUpdate},
         data::channel::Channel,
         data::feed::Feed,
         io::subscriptions::{SubscriptionItem, Subscriptions},
@@ -23,12 +23,12 @@ use threadpool::ThreadPool;
 pub(crate) struct Data {
     sender: Sender<Channel>,
     receiver: Receiver<Channel>,
-    status_sender: Sender<StatusUpdate>,
+    status_sender: Sender<StateUpdate>,
 }
 
 impl Data {
     /// Init
-    pub(crate) fn init(status_sender: Sender<StatusUpdate>) -> Self {
+    pub(crate) fn init(status_sender: Sender<StateUpdate>) -> Self {
         let (sender, receiver) = channel();
 
         Self {
@@ -63,7 +63,7 @@ impl Data {
         };
 
         // prepate threads
-        let worker_num = 4;
+        let worker_num = 10;
         let pool = ThreadPool::new(worker_num);
 
         // load "normal" channels
@@ -99,7 +99,7 @@ fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
     history: ChannelList,
     item: T,
     urls: Vec<String>,
-    status_sender: Sender<StatusUpdate>,
+    status_sender: Sender<StateUpdate>,
 ) {
     // get videos from history file
     let (history_videos, history_name) = match history.get_by_id(&item.id()) {
@@ -107,18 +107,13 @@ fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
         None => (Vec::new(), String::new()),
     };
 
-    // download feed (if active)
-    let feed = if item.active() {
-        let n = item.name();
-        if !n.is_empty() {
-            status_sender
-                .send(StatusUpdate::new(n, Status::Loading))
-                .unwrap();
-        }
-        download_feed(&urls)
-    } else {
-        Feed::default()
-    };
+    if !item.id().is_empty() {
+        status_sender
+            .send(StateUpdate::new(item.id(), FetchState::Loading))
+            .unwrap();
+    }
+
+    let (feed, num_failed) = download_feed(&urls);
 
     // choose item name first; if not given take feed name; take history name as last resort
     let name = if !item.name().is_empty() {
@@ -129,36 +124,58 @@ fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
         history_name
     };
 
-    let channel = Channel::builder()
-        .add_from_feed(feed)
-        .with_old_videos(history_videos)
+    let mut channel_builder = Channel::builder();
+
+    // only add new videos if active
+    if item.active() {
+        channel_builder = channel_builder.add_from_feed(feed)
+    }
+
+    let channel = channel_builder.with_old_videos(history_videos)
         .with_name(name)
         .with_id(item.id())
         .with_tag(item.tag())
         .with_sorting(item.sorting_method())
         .build();
 
+
+    let state = if num_failed > 0 {
+        FetchState::DownloadsFailure(num_failed)
+    } else {
+        FetchState::Fetched
+    };
+    let _ = status_sender.send(StateUpdate::new(item.id(), state));
+
     let _ = channel_sender.send(channel);
 }
 
 // download xml and parse
-fn download_feed(urls: &[String]) -> Feed {
+// returns Feed and number of download/parsing failures
+fn download_feed(urls: &[String]) -> (Feed, usize) {
     let client = Client::builder().build().unwrap();
 
     let mut feed_final = Feed::default();
+
+    let mut num_failed = 0;
 
     // one internal feed can consist of seveal "normal" feeds
     for url in urls.iter() {
         // download feed
         let text = match client.get(url).send() {
             Ok(res) => res.text().unwrap_or_default(),
-            Err(_) => continue,
+            Err(_) => {
+                num_failed += 1;
+                continue;
+            }
         };
 
         // parse feed
         let mut feed = match Feed::parse_text(text) {
             Ok(f) => f,
-            Err(_) => continue, // notify that feed failed
+            Err(_) => {
+                num_failed += 1;
+                continue;
+            }
         };
 
         // set some meta on videos
@@ -172,7 +189,7 @@ fn download_feed(urls: &[String]) -> Feed {
         feed_final.set_name(&feed.name);
     }
 
-    feed_final
+    (feed_final, num_failed)
 }
 
 /* #[cfg(test)]

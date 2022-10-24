@@ -1,5 +1,5 @@
 use crate::backend::{
-    core::{Core, StatusUpdate},
+    core::Core,
     data::{channel::Channel, channel_list::ChannelList},
     io::{history::History, config::Config},
     Backend, Screen,
@@ -24,7 +24,6 @@ pub struct AppState {
     channel_list: ChannelList,
     history: History,
     screen: Screen,
-    status: Vec<StatusUpdate>,
     terminal: Terminal,
     config: Config,
 }
@@ -32,10 +31,9 @@ pub struct AppState {
 impl From<&Core> for AppState {
     fn from(core: &Core) -> Self {
         let channel = core.get_selected_channel().cloned();
-        let channel_list = core.get_filtered_channel_list().clone();
+        let channel_list = core.channel_list().clone();
         let history = core.playback_history.clone();
         let screen = core.current_screen.clone();
-        let status = core.status.clone();
         let terminal = core.terminal.clone();
         let config = core.config.clone();
 
@@ -44,7 +42,6 @@ impl From<&Core> for AppState {
             channel_list,
             history,
             screen,
-            status,
             terminal,
             config,
         }
@@ -94,7 +91,6 @@ impl<'a> Widget<'a> {
 pub struct AppLayout {
     main: Vec<Rect>,
     content: Vec<Rect>,
-    other: Vec<Rect>,
 }
 
 impl AppLayout {
@@ -106,7 +102,6 @@ impl AppLayout {
 
         let main_split = vec![Percentage(80), Percentage(19), Percentage(1)];
         let content_split = vec![Percentage(100 - video_size), Percentage(video_size)];
-        let other_split = vec![Percentage(50), Percentage(50)];
 
         let main = Layout::default()
             .direction(Direction::Vertical)
@@ -120,21 +115,10 @@ impl AppLayout {
             .constraints(content_split)
             .split(main[0]);
 
-        let other = Layout::default()
-            .direction(Direction::Horizontal)
-            .margin(0)
-            .constraints(other_split)
-            .split(main[1]);
-
         Self {
             main,
             content,
-            other,
         }
-    }
-
-    fn status(&self) -> Rect {
-        self.other[1]
     }
 
     fn info(&self) -> Rect {
@@ -142,7 +126,7 @@ impl AppLayout {
     }
 
     fn history(&self) -> Rect {
-        self.other[0]
+        self.main[1]
     }
 
     fn channels(&self) -> Rect {
@@ -157,11 +141,7 @@ impl AppLayout {
 #[allow(clippy::unnecessary_unwrap)]
 pub fn draw(app: AppState) {
     thread::spawn(move || {
-        // all channels - left view
         let channels = app.channel_list.clone();
-
-        // all videos - right view
-        /* let current_channel = app.current_selected.clone(); */
 
         let channel_symbol = match app.screen {
             Channels => ">> ",
@@ -194,20 +174,6 @@ pub fn draw(app: AppState) {
                 );
             }
 
-            let mut list = Vec::new();
-            for line in app.status {
-                list.push(line.into_list_item());
-            }
-            let widget_height = layout.status().height as usize - 2; // minus two for the borders
-            list.reverse();
-            list.truncate(widget_height);
-            list.reverse();
-            let status = Widget::builder()
-                .with_title(" Download Status ")
-                .with_list(list);
-
-            f.render_widget(status.render(), layout.status());
-
             let history_widget = Widget::builder()
                 .with_title(" Playback History ")
                 .with_list(app.history.to_list_items());
@@ -216,16 +182,11 @@ pub fn draw(app: AppState) {
 
             //////////////////////////////
 
-            // let par_1 = Paragraph::new(Span::from(app.status.clone()))
-            //     .style(Style::default())
-            //     .alignment(Alignment::Left);
-            // f.render_widget(par_1, layout.status());
-
-            let par_2 = Paragraph::new(Span::from(INFO_LINE))
+            let info = Paragraph::new(Span::from(INFO_LINE))
                 .style(Style::default())
                 .alignment(Alignment::Left);
 
-            f.render_widget(par_2, layout.info());
+            f.render_widget(info, layout.info());
         });
     });
 }

@@ -1,7 +1,7 @@
 use crate::backend::{
     io::{read_config, FileType::ConfigFile},
     Error::ParseConfig,
-    Result, SortingMethod,
+    Result, SortingMethodVideos, SortingMethodChannels,
 };
 use serde::{Deserialize, Serialize};
 
@@ -10,7 +10,6 @@ const MARK_ON_OPEN_DEFAULT: bool = true;
 const DOWN_ON_MARK_DEFAULT: bool = true;
 const APP_TITLE_DEFAULT: &str = "TYT";
 const UPDATAE_AT_START_DEFAULT: bool = true;
-const SORT_BY_TAG_DEFAULT: bool = false;
 const MASSAGE_TIMEOUT_DEFAULT: usize = 20;
 const NOTIFY_WITH_DEFAULT: &str = "notify_send";
 const VIDEO_PLAYER_DEFAULT: &str = "mpv";
@@ -18,17 +17,17 @@ const VIDEO_PLAYER_DEFAULT: &str = "mpv";
 
 #[derive(Clone, Deserialize, Serialize)]
 #[serde(default)]
-pub(crate) struct Config {
-    pub(crate) show_empty_channels: bool,
-    pub(crate) mark_on_open: bool,
-    pub(crate) down_on_mark: bool,
-    pub(crate) app_title: String,
-    pub(crate) update_at_start: bool,
-    pub(crate) sort_by_tag: bool,
-    pub(crate) message_timeout: usize,
-    pub(crate) video_player: String,
-    pub(crate) default_sorting_method: SortingMethod,
-    pub(crate) notify_with: String,
+pub struct Config {
+    pub show_empty_channels: bool,
+    pub mark_on_open: bool,
+    pub down_on_mark: bool,
+    pub app_title: String,
+    pub update_at_start: bool,
+    pub sort_channels: SortingMethodChannels,
+    pub message_timeout: usize,
+    pub video_player: String,
+    pub sort_videos: SortingMethodVideos,
+    pub notify_with: String,
 }
 
 impl Default for Config {
@@ -39,11 +38,11 @@ impl Default for Config {
             down_on_mark: DOWN_ON_MARK_DEFAULT,
             app_title: APP_TITLE_DEFAULT.into(),
             update_at_start: UPDATAE_AT_START_DEFAULT,
-            sort_by_tag: SORT_BY_TAG_DEFAULT,
+            sort_channels: SortingMethodChannels::default(),
             message_timeout: MASSAGE_TIMEOUT_DEFAULT,
             notify_with: NOTIFY_WITH_DEFAULT.into(),
             video_player: VIDEO_PLAYER_DEFAULT.into(),
-            default_sorting_method: SortingMethod::default(),
+            sort_videos: SortingMethodVideos::default(),
         }
     }
 }

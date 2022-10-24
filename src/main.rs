@@ -108,7 +108,8 @@ fn main() -> Result<(), Error> {
                     core.action(Leave);
                 }
                 Key::Char('t') => {
-                    core.set_show_empty(!core.get_show_empty());
+                    // core.set_show_empty(!core.get_show_empty());
+                    core.toggle_filter();
                     core.draw();
                 }
                 Key::Char('c') => match core.get_current_screen() {

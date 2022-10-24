@@ -1,7 +1,7 @@
 use crate::backend::{
     io::{read_config, FileType::SubscriptionsFile},
     Error::ParseSubscription,
-    Result, SortingMethod,
+    Result, SortingMethodVideos,
 };
 use channel::ChannelSubscription;
 use chrono::Weekday;
@@ -17,7 +17,7 @@ pub(crate) trait SubscriptionItem {
     fn active(&self) -> bool;
     fn tag(&self) -> String;
     fn name(&self) -> String;
-    fn sorting_method(&self) -> SortingMethod;
+    fn sorting_method(&self) -> SortingMethodVideos;
 }
 
 /// Default value for date always

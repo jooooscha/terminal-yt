@@ -4,7 +4,7 @@ use crate::backend::{
         feed::Feed,
         video::{builder::VideoBuilder, Video},
     },
-    SortingMethod,
+    SortingMethodVideos,
 };
 
 #[derive(Default)]
@@ -41,7 +41,7 @@ impl ChannelBuilder {
         self
     }
 
-    pub fn with_sorting(mut self, sorting_method: SortingMethod) -> Self {
+    pub fn with_sorting(mut self, sorting_method: SortingMethodVideos) -> Self {
         self.channel.sorting_method = sorting_method;
         self
     }
