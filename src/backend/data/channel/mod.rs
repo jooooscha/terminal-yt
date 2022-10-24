@@ -3,7 +3,7 @@ mod builder;
 use crate::backend::{
     data::{channel::builder::ChannelBuilder, video::Video,},
     io::subscriptions::SubscriptionItem,
-    SortingMethod, ToTuiListItem,
+    SortingMethodVideos, ToTuiListItem,
     core::FetchState,
 };
 use serde::{Deserialize, Serialize};
@@ -21,7 +21,7 @@ pub struct Channel {
     pub(crate) videos: Vec<Video>,
 
     #[serde(skip_deserializing)]
-    pub sorting_method: SortingMethod,
+    pub sorting_method: SortingMethodVideos,
     #[serde(skip)]
     pub(super) tag: String,
     #[serde(skip)]
@@ -140,22 +140,22 @@ impl Channel {
 
     pub fn sort(&mut self) {
         match self.sorting_method {
-            SortingMethod::Date => {
+            SortingMethodVideos::Date => {
                 self.videos.sort();
                 self.videos.sort_by_key(|video| video.pub_date().clone());
                 self.videos.reverse();
             }
-            SortingMethod::Text => {
+            SortingMethodVideos::Text => {
                 self.videos.sort_by(|video_a, video_b| {
                     alphanumeric_sort::compare_str(video_a.title().clone(), video_b.title().clone())
                 });
             }
-            SortingMethod::UnseenDate => {
+            SortingMethodVideos::UnseenDate => {
                 self.videos.sort_by_key(|video| video.pub_date().clone());
                 self.videos.reverse();
                 self.videos.sort();
             }
-            SortingMethod::UnseenText => {
+            SortingMethodVideos::UnseenText => {
                 self.videos.sort_by(|video_a, video_b| {
                     alphanumeric_sort::compare_str(video_a.title().clone(), video_b.title().clone())
                 });
@@ -197,7 +197,7 @@ impl ToTuiListItem for Channel {
         let tag = if self.tag.is_empty() {
             String::from("")
         } else {
-            format!(" [{}]", &self.tag)
+            format!(" [{}]", &self.tag())
         };
 
         let video_count = format!("{}/{}", num_marked, &self.videos.len());

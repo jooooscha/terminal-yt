@@ -1,5 +1,5 @@
 use super::{date_always, Date, SubscriptionItem};
-use crate::backend::SortingMethod;
+use crate::backend::SortingMethodVideos;
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -12,7 +12,7 @@ pub struct CustomChannelSubscription {
     #[serde(default)]
     tag: String,
     #[serde(default)]
-    sort_by: SortingMethod,
+    sort_by: SortingMethodVideos,
 }
 
 impl SubscriptionItem for CustomChannelSubscription {
@@ -29,7 +29,7 @@ impl SubscriptionItem for CustomChannelSubscription {
     fn name(&self) -> String {
         self.name.clone()
     }
-    fn sorting_method(&self) -> SortingMethod {
+    fn sorting_method(&self) -> SortingMethodVideos {
         self.sort_by
     }
 }

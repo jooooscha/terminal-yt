@@ -63,7 +63,7 @@ impl Data {
         };
 
         // prepate threads
-        let worker_num = 4;
+        let worker_num = 10;
         let pool = ThreadPool::new(worker_num);
 
         // load "normal" channels
@@ -107,17 +107,17 @@ fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
         None => (Vec::new(), String::new()),
     };
 
+    if !item.id().is_empty() {
+        status_sender
+            .send(StateUpdate::new(item.id(), FetchState::Loading))
+            .unwrap();
+    }
+
     // download feed (if active)
-    let feed = if item.active() {
-        let n = item.id();
-        if !n.is_empty() {
-            status_sender
-                .send(StateUpdate::new(n, FetchState::Loading))
-                .unwrap();
-        }
+    let (feed, num_failed) = if item.active() {
         download_feed(&urls)
     } else {
-        Feed::default()
+        (Feed::default(), 0)
     };
 
     // choose item name first; if not given take feed name; take history name as last resort
@@ -138,28 +138,44 @@ fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
         .with_sorting(item.sorting_method())
         .build();
 
-    status_sender.send(StateUpdate::new(item.id(), FetchState::Fetched)).unwrap();
+
+    let state = if num_failed > 0 {
+        FetchState::DownloadsFailure(num_failed)
+    } else {
+        FetchState::Fetched
+    };
+    let _ = status_sender.send(StateUpdate::new(item.id(), state));
+
     let _ = channel_sender.send(channel);
 }
 
 // download xml and parse
-fn download_feed(urls: &[String]) -> Feed {
+// returns Feed and number of download/parsing failures
+fn download_feed(urls: &[String]) -> (Feed, usize) {
     let client = Client::builder().build().unwrap();
 
     let mut feed_final = Feed::default();
+
+    let mut num_failed = 0;
 
     // one internal feed can consist of seveal "normal" feeds
     for url in urls.iter() {
         // download feed
         let text = match client.get(url).send() {
             Ok(res) => res.text().unwrap_or_default(),
-            Err(_) => continue,
+            Err(_) => {
+                num_failed += 1;
+                continue;
+            }
         };
 
         // parse feed
         let mut feed = match Feed::parse_text(text) {
             Ok(f) => f,
-            Err(_) => continue, // notify that feed failed
+            Err(_) => {
+                num_failed += 1;
+                continue;
+            }
         };
 
         // set some meta on videos
@@ -173,7 +189,7 @@ fn download_feed(urls: &[String]) -> Feed {
         feed_final.set_name(&feed.name);
     }
 
-    feed_final
+    (feed_final, num_failed)
 }
 
 /* #[cfg(test)]

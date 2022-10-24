@@ -46,12 +46,12 @@ If no config file is found, a config file with all options and their default val
 | down_on_mark           | true         | bool | Move pointer one down if a video is marked                                                                                             |
 | app_title              | "TYT"        | str  | The title of the left box                                                                                                              |
 | update_at_start        | true         | bool | Fetch new videos at start                                                                                                              |
-| sort_by_tag            | false        | bool | Sort channels by tag or name                                                                                                           |
+| sort_channels          | AlphaNumeric | enum | One of `AlphaNumeric` or `ByTag`                                                                                                       |
 | video_player           | "mpv"        | str  | Could also be [umpv](https://raw.githubusercontent.com/mpv-player/mpv/master/TOOLS/umpv), vlc, or any other program.                   |
-| default_sorting_method | UneenDate    | enum | Can be one of: `Date, Text, UnseenDate, UnseenText`                                                                                    |
+| sort_videos            | UneenDate    | enum | Can be one of: `Date, Text, UnseenDate, UnseenText`                                                                                    |
 | notify_with            | "notify-send | str  | Could also be `dunstify` for example                                                                                                   |
 
-## How do I "Subscribe" 
+## How do I "Subscribe"
 
 The videos are fetched from a list of urls that have to be provided in the ` ~/.config/tyt/subscriptions.yaml ` file.
 
