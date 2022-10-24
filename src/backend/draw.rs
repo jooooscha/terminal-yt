@@ -102,7 +102,6 @@ impl AppLayout {
 
         let main_split = vec![Percentage(80), Percentage(19), Percentage(1)];
         let content_split = vec![Percentage(100 - video_size), Percentage(video_size)];
-        // let other_split = vec![Percentage(50), Percentage(50)];
 
         let main = Layout::default()
             .direction(Direction::Vertical)

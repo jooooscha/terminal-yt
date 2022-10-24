@@ -16,11 +16,6 @@ use std::{
     process::{Command, Stdio},
     sync::mpsc::{channel, Receiver, Sender},
 };
-use tui::{
-    style::{Color, Style},
-    text::{Span, Spans},
-    widgets::ListItem,
-};
 
 #[derive(Clone, Debug)]
 pub enum FetchState {
@@ -40,29 +35,6 @@ impl Default for FetchState {
 pub(crate) struct StateUpdate {
     text: String,
     state: self::FetchState,
-}
-
-/* impl ToTuiListItem for StatusUpdate { */
-impl StateUpdate {
-    pub(crate) fn into_list_item(self) -> ListItem<'static> {
-        let status_color = match &self.state {
-            FetchState::Loading => Style::default().fg(Color::Magenta),
-            FetchState::Fetched => Style::default().fg(Color::Green),
-            FetchState::Waiting => todo!(),
-            FetchState::DownloadsFailure(_) => todo!(),
-            // Status::Error => Style::default().fg(Color::Red),
-
-        };
-
-        let text_color = Style::default().fg(Color::Yellow);
-
-        let status_text = format!("{:?} ", self.state);
-
-        ListItem::new(Spans::from(vec![
-            Span::styled(status_text, status_color),
-            Span::styled(self.text, text_color),
-        ]))
-    }
 }
 
 impl StateUpdate {

@@ -167,6 +167,7 @@ impl ChannelList {
 
     pub fn set_filter(&mut self, filter: Filter) {
         self.filter = filter;
+        self.select(self.selected()); // this resets the selection if it is out of bounds
     }
 
     pub fn get_filter(&self) -> Filter {
