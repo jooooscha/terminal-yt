@@ -1,5 +1,5 @@
 use crate::backend::{
-    core::{Core, StateUpdate},
+    core::Core,
     data::{channel::Channel, channel_list::ChannelList},
     io::{history::History, config::Config},
     Backend, Screen,
@@ -24,7 +24,6 @@ pub struct AppState {
     channel_list: ChannelList,
     history: History,
     screen: Screen,
-    status: Vec<StateUpdate>,
     terminal: Terminal,
     config: Config,
 }
@@ -35,7 +34,6 @@ impl From<&Core> for AppState {
         let channel_list = core.channel_list().clone();
         let history = core.playback_history.clone();
         let screen = core.current_screen.clone();
-        let status = core.status.clone();
         let terminal = core.terminal.clone();
         let config = core.config.clone();
 
@@ -44,7 +42,6 @@ impl From<&Core> for AppState {
             channel_list,
             history,
             screen,
-            status,
             terminal,
             config,
         }

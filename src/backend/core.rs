@@ -25,7 +25,6 @@ use tui::{
 #[derive(Clone, Debug)]
 pub enum FetchState {
     DownloadsFailure(usize),
-    InternalError,
     Waiting,
     Loading,
     Fetched,
@@ -51,7 +50,6 @@ impl StateUpdate {
             FetchState::Fetched => Style::default().fg(Color::Green),
             FetchState::Waiting => todo!(),
             FetchState::DownloadsFailure(_) => todo!(),
-            FetchState::InternalError => todo!(),
             // Status::Error => Style::default().fg(Color::Red),
 
         };
@@ -77,9 +75,7 @@ impl StateUpdate {
 pub(crate) struct Core {
     pub(crate) terminal: Terminal,
     pub(crate) config: Config,
-    pub(crate) status: Vec<StateUpdate>,
     pub(crate) current_screen: Screen,
-    // pub(crate) current_filter: Filter,
     channel_list: ChannelList,
     pub(crate) playback_history: History,
     pub(crate) status_sender: Sender<StateUpdate>,
@@ -115,7 +111,6 @@ impl Core {
             config,
             current_screen: Channels,
             channel_list,
-            status: Vec::new(),
             playback_history,
             status_sender,
             status_receiver,
@@ -125,18 +120,9 @@ impl Core {
     }
 
     pub(crate) fn save(&mut self) {
-        // let f = self.current_filter;
-        // self.set_filter(Filter::NoFilter);
         let string = serde_json::to_string(self.channel_list()).unwrap();
         write_config(DbFile, &string);
-        // self.set_filter(f);
     }
-
-    // pub(crate) fn status_update(&mut self, msg: StateUpdate) {
-    //     self.status_sender.send(msg).unwrap();
-    // }
-
-    //-------- gettter and setter ----------------------
 
     /// receive all status updates from status channel
     pub(crate) fn update_status_line(&mut self) -> bool {
@@ -234,11 +220,6 @@ impl Core {
                     }
                 }
                 Open => {
-                    /* let video = match self.get_selected_video_mut() {
-                     *     Some(v) => v.clone(),
-                     *     None => return,
-                     * }; */
-
                     // get video
                     let video = self.get_selected_video_mut()?.clone();
 
@@ -265,7 +246,7 @@ impl Core {
                 }
             }
             None
-        }(); // TODO test closure
+        }();
     }
 
     pub(crate) fn draw(&self) {
@@ -276,54 +257,8 @@ impl Core {
         self.channel_list.toggle_filter();
     }
 
-    // fn set_channel_list(&mut self, mut new_channel_list: ChannelList) {
-    //     if new_channel_list.len() == 0 {
-    //         return;
-    //     }
-
-    //     // remember selected screen
-    //     let on_videos = self.current_screen == Videos;
-
-    //     let video_pos = || -> Option<usize> {
-    //         self.action(Leave);
-    //         let pos = self.get_selected_channel()?.selected();
-    //         pos
-    //     }();
-
-    //     // remember selection
-    //     let selected_channel_index = self.get_selected_channel_index();
-
-    //     // apply current filter to new list
-    //     new_channel_list.filter(self.get_filter(), self.config.sort_by_tag);
-    //     self.channel_list = new_channel_list;
-
-    //     self.channel_list.select(selected_channel_index);
-
-    //     // if on_videos && selected_channel_index.is_some() {
-    //     if on_videos {
-    //         self.action(Enter);
-    //         if let Some(channel) = self.get_selected_channel_mut() {
-    //             channel.select(video_pos);
-    //         }
-    //     } else if selected_channel_index.is_some() {
-    //         self.channel_list.select(selected_channel_index);
-    //     } else {
-    //         // try setting it to the first element
-    //         self.channel_list.select(Some(0));
-    //     }
-    // }
-
     /// Search for the channel in channel_list by id. If found insert videos that are not already in channel.videos; else insert channel to channel_list.
     pub(crate) fn update_channel(&mut self, updated_channel: Channel) {
-        // let mut channel_list = self.get_filtered_channel_list().clone();
-
-        // if let Some(channel) = channel_list.get_mut_by_id(updated_channel.id()) {
-        //     channel.merge_videos(updated_channel.videos); // add video to channel
-        // } else {
-        //     channel_list.push(updated_channel); // insert new channel
-        // }
-
-        // self.set_channel_list(channel_list);
         self.channel_list.update_channel(updated_channel, self.config.sort_channels);
     }
 
