@@ -59,6 +59,8 @@ You can either use one Youtube channel as one internal channel, or you can combi
 Custom channels are shown as one single entry in the channel list.
 In the `subscription.yaml` file they are declared in a seperate list. They have the same fiels as normal channels, except that theyc an take more multiple urls, and must be provided with a name.
 
+The url of the channel is always `https://www.youtube.com/feeds/videos.xml?channel_id=<channel-id>`. You can get the channel-id via sites like this one: https://commentpicker.com/youtube-channel-id.php
+
 For example:
 
 ``` yaml
