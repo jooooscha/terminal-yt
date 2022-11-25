@@ -22,6 +22,7 @@ pub enum FetchState {
     DownloadsFailure(usize),
     Waiting,
     Loading,
+    Downloading(usize),
     Fetched,
 }
 
@@ -204,7 +205,8 @@ impl Core {
                     let command = Command::new("setsid")
                         .arg("-f")
                         .arg(&self.config.video_player)
-                        .arg(video.link())
+                        // .arg(video.link())
+                        .arg(format!("/home/joscha/.config/tyt/downloads/{}", video.title()))
                         .stderr(Stdio::null())
                         .stdout(Stdio::null())
                         .spawn();

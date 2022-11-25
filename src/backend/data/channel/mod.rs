@@ -121,6 +121,10 @@ impl Channel {
         self.videos.push(video);
     }
 
+    pub fn get(&self, index: usize) -> Option<&Video> {
+        self.videos.get(index)
+    }
+
     pub fn get_mut(&mut self, index: usize) -> Option<&mut Video> {
         self.videos.get_mut(index)
     }

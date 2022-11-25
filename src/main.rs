@@ -30,6 +30,7 @@ fn main() -> Result<(), Error> {
     loop {
         let event = events.next();
 
+        // add new videos to channels
         if let Ok(c) = data.try_recv() {
             core.update_channel(c);
             core.save();
