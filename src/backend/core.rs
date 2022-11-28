@@ -74,7 +74,9 @@ impl Core {
         channel_list.select(Some(0));
         channel_list.set_filter(current_filter);
 
-        let playback_history = History::load();
+        let mut history = History::load();
+        history.add_start();
+
 
         let (status_sender, status_receiver) = channel();
 
@@ -83,7 +85,7 @@ impl Core {
             config,
             current_screen: Channels,
             channel_list,
-            history: playback_history,
+            history,
             status_sender,
             status_receiver,
         };
@@ -201,6 +203,7 @@ impl Core {
                     }
 
                     // call video player
+                    #[cfg(not(debug_assertions))]
                     let command = Command::new("setsid")
                         .arg("-f")
                         .arg(&self.config.video_player)
@@ -211,6 +214,7 @@ impl Core {
 
                     self.history.video_opened(&video);
 
+                    #[cfg(not(debug_assertions))]
                     match command {
                         Ok(_) => notify_open(&video.get_details()),
                         Err(error) => notify_error(&error.to_string()),

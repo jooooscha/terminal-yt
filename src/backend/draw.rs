@@ -141,11 +141,12 @@ pub fn draw(app: AppState) {
             //////////////////////////////
 
 
-            let counter = match app.history.stat_today() {
-                Some(stat) => stat.watched,
-                None => 0,
+            let stats = app.history.stats();
+            let videos = match stats.today() {
+                Some(stats) => stats.watched,
+                None => 0
             };
-            let info = Paragraph::new(Span::from(format!("{} - Videos Today: {}", INFO_LINE, counter)))
+            let info = Paragraph::new(Span::from(format!("{} - Videos Today: {} - Starts: {}", INFO_LINE, videos, stats.starts)))
                 .style(Style::default())
                 .alignment(Alignment::Left);
 
