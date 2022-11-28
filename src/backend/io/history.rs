@@ -10,23 +10,37 @@ use tui::{
     widgets::ListItem,
 };
 use std::collections::HashMap;
-
-type Date = String; // formatted for rfc3339
+use chrono::prelude::*;
 
 #[derive(Clone, Deserialize, Serialize, Default)]
-pub (crate) struct Stats {
-    opens: usize,
+pub(crate) struct Stats {
+    // starts: usize,
+    pub watched: usize,
+    pub channels: HashMap<String, usize>,
+}
+
+impl Stats {
+    pub(crate) fn add(&mut self, video: &Video)  {
+        self.watched += 1; // increase total counter
+
+        let video_name = video.origin_channel_name();
+        let channel = self.channels.get_mut(video_name);
+        match channel {
+            Some(number) => *number += 1, // channel already there
+            None => { let _ = self.channels.insert(video_name.clone(), 1); },
+        }
+    }
 }
 
 #[derive(Clone, Deserialize, Serialize, Default)]
 pub(crate) struct History {
     list: Vec<MinimalVideo>,
     #[serde(default)]
-    stats: HashMap<Date, Stats>,
+    stats: HashMap<NaiveDate, Stats>,
 }
 
 impl History {
-    
+
     /// load history file, parse, and return
     pub(crate) fn load() -> Self {
         let history = read_config(HistoryFile);
@@ -48,7 +62,7 @@ impl History {
         write_config(HistoryFile, &string);
     }
 
-    pub(crate) fn add(&mut self, video: Video) {
+    pub(crate) fn video_opened(&mut self, video: &Video) {
         let mimimal_video = MinimalVideo::from(video);
 
         // remove if already exist and put new one in
@@ -61,7 +75,32 @@ impl History {
 
         self.list.push(mimimal_video);
 
+        match self.stat_today_mut() {
+            Some(stat) => stat.add(video),
+            None => {
+                let mut stat = Stats::default();
+                stat.add(video);
+                self.stat_insert_today(stat);
+            },
+        }
+
         self.save()
+    }
+
+    pub(crate) fn stat_today(&self) -> Option<&Stats> {
+        let now: NaiveDate = Local::now().date_naive();
+        self.stats.get(&now)
+    }
+
+    pub fn stat_insert_today(&mut self, stat: Stats) {
+        let now: NaiveDate = Local::now().date_naive();
+        self.stats.insert(now, stat);
+    }
+
+
+    fn stat_today_mut(&mut self) -> Option<&mut Stats> {
+        let now: NaiveDate = Local::now().date_naive();
+        self.stats.get_mut(&now)
     }
 
     pub(crate) fn to_list_items(&self) -> Vec<ListItem> {
@@ -89,8 +128,8 @@ impl ToTuiListItem for MinimalVideo {
     }
 }
 
-impl From<Video> for MinimalVideo {
-    fn from(video: Video) -> MinimalVideo {
+impl From<&Video> for MinimalVideo {
+    fn from(video: &Video) -> MinimalVideo {
         MinimalVideo {
             title: video.title().clone(),
             channel: video.origin_channel_name().clone(),

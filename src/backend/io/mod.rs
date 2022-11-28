@@ -26,8 +26,6 @@ const DB_FILE: &str = "db.json";
 const HISTORY_FILE: &str = "history.json";
 #[cfg(not(debug_assertions))]
 const SUBSCRIPTIONS_FILE: &str = "subscriptions.yml";
-#[cfg(not(debug_assertions))]
-const STATS_FILE: &str = "stats.yml";
 
 #[cfg(debug_assertions)]
 const DB_FILE: &str = "db_debug.json";
@@ -35,8 +33,6 @@ const DB_FILE: &str = "db_debug.json";
 const HISTORY_FILE: &str = "history_debug.json";
 #[cfg(debug_assertions)]
 const SUBSCRIPTIONS_FILE: &str = "subscriptions_debug.yml";
-#[cfg(debug_assertions)]
-const STATS_FILE: &str = "stats_debug.yml";
 
 #[allow(clippy::enum_variant_names)]
 #[derive(PartialEq)]

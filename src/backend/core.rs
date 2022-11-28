@@ -49,7 +49,7 @@ pub(crate) struct Core {
     pub(crate) config: Config,
     pub(crate) current_screen: Screen,
     channel_list: ChannelList,
-    pub(crate) playback_history: History,
+    pub(crate) history: History,
     pub(crate) status_sender: Sender<StateUpdate>,
     pub(crate) status_receiver: Receiver<StateUpdate>,
 }
@@ -83,7 +83,7 @@ impl Core {
             config,
             current_screen: Channels,
             channel_list,
-            playback_history,
+            history: playback_history,
             status_sender,
             status_receiver,
         };
@@ -203,13 +203,13 @@ impl Core {
                     // call video player
                     let command = Command::new("setsid")
                         .arg("-f")
-                        .arg(&self.config.video_player)
+                        // .arg(&self.config.video_player)
                         .arg(video.link())
                         .stderr(Stdio::null())
                         .stdout(Stdio::null())
                         .spawn();
 
-                    self.playback_history.add(video.clone());
+                    self.history.video_opened(&video);
 
                     match command {
                         Ok(_) => notify_open(&video.get_details()),

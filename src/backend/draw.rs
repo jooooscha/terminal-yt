@@ -2,18 +2,18 @@ use crate::backend::{
     core::Core,
     data::{channel::Channel, channel_list::ChannelList},
     io::{history::History, config::Config},
-    Backend, Screen,
+    layout::AppLayout,
+    Screen,
     Screen::*,
     Terminal,
 };
 use std::thread;
 use tui::widgets::ListItem;
 use tui::{
-    layout::{Alignment, Constraint::*, Direction, Layout, Rect},
+    layout::Alignment,
     style::Style,
     text::Span,
     widgets::{Block, BorderType, Borders, List, Paragraph},
-    Frame,
 };
 
 const INFO_LINE: &str =
@@ -32,7 +32,7 @@ impl From<&Core> for AppState {
     fn from(core: &Core) -> Self {
         let channel = core.get_selected_channel().cloned();
         let channel_list = core.channel_list().clone();
-        let history = core.playback_history.clone();
+        let history = core.history.clone();
         let screen = core.current_screen.clone();
         let terminal = core.terminal.clone();
         let config = core.config.clone();
@@ -88,55 +88,6 @@ impl<'a> Widget<'a> {
     }
 }
 
-pub struct AppLayout {
-    main: Vec<Rect>,
-    content: Vec<Rect>,
-}
-
-impl AppLayout {
-    fn load(f: &mut Frame<'_, Backend>, screen: &Screen) -> Self {
-        let video_size = match screen {
-            Channels => 0,
-            Videos => 75,
-        };
-
-        let main_split = vec![Percentage(80), Percentage(19), Percentage(1)];
-        let content_split = vec![Percentage(100 - video_size), Percentage(video_size)];
-
-        let main = Layout::default()
-            .direction(Direction::Vertical)
-            .margin(0)
-            .constraints(main_split)
-            .split(f.size());
-
-        let content = Layout::default()
-            .direction(Direction::Horizontal)
-            .margin(0)
-            .constraints(content_split)
-            .split(main[0]);
-
-        Self {
-            main,
-            content,
-        }
-    }
-
-    fn info(&self) -> Rect {
-        self.main[2]
-    }
-
-    fn history(&self) -> Rect {
-        self.main[1]
-    }
-
-    fn channels(&self) -> Rect {
-        self.content[0]
-    }
-
-    fn videos(&self) -> Rect {
-        self.content[1]
-    }
-}
 
 #[allow(clippy::unnecessary_unwrap)]
 pub fn draw(app: AppState) {
@@ -180,9 +131,21 @@ pub fn draw(app: AppState) {
 
             f.render_widget(history_widget.render(), layout.history());
 
+            // let stats_widget = Widget::builder()
+            //     .with_title(" Stats ")
+            //     .with_list(app.history.to_list_items());
+
+            // f.render_widget(history_widget.render(), layout.history());
+
+
             //////////////////////////////
 
-            let info = Paragraph::new(Span::from(INFO_LINE))
+
+            let counter = match app.history.stat_today() {
+                Some(stat) => stat.watched,
+                None => 0,
+            };
+            let info = Paragraph::new(Span::from(format!("{} - Videos Today: {}", INFO_LINE, counter)))
                 .style(Style::default())
                 .alignment(Alignment::Left);
 
