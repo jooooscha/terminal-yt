@@ -203,7 +203,7 @@ impl Core {
                     // call video player
                     let command = Command::new("setsid")
                         .arg("-f")
-                        // .arg(&self.config.video_player)
+                        .arg(&self.config.video_player)
                         .arg(video.link())
                         .stderr(Stdio::null())
                         .stdout(Stdio::null())
