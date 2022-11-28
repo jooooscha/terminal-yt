@@ -9,23 +9,42 @@ use tui::{
     text::{Span, Spans},
     widgets::ListItem,
 };
+use std::collections::HashMap;
+
+type Date = String; // formatted for rfc3339
+
+#[derive(Clone, Deserialize, Serialize, Default)]
+pub (crate) struct Stats {
+    opens: usize,
+}
 
 #[derive(Clone, Deserialize, Serialize, Default)]
 pub(crate) struct History {
     list: Vec<MinimalVideo>,
+    #[serde(default)]
+    stats: HashMap<Date, Stats>,
 }
 
 impl History {
+    
+    /// load history file, parse, and return
     pub(crate) fn load() -> Self {
         let history = read_config(HistoryFile);
-        match serde_json::from_str(&history) {
-            Ok(list) => Self { list },
-            Err(_) => Self::default(),
+
+        // this is only for compatability reasons with old History struct
+        match serde_json::from_str::<Vec<MinimalVideo>>(&history) {
+            Ok(list) => {
+                let stats = HashMap::default();
+                return Self { list, stats };
+            }
+            _ => (),
         }
+
+        serde_json::from_str::<History>(&history).unwrap_or_default()
     }
 
     fn save(&self) {
-        let string = serde_json::to_string(&self.list).unwrap();
+        let string = serde_json::to_string(&self).unwrap();
         write_config(HistoryFile, &string);
     }
 
