@@ -10,12 +10,14 @@ use crate::{
         Screen::*,
         Terminal,
     },
-    notification::{notify_error, notify_open},
+    notification::notify_error,
 };
-use std::{
-    process::{Command, Stdio},
-    sync::mpsc::{channel, Receiver, Sender},
-};
+use std::sync::mpsc::{channel, Receiver, Sender};
+
+#[cfg(not(debug_assertions))]
+use crate::notification::notify_open;
+#[cfg(not(debug_assertions))]
+use std::process::{Command, Stdio};
 
 #[derive(Clone, Debug)]
 pub enum FetchState {
