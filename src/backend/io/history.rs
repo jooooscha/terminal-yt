@@ -67,7 +67,7 @@ impl History {
     }
 
     pub(crate) fn add_start(&mut self) {
-        self.stats.starts += 1;
+        self.stats.add_start();
         self.save();
     }
 

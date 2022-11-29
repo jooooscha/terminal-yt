@@ -6,13 +6,13 @@ use crate::backend::data::video::Video;
 /// Statistics collected in total
 #[derive(Clone, Deserialize, Serialize, Default)]
 pub(crate) struct Stats {
-    pub starts: usize,
     pub per_day: HashMap<NaiveDate, DailyStats>,
 }
 
 /// Statistics collected per day
 #[derive(Clone, Deserialize, Serialize, Default)]
 pub(crate) struct DailyStats {
+    pub starts: usize,
     pub watched: usize,
     pub channels: HashMap<String, usize>,
 }
@@ -41,10 +41,8 @@ impl Stats {
     }
 
     pub fn add_start(&mut self) {
-        self.starts += 1;
+        self.today_mut().starts += 1;
     }
-
-
 
     // pub(crate) fn stat_today(&self) -> Option<&Stats> {
     //     let now: NaiveDate = Local::now().date_naive();
