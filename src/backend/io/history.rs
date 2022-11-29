@@ -1,7 +1,7 @@
 use crate::backend::{
-    data::video::Video,
-    io::{read_config, write_config, FileType::HistoryFile},
+    io::{read_config, write_config, FileType::HistoryFile, stats::Stats},
     ToTuiListItem,
+    data::video::Video,
 };
 use serde::{Deserialize, Serialize};
 use tui::{
@@ -13,23 +13,34 @@ use tui::{
 #[derive(Clone, Deserialize, Serialize, Default)]
 pub(crate) struct History {
     list: Vec<MinimalVideo>,
+    #[serde(default)]
+    stats: Stats,
 }
 
 impl History {
+
+    /// load history file, parse, and return
     pub(crate) fn load() -> Self {
         let history = read_config(HistoryFile);
-        match serde_json::from_str(&history) {
-            Ok(list) => Self { list },
-            Err(_) => Self::default(),
+
+        // this is only for compatability reasons with old History struct
+        match serde_json::from_str::<Vec<MinimalVideo>>(&history) {
+            Ok(list) => {
+                let stats = Stats::default();
+                return Self { list, stats };
+            }
+            _ => (),
         }
+
+        serde_json::from_str::<History>(&history).unwrap_or_default()
     }
 
     fn save(&self) {
-        let string = serde_json::to_string(&self.list).unwrap();
+        let string = serde_json::to_string(&self).unwrap();
         write_config(HistoryFile, &string);
     }
 
-    pub(crate) fn add(&mut self, video: Video) {
+    pub(crate) fn video_opened(&mut self, video: &Video) {
         let mimimal_video = MinimalVideo::from(video);
 
         // remove if already exist and put new one in
@@ -42,7 +53,26 @@ impl History {
 
         self.list.push(mimimal_video);
 
+        self.stats.add(video);
+        // match self.stat_today_mut() {
+        //     Some(stat) => stat.add(video),
+        //     None => {
+        //         let mut stat = Stats::default();
+        //         stat.add(video);
+        //         self.stat_insert_today(stat);
+        //     },
+        // }
+
         self.save()
+    }
+
+    pub(crate) fn add_start(&mut self) {
+        self.stats.add_start();
+        self.save();
+    }
+
+    pub(crate) fn stats(&self) -> &Stats {
+        &self.stats
     }
 
     pub(crate) fn to_list_items(&self) -> Vec<ListItem> {
@@ -70,8 +100,8 @@ impl ToTuiListItem for MinimalVideo {
     }
 }
 
-impl From<Video> for MinimalVideo {
-    fn from(video: Video) -> MinimalVideo {
+impl From<&Video> for MinimalVideo {
+    fn from(video: &Video) -> MinimalVideo {
         MinimalVideo {
             title: video.title().clone(),
             channel: video.origin_channel_name().clone(),

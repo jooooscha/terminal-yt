@@ -10,12 +10,14 @@ use crate::{
         Screen::*,
         Terminal,
     },
-    notification::{notify_error, notify_open},
+    notification::notify_error,
 };
-use std::{
-    process::{Command, Stdio},
-    sync::mpsc::{channel, Receiver, Sender},
-};
+use std::sync::mpsc::{channel, Receiver, Sender};
+
+#[cfg(not(debug_assertions))]
+use crate::notification::notify_open;
+#[cfg(not(debug_assertions))]
+use std::process::{Command, Stdio};
 
 #[derive(Clone, Debug)]
 pub enum FetchState {
@@ -49,7 +51,7 @@ pub(crate) struct Core {
     pub(crate) config: Config,
     pub(crate) current_screen: Screen,
     channel_list: ChannelList,
-    pub(crate) playback_history: History,
+    pub(crate) history: History,
     pub(crate) status_sender: Sender<StateUpdate>,
     pub(crate) status_receiver: Receiver<StateUpdate>,
 }
@@ -74,7 +76,9 @@ impl Core {
         channel_list.select(Some(0));
         channel_list.set_filter(current_filter);
 
-        let playback_history = History::load();
+        let mut history = History::load();
+        history.add_start();
+
 
         let (status_sender, status_receiver) = channel();
 
@@ -83,7 +87,7 @@ impl Core {
             config,
             current_screen: Channels,
             channel_list,
-            playback_history,
+            history,
             status_sender,
             status_receiver,
         };
@@ -201,6 +205,7 @@ impl Core {
                     }
 
                     // call video player
+                    #[cfg(not(debug_assertions))]
                     let command = Command::new("setsid")
                         .arg("-f")
                         .arg(&self.config.video_player)
@@ -209,8 +214,9 @@ impl Core {
                         .stdout(Stdio::null())
                         .spawn();
 
-                    self.playback_history.add(video.clone());
+                    self.history.video_opened(&video);
 
+                    #[cfg(not(debug_assertions))]
                     match command {
                         Ok(_) => notify_open(&video.get_details()),
                         Err(error) => notify_error(&error.to_string()),

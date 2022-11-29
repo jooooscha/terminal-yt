@@ -13,6 +13,7 @@ use std::{
 };
 
 pub(crate) mod config;
+pub(crate) mod stats;
 pub(crate) mod history;
 pub(crate) mod subscriptions;
 
