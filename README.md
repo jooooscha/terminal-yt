@@ -87,5 +87,12 @@ The list `update_on` accepts any of `mon, tue, wed, thu, fri, sat, sub, workday,
 
 ## Installation
 
+#### Standard
+
 - clone repo and `cd terminal-yt`
 - run `cargo run` or `cargo install --path .`
+
+#### Using Nix
+
+- place config in `~/.config/tyt/subscriptions.yaml`
+- `nix run github:jooooscha/terminal-yt`
