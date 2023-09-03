@@ -1,4 +1,5 @@
 use crate::backend::data::{feed::*, video::Video};
+use crate::backend::dearrow;
 use chrono::DateTime;
 
 #[derive(Default)]
@@ -16,6 +17,10 @@ impl VideoBuilder {
 
     pub fn set_title(&mut self, title: String) {
         self.video.title = title;
+    }
+
+    pub fn set_dearrow_title(&mut self, dearrow_title: Option<String>) {
+        self.video.dearrow_title = dearrow_title;
     }
 
     pub fn set_link(&mut self, link: String) {
@@ -51,12 +56,14 @@ impl From<rss::Video> for VideoBuilder {
 
         let title = rss_video.title;
         let link = rss_video.link;
+        // let dearrow_title = dearrow::get_best_title(&rss_video.id);
         let pub_date = match DateTime::parse_from_rfc2822(&rss_video.pub_date) {
             Ok(date) => date.to_rfc3339(),
             Err(e) => panic!("error parsing date in video {}: {}", title, e),
         };
 
         vf.set_title(title);
+        // vf.set_dearrow_title(dearrow_title); // NOTE: currently not supported because dearrow works only with youtube anyways, and youtube uses atom feeds
         vf.set_link(link);
         vf.set_pub_date(pub_date);
 
@@ -70,9 +77,11 @@ impl From<atom::Video> for VideoBuilder {
 
         let title = atom_vid.title;
         let link = format!("https://www.youtube.com/watch?v={}", atom_vid.id);
+        let dearrow_title = dearrow::get_best_title(&atom_vid.id);
         let pub_date = atom_vid.pub_date;
 
         vf.set_title(title);
+        vf.set_dearrow_title(dearrow_title);
         vf.set_link(link);
         vf.set_pub_date(pub_date);
 

@@ -53,7 +53,12 @@ impl ChannelBuilder {
         // iterate over new videos and add unknown
         for video_factory in self.new_videos.into_iter() {
             let video = video_factory.build();
-            if !videos.iter().any(|v| v == &video) {
+            let position = videos.iter().position(|v| v == &video);
+            if let Some(i) = position {
+                let v = videos.get_mut(i).unwrap();
+                v.title = video.title;
+                v.dearrow_title = video.dearrow_title;
+            } else {
                 videos.push(video);
             }
         }

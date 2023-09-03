@@ -13,6 +13,7 @@ use tui::{
 #[derive(Debug, Clone, Serialize, Deserialize, Eq, Default)]
 pub struct Video {
     pub(super) title: String,
+    pub(super) dearrow_title: Option<String>,
     pub(super) link: String,
     pub(super) origin_url: String,
     pub(super) origin_channel_name: String,
@@ -119,7 +120,10 @@ impl ToTuiListItem for Video {
         } else {
             String::from(" ")
         };
-        let title = self.title.to_string();
+        let (title, dearrow_marker) = match &self.dearrow_title {
+            Some(t) => (t.clone(), ""),
+            None => (self.title.clone(), " (d)"),
+        };
         let date = match DateTime::parse_from_rfc3339(&self.pub_date) {
             Ok(date_) => format!("{:>4}", &date_.format("%d.%m.%y")),
             Err(_) => String::new(),
@@ -136,6 +140,7 @@ impl ToTuiListItem for Video {
             ListItem::new(Spans::from(vec![
                 Span::styled(new, gray),
                 Span::styled(title, gray),
+                Span::styled(dearrow_marker, gray),
                 Span::styled(spacer, gray),
                 Span::styled(date, gray),
             ]))
@@ -143,6 +148,7 @@ impl ToTuiListItem for Video {
             ListItem::new(Spans::from(vec![
                 Span::styled(new, yellow),
                 Span::styled(title, yellow),
+                Span::styled(dearrow_marker, gray),
                 Span::styled(spacer, gray),
                 Span::styled(date, gray),
             ]))

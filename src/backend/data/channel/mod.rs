@@ -125,11 +125,18 @@ impl Channel {
         self.videos.get_mut(index)
     }
 
+    // add only missing videos, always uses title from new video
     pub fn merge_videos(&mut self, other_videos: Vec<Video>) {
         for video in other_videos.into_iter() {
-            if !self.contains(&video) {
+            let position = self.videos.iter().position(|v| v == &video);
+            if let Some(i) = position {
+                let v = self.get_mut(i).unwrap();
+                v.title = video.title;
+                v.dearrow_title = video.dearrow_title;
+            } else {
                 self.push(video);
             }
+
         }
         self.sort();
     }
