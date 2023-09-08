@@ -121,8 +121,8 @@ impl ToTuiListItem for Video {
             String::from(" ")
         };
         let (title, dearrow_marker) = match &self.dearrow_title {
-            Some(t) => (t.clone(), ""),
-            None => (self.title.clone(), " (d)"),
+            Some(t) => (t.clone(), " (d)"),
+            None => (self.title.clone(), ""),
         };
         let date = match DateTime::parse_from_rfc3339(&self.pub_date) {
             Ok(date_) => format!("{:>4}", &date_.format("%d.%m.%y")),
