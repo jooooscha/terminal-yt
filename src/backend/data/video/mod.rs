@@ -18,6 +18,7 @@ pub struct Video {
     pub(super) origin_url: String,
     pub(super) origin_channel_name: String,
     pub(super) marked: bool,
+
     #[serde(default)]
     pub(super) fav: bool,
 

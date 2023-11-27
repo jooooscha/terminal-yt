@@ -14,11 +14,14 @@ use crate::{
     notification::notify_error,
 };
 use reqwest::blocking::Client;
-use std::sync::{
+use std::{sync::{
     mpsc::channel,
     mpsc::{Receiver, Sender, TryRecvError},
-};
+}, path::PathBuf, thread};
 use threadpool::ThreadPool;
+use ytd_rs::{YoutubeDL, Arg};
+
+const DOWNLOAD_DIR: &str = "/home/joscha/.config/tyt/downloads";
 
 pub(crate) struct Data {
     sender: Sender<Channel>,
@@ -139,11 +142,34 @@ fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
         .build();
 
 
+
+    let unmarked = channel.videos.iter().filter(|x| !x.marked());
+    let count = unmarked.clone().count();
+    let _ = status_sender.send(StateUpdate::new(item.id(), FetchState::Downloading(count)));
+    let downloader_threads = ThreadPool::new(1);
+    for video in unmarked {
+
+        let output_string = format!("{}", video.title());
+        let args = vec![
+            Arg::new("--quiet"),
+            Arg::new("-f best[height<=1080]"),
+            Arg::new_with_arg("--output", &output_string)
+        ];
+
+        let path = PathBuf::from(DOWNLOAD_DIR);
+        let ytd = YoutubeDL::new(&path, args, video.link()).unwrap();
+
+        downloader_threads.execute(move || {
+            let _ = ytd.download();
+        });
+    }
+
     let state = if num_failed > 0 {
         FetchState::DownloadsFailure(num_failed)
     } else {
         FetchState::Fetched
     };
+
     let _ = status_sender.send(StateUpdate::new(item.id(), state));
 
     let _ = channel_sender.send(channel);
