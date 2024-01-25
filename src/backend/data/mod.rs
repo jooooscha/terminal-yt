@@ -11,6 +11,7 @@ use crate::{
         data::channel::Channel,
         data::feed::Feed,
         io::subscriptions::{SubscriptionItem, Subscriptions},
+        io::config::Config,
     },
     notification::notify_error,
 };
@@ -45,7 +46,7 @@ impl Data {
     }
 
     /// start fetching process
-    pub(crate) fn update(&self) {
+    pub(crate) fn update(&self, config: &Config) {
         let subs = match Subscriptions::read() {
             Ok(subs) => subs,
             Err(error) => {
@@ -74,6 +75,7 @@ impl Data {
             let item = item.clone();
             let urls = vec![item.url.clone()];
             let block_regex = item.block_regex().clone();
+            let config = config.clone();
 
             let sender = self.status_sender.clone();
             pool.execute(move || {
@@ -84,6 +86,7 @@ impl Data {
                     urls,
                     block_regex,
                     sender,
+                    config,
                 ); // updates will be send with `channel_sender`
             })
         }
@@ -95,6 +98,7 @@ impl Data {
             let item = item.clone();
             let urls = item.urls.clone();
             let block_regex = item.block_regex().clone();
+            let config = config.clone();
 
             let sender = self.status_sender.clone();
             pool.execute(move || {
@@ -105,6 +109,7 @@ impl Data {
                     urls,
                     block_regex,
                     sender,
+                    config,
                 ); // updates will be send with `channel_sender`
             })
         }
@@ -118,6 +123,7 @@ fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
     urls: Vec<String>,
     block_regex: Option<String>,
     status_sender: Sender<StateUpdate>,
+    config: Config,
 ) {
     // get videos from history file
     let (history_videos, history_name) = match history.get_by_id(&item.id()) {
@@ -153,22 +159,36 @@ fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
         channel_builder = channel_builder.add_from_feed(feed)
     }
 
-    let channel = channel_builder.with_old_videos(history_videos)
+    let channel_builder = channel_builder.with_old_videos(history_videos)
         .with_name(name)
         .with_id(item.id())
         .with_tag(item.tag())
-        .with_sorting(item.sorting_method())
-        .build();
+        .with_sorting(item.sorting_method());
 
 
+    // send channel without dearrow titles to main thread
+    let channel = channel_builder.clone().build();
+    let _ = channel_sender.send(channel);
+
+    // if we want to use dearrow titles, fetch them now and send them to the main thread
+    if config.use_dearrow_titles || true {
+
+        let state = FetchState::FetchingDearrow;
+        let _ = status_sender.send(StateUpdate::new(item.id(), state));
+
+        let channel = channel_builder
+            .use_dearrow()
+            .build();
+        let _ = channel_sender.send(channel);
+    }
+
+    // send status to main thread
     let state = if num_failed > 0 {
         FetchState::DownloadsFailure(num_failed)
     } else {
         FetchState::Fetched
     };
     let _ = status_sender.send(StateUpdate::new(item.id(), state));
-
-    let _ = channel_sender.send(channel);
 }
 
 // download xml and parse

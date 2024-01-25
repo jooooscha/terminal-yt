@@ -20,3 +20,4 @@ quick-xml = { version = "0.22.0", features = ["serialize"] }
 reqwest = { version = "*", features = ["blocking", "json"] }
 arboard = "3.1.0"
 fancy-regex = "0.13.0"
+lazy_static = "1.4.0"

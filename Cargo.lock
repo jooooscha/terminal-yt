@@ -1305,6 +1305,7 @@ dependencies = [
  "chrono",
  "dirs-next",
  "fancy-regex",
+ "lazy_static",
  "quick-xml",
  "reqwest",
  "serde",

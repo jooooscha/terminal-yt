@@ -20,14 +20,15 @@ use std::{
 #[derive(Clone, Debug)]
 pub enum FetchState {
     DownloadsFailure(usize),
-    Waiting,
+    Scheduled,
     Loading,
+    FetchingDearrow,
     Fetched,
 }
 
 impl Default for FetchState {
     fn default() -> Self {
-        Self::Waiting
+        Self::Scheduled
     }
 }
 

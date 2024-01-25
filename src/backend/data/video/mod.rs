@@ -26,6 +26,8 @@ pub struct Video {
 
     #[serde(skip)]
     pub(super) is_new: bool,
+
+    pub(super) id: Option<String>,
 }
 
 impl Video {

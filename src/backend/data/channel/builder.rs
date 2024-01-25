@@ -5,9 +5,10 @@ use crate::backend::{
         video::{builder::VideoBuilder, Video},
     },
     SortingMethodVideos,
+    dearrow,
 };
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct ChannelBuilder {
     channel: Channel,
     new_videos: Vec<VideoBuilder>,
@@ -43,6 +44,18 @@ impl ChannelBuilder {
 
     pub fn with_sorting(mut self, sorting_method: SortingMethodVideos) -> Self {
         self.channel.sorting_method = sorting_method;
+        self
+    }
+
+    pub fn use_dearrow(mut self) -> Self {
+
+        for video in self.new_videos.iter_mut() {
+            if let Some(id) = video.get_id() {
+                let dearrow_title = dearrow::get_best_title(id);
+                video.set_dearrow_title(dearrow_title);
+            }
+        }
+
         self
     }
 

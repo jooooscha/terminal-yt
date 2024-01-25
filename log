@@ -1,0 +1,27 @@
+[1m[32m   Compiling[0m tyt v1.2.1 (/home/joscha/main/programming/rust/tyt)
+[0m[1m[33mwarning[0m[0m[1m: variable does not need to be mutable[0m
+[0m   [0m[0m[1m[38;5;12m--> [0m[0msrc/backend/core.rs:107:25[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m107[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            if let Some(mut channel) = self.channel_list.get_unfiltered_mut_by_id(&item.text) {[0m
+[0m    [0m[0m[1m[38;5;12m| [0m[0m                        [0m[0m[1m[38;5;12m----[0m[0m[1m[33m^^^^^^^[0m
+[0m    [0m[0m[1m[38;5;12m| [0m[0m                        [0m[0m[1m[38;5;12m|[0m
+[0m    [0m[0m[1m[38;5;12m| [0m[0m                        [0m[0m[1m[38;5;12mhelp: remove this `mut`[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m    [0m[0m[1m[38;5;12m= [0m[0m[1mnote[0m[0m: `#[warn(unused_mut)]` on by default[0m
+
+[0m[1m[33mwarning[0m[0m[1m: method `contains` is never used[0m
+[0m   [0m[0m[1m[38;5;12m--> [0m[0msrc/backend/data/channel/mod.rs:144:12[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m35[0m[0m  [0m[0m[1m[38;5;12m|[0m[0m [0m[0mimpl Channel {[0m
+[0m    [0m[0m[1m[38;5;12m| [0m[0m[1m[38;5;12m------------[0m[0m [0m[0m[1m[38;5;12mmethod in this implementation[0m
+[0m[1m[38;5;12m...[0m
+[0m[1m[38;5;12m144[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m    pub fn contains(&self, video: &Video) -> bool {[0m
+[0m    [0m[0m[1m[38;5;12m| [0m[0m           [0m[0m[1m[33m^^^^^^^^[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m    [0m[0m[1m[38;5;12m= [0m[0m[1mnote[0m[0m: `#[warn(dead_code)]` on by default[0m
+
+[1m[33mwarning[0m[1m:[0m `tyt` (bin "tyt") generated 2 warnings (run `cargo fix --bin "tyt"` to apply 1 suggestion)
+[1m[32m    Finished[0m dev [unoptimized + debuginfo] target(s) in 3.95s
+[1m[33mwarning[0m[1m:[0m the following packages contain code that will be rejected by a future version of Rust: quick-xml v0.22.0
+[1m[36mnote[0m[1m:[0m to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+[1m[32m     Running[0m `target/debug/tyt`

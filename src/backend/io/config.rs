@@ -13,6 +13,7 @@ const UPDATAE_AT_START_DEFAULT: bool = true;
 const MASSAGE_TIMEOUT_DEFAULT: usize = 20;
 const NOTIFY_WITH_DEFAULT: &str = "notify_send";
 const VIDEO_PLAYER_DEFAULT: &str = "mpv";
+const USE_DEARROW_DEFAULT: bool = false;
 /* const DEFAULT_SORT: SortingMethod = SortingMethod::default(); */
 
 #[derive(Clone, Deserialize, Serialize)]
@@ -28,6 +29,7 @@ pub struct Config {
     pub video_player: String,
     pub sort_videos: SortingMethodVideos,
     pub notify_with: String,
+    pub use_dearrow_titles: bool,
 }
 
 impl Default for Config {
@@ -43,6 +45,7 @@ impl Default for Config {
             notify_with: NOTIFY_WITH_DEFAULT.into(),
             video_player: VIDEO_PLAYER_DEFAULT.into(),
             sort_videos: SortingMethodVideos::default(),
+            use_dearrow_titles: USE_DEARROW_DEFAULT,
         }
     }
 }
@@ -51,6 +54,7 @@ impl Config {
     /// Inits the Config struct. Write default config, if config could not be found
     pub(crate) fn read() -> Result<Self> {
         let config_str = read_config(ConfigFile);
+
         match serde_yaml::from_str(&config_str) {
             Ok(config) => Ok(config),
             Err(error) => Err(ParseConfig(error)),

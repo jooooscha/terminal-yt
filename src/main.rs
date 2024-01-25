@@ -24,7 +24,7 @@ fn main() -> Result<(), Error> {
     let data = Data::init(core.status_sender.clone());
 
     if core.update_at_start() {
-        data.update();
+        data.update(&core.config);
     }
 
     loop {
@@ -104,7 +104,7 @@ fn main() -> Result<(), Error> {
                 }
                 Key::Char('r') => {
                     /* update_channel_list(channel_update_sender.clone()); */
-                    data.update();
+                    data.update(&core.config);
                     core.action(Leave);
                 }
                 Key::Char('t') => {
