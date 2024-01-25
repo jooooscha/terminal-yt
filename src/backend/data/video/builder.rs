@@ -2,7 +2,7 @@ use crate::backend::data::{feed::*, video::Video};
 use crate::backend::dearrow;
 use chrono::DateTime;
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct VideoBuilder {
     video: Video,
 }
@@ -13,6 +13,10 @@ impl VideoBuilder {
         video_factory.video.is_new = true;
 
         video_factory
+    }
+
+    pub fn get_title(&self) -> &str {
+        &self.video.title
     }
 
     pub fn set_title(&mut self, title: String) {
@@ -77,11 +81,11 @@ impl From<atom::Video> for VideoBuilder {
 
         let title = atom_vid.title;
         let link = format!("https://www.youtube.com/watch?v={}", atom_vid.id);
-        let dearrow_title = dearrow::get_best_title(&atom_vid.id);
+        // let dearrow_title = dearrow::get_best_title(&atom_vid.id);
         let pub_date = atom_vid.pub_date;
 
         vf.set_title(title);
-        vf.set_dearrow_title(dearrow_title);
+        // vf.set_dearrow_title(dearrow_title);
         vf.set_link(link);
         vf.set_pub_date(pub_date);
 

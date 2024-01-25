@@ -18,6 +18,7 @@ pub(crate) trait SubscriptionItem {
     fn tag(&self) -> String;
     fn name(&self) -> String;
     fn sorting_method(&self) -> SortingMethodVideos;
+    fn block_regex(&self) -> &Option<String>;
 }
 
 /// Default value for date always

@@ -2,6 +2,7 @@ pub(crate) mod channel;
 pub(crate) mod channel_list;
 mod feed;
 pub(crate) mod video;
+use fancy_regex::Regex;
 
 use self::channel_list::ChannelList;
 use crate::{
@@ -72,10 +73,18 @@ impl Data {
             let hc = history.clone();
             let item = item.clone();
             let urls = vec![item.url.clone()];
+            let block_regex = item.block_regex().clone();
 
             let sender = self.status_sender.clone();
             pool.execute(move || {
-                fetch_channel_updates(sender_clone, hc, item, urls, sender); // updates will be send with `channel_sender`
+                fetch_channel_updates(
+                    sender_clone,
+                    hc,
+                    item,
+                    urls,
+                    block_regex,
+                    sender,
+                ); // updates will be send with `channel_sender`
             })
         }
 
@@ -85,10 +94,18 @@ impl Data {
             let hc = history.clone();
             let item = item.clone();
             let urls = item.urls.clone();
+            let block_regex = item.block_regex().clone();
 
             let sender = self.status_sender.clone();
             pool.execute(move || {
-                fetch_channel_updates(sender_clone, hc, item, urls, sender); // updates will be send with `channel_sender`
+                fetch_channel_updates(
+                    sender_clone,
+                    hc,
+                    item,
+                    urls,
+                    block_regex,
+                    sender,
+                ); // updates will be send with `channel_sender`
             })
         }
     }
@@ -99,6 +116,7 @@ fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
     history: ChannelList,
     item: T,
     urls: Vec<String>,
+    block_regex: Option<String>,
     status_sender: Sender<StateUpdate>,
 ) {
     // get videos from history file
@@ -113,9 +131,9 @@ fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
             .unwrap();
     }
 
-    let (feed, num_failed) = download_feed(&urls);
+    let (mut feed, num_failed) = download_feed(&urls);
 
-    // choose item name first; if not given take feed name; take history name as last resort
+    // choose item name first; if not given, take feed name; take history name as last resort
     let name = if !item.name().is_empty() {
         item.name()
     } else if !feed.name.is_empty() {
@@ -128,6 +146,10 @@ fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
 
     // only add new videos if active
     if item.active() {
+        if let Some(regex) = block_regex {
+            let re = Regex::new(&regex).unwrap();
+            feed.filter_videos(re);
+        }
         channel_builder = channel_builder.add_from_feed(feed)
     }
 

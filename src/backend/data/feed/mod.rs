@@ -1,6 +1,7 @@
 pub mod atom;
 pub mod rss;
 use quick_xml::de::from_str;
+use fancy_regex::Regex;
 
 use crate::backend::data::video::builder::VideoBuilder;
 
@@ -23,6 +24,17 @@ impl Feed {
         }
 
         Err(String::from("Could not parse feed"))
+    }
+
+    pub fn filter_videos(&mut self, block_regex: Regex) {
+        self.videos = self.videos
+            .iter()
+            .filter(|&video| {
+                // eprintln!("{}, {:?}", video.get_title(), block_regex);
+                ! block_regex.is_match(video.get_title()).unwrap()
+            })
+            .cloned()
+            .collect();
     }
 
     pub fn add_videos(&mut self, videos: Vec<VideoBuilder>) {

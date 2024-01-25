@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 pub struct CustomChannelSubscription {
     pub urls: Vec<String>,
     pub name: String,
+    block_regex: Option<String>,
     #[serde(default = "date_always")]
     update_on: Vec<Date>,
     #[serde(default)]
@@ -31,5 +32,8 @@ impl SubscriptionItem for CustomChannelSubscription {
     }
     fn sorting_method(&self) -> SortingMethodVideos {
         self.sort_by
+    }
+    fn block_regex(&self) -> &Option<String> {
+        &self.block_regex
     }
 }
