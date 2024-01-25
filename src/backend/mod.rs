@@ -3,7 +3,6 @@ pub(crate) mod data;
 
 mod draw;
 pub(super) mod io;
-pub(super) mod dearrow;
 
 use serde::{Deserialize, Serialize};
 use tui::widgets::ListItem;
