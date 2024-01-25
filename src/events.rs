@@ -33,7 +33,7 @@ impl Events {
         };
         let tick_handle = {
             thread::spawn(move || loop {
-                tx.send(Event::Tick).unwrap();
+                let _ = tx.send(Event::Tick);
                 thread::sleep(Duration::from_millis(50));
             })
         };
