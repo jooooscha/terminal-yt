@@ -39,17 +39,18 @@ The config file is placed at ` ~/.config/tyt/config.yml ` and is written in the 
 
 If no config file is found, a config file with all options and their default values is written at start.
 
-| Name                   | Default      | Type | Description                                                                                                                            |
-|------------------------|--------------|------|----------------------------------------------------------------------------------------------------------------------------------------|
-| show_empty_channels    | true         | bool | Show channels that have 0 new unmarked videos                                                                                          |
-| mark_on_open           | true         | bool | Mark a video if opened                                                                                                                 |
-| down_on_mark           | true         | bool | Move pointer one down if a video is marked                                                                                             |
-| app_title              | "TYT"        | str  | The title of the left box                                                                                                              |
-| update_at_start        | true         | bool | Fetch new videos at start                                                                                                              |
-| sort_channels          | AlphaNumeric | enum | One of `AlphaNumeric` or `ByTag`                                                                                                       |
-| video_player           | "mpv"        | str  | Could also be [umpv](https://raw.githubusercontent.com/mpv-player/mpv/master/TOOLS/umpv), vlc, or any other program.                   |
-| sort_videos            | UneenDate    | enum | Can be one of: `Date, Text, UnseenDate, UnseenText`                                                                                    |
-| notify_with            | "notify-send | str  | Could also be `dunstify` for example                                                                                                   |
+| Name                | Default       | Type | Description                                                                                                          |
+|---------------------|---------------|------|----------------------------------------------------------------------------------------------------------------------|
+| show_empty_channels | true          | bool | Show channels that have 0 new unmarked videos                                                                        |
+| mark_on_open        | true          | bool | Mark a video if opened                                                                                               |
+| down_on_mark        | true          | bool | Move pointer one down if a video is marked                                                                           |
+| app_title           | "TYT"         | str  | The title of the left box                                                                                            |
+| update_at_start     | true          | bool | Fetch new videos at start                                                                                            |
+| sort_channels       | AlphaNumeric  | enum | One of `AlphaNumeric` or `ByTag`                                                                                     |
+| video_player        | "mpv"         | str  | Could also be [umpv](https://raw.githubusercontent.com/mpv-player/mpv/master/TOOLS/umpv), vlc, or any other program. |
+| sort_videos         | UneenDate     | enum | Can be one of: `Date, Text, UnseenDate, UnseenText`                                                                  |
+| notify_with         | "notify-send" | str  | Could also be `dunstify` for example                                                                                 |
+| use_dearrow_titles  | false         | bool | Uses the dearrow api for Youtube videos                                                                              |
 
 ## How do I "Subscribe"
 
@@ -70,6 +71,7 @@ channels:
       name: "Tom Scott" # optional
       tag: FAVORITE # optional
       update_on: [always]
+      block_regex: "EXTREMELY FUNNY" # filter out all videos that match this regex. Matched on the original title, not the one provided by dearrow
 
     - url: ...
 
