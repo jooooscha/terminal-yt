@@ -29,11 +29,11 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1706178841,
-        "narHash": "sha256-WWC8YrAO2i/BCGrHOg3W/+nyY0EPN8DUxYLPIDbe5DI=",
+        "lastModified": 1706208314,
+        "narHash": "sha256-/oRqES/38uc4BpgOfzioYIyg3XOUSjpqot5323f15fo=",
         "owner": "jooooscha",
         "repo": "easy-flake",
-        "rev": "ab4cf5e8bfe59053b7bee815aaf7a2ec55026e0e",
+        "rev": "80c413786da0b20ffeeb479177fe4f3e62f4eff3",
         "type": "github"
       },
       "original": {
