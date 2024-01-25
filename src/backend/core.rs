@@ -104,7 +104,7 @@ impl Core {
         for item in self.status_receiver.try_iter() {
             changed = true;
 
-            if let Some(mut channel) = self.channel_list.get_unfiltered_mut_by_id(&item.text) {
+            if let Some(channel) = self.channel_list.get_unfiltered_mut_by_id(&item.text) {
                 channel.fetch_state = item.state.clone();
             }
         }

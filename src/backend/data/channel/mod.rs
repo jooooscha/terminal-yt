@@ -141,6 +141,7 @@ impl Channel {
         self.sort();
     }
 
+    #[allow(dead_code)]
     pub fn contains(&self, video: &Video) -> bool {
         self.videos.contains(video)
     }
