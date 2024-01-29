@@ -171,7 +171,7 @@ fn fetch_channel_updates<T: 'static + SubscriptionItem + std::marker::Send>(
     let _ = channel_sender.send(channel);
 
     // if we want to use dearrow titles, fetch them now and send them to the main thread
-    if config.use_dearrow_titles || true {
+    if config.use_dearrow_titles {
 
         let state = FetchState::FetchingDearrow;
         let _ = status_sender.send(StateUpdate::new(item.id(), state));
