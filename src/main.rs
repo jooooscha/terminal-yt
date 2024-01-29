@@ -52,7 +52,7 @@ fn main() -> Result<(), Error> {
                     match core.get_current_screen() {
                         Channels => {}
                         Videos => {
-                            let _ = core.action(Leave);
+                            core.action(Leave);
                         }
                     }
                     core.draw();
@@ -86,7 +86,7 @@ fn main() -> Result<(), Error> {
                 Key::Char('\n') | Key::Char('l') | Key::Right | Key::Char('o') => {
                     match core.get_current_screen() {
                         Channels => {
-                            let _ = core.action(Enter);
+                            core.action(Enter);
                         }
                         Videos => {
                             core.action(Open);

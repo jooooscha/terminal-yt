@@ -232,24 +232,16 @@ impl ChannelList {
 
     /// Filter all channels that are not in the UrlFile anymore
     fn remove_old(&mut self, url_file: &Subscriptions) {
-        self.channels = self
-            .channels
-            .iter()
-            .filter(|channel| url_file.contains_channel_by_id(channel.id()))
-            .cloned()
-            .collect();
+        self.channels
+            .retain(|channel| url_file.contains_channel_by_id(channel.id()));
 
         // remove videos that belong to urls removed from a custom channel
         for custom_channel in url_file.custom_channels.iter() {
             let urls = &custom_channel.urls;
 
             if let Some(mut channel) = self.get_mut_by_id(&custom_channel.id()) {
-                channel.videos = channel
-                    .videos
-                    .iter()
-                    .filter(|video| urls.contains(video.origin_url()))
-                    .cloned()
-                    .collect();
+                channel.videos
+                    .retain(|video| urls.contains(video.origin_url()));
             }
         }
     }

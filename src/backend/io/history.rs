@@ -59,7 +59,7 @@ struct MinimalVideo {
 impl ToTuiListItem for MinimalVideo {
     fn to_list_item(&self) -> ListItem {
         let channel = format!("{} {} - ", tui::symbols::DOT, &self.channel);
-        let title = (&self.title).to_string();
+        let title = self.title.clone();
 
         let style = Style::default().fg(Color::DarkGray);
 

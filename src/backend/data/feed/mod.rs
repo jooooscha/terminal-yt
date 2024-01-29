@@ -27,14 +27,8 @@ impl Feed {
     }
 
     pub fn filter_videos(&mut self, block_regex: Regex) {
-        self.videos = self.videos
-            .iter()
-            .filter(|&video| {
-                // eprintln!("{}, {:?}", video.get_title(), block_regex);
-                ! block_regex.is_match(video.get_title()).unwrap()
-            })
-            .cloned()
-            .collect();
+        self.videos
+            .retain(|video| { ! block_regex.is_match(video.get_title()).unwrap() });
     }
 
     pub fn add_videos(&mut self, videos: Vec<VideoBuilder>) {
