@@ -5,8 +5,10 @@ authors = ["jooooscha <j.loos@posteo.net>"]
 edition = "2021"
 
 [dependencies]
-termion = "1.5.6"
-tui = { version = "0.19.0", features = [ "termion" ] }
+# termion = "3.0.0"
+# tui = { version = "0.19.0", features = [ "termion" ] }
+tui = { package = "ratatui", version = "0.25.0", default-features = false, features = ["termion"] }
+termion = "3.0.0"
 
 alphanumeric-sort = "1.4.1"
 dirs-next = "2.0.0"

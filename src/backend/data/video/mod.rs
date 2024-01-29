@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use tui::{
     style::{Color, Modifier, Style},
-    text::{Span, Spans},
+    text::{Span, Line},
     widgets::ListItem,
 };
 
@@ -139,7 +139,7 @@ impl ToTuiListItem for Video {
             .add_modifier(Modifier::ITALIC);
 
         if self.marked {
-            ListItem::new(Spans::from(vec![
+            ListItem::new(Line::from(vec![
                 Span::styled(new, gray),
                 Span::styled(title, gray),
                 Span::styled(dearrow_marker, gray),
@@ -147,7 +147,7 @@ impl ToTuiListItem for Video {
                 Span::styled(date, gray),
             ]))
         } else {
-            ListItem::new(Spans::from(vec![
+            ListItem::new(Line::from(vec![
                 Span::styled(new, yellow),
                 Span::styled(title, yellow),
                 Span::styled(dearrow_marker, gray),

@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 use std::cmp::min;
 use tui::{
     style::{Color, Modifier, Style},
-    text::{Span, Spans},
+    text::{Span, Line},
     widgets::{ListItem, ListState},
 };
 
@@ -230,7 +230,7 @@ impl ToTuiListItem for Channel {
 
         // Combine displayed information to string
         if num_marked > &0 {
-            ListItem::new(Spans::from(vec![
+            ListItem::new(Line::from(vec![
                 Span::styled(new, light_green),
                 Span::styled(name, yellow),
                 Span::styled(tag, blue),
@@ -239,7 +239,7 @@ impl ToTuiListItem for Channel {
                 Span::styled(fetch_state, gray),
             ]))
         } else {
-            ListItem::new(Spans::from(vec![
+            ListItem::new(Line::from(vec![
                 Span::styled(new, gray),
                 Span::styled(name, gray),
                 Span::styled(tag, gray),

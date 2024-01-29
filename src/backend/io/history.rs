@@ -6,7 +6,7 @@ use crate::backend::{
 use serde::{Deserialize, Serialize};
 use tui::{
     style::{Color, Modifier, Style},
-    text::{Span, Spans},
+    text::{Span, Line},
     widgets::ListItem,
 };
 
@@ -63,7 +63,7 @@ impl ToTuiListItem for MinimalVideo {
 
         let style = Style::default().fg(Color::DarkGray);
 
-        ListItem::new(Spans::from(vec![
+        ListItem::new(Line::from(vec![
             Span::styled(channel, style),
             Span::styled(title, style.add_modifier(Modifier::ITALIC)),
         ]))

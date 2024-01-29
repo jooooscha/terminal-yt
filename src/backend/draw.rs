@@ -2,11 +2,11 @@ use crate::backend::{
     core::Core,
     data::{channel::Channel, channel_list::ChannelList},
     io::{history::History, config::Config},
-    Backend, Screen,
+    Screen,
     Screen::*,
     Terminal,
 };
-use std::thread;
+use std::{thread, rc::Rc};
 use tui::widgets::ListItem;
 use tui::{
     layout::{Alignment, Constraint::*, Direction, Layout, Rect},
@@ -89,12 +89,12 @@ impl<'a> Widget<'a> {
 }
 
 pub struct AppLayout {
-    main: Vec<Rect>,
-    content: Vec<Rect>,
+    main: Rc<[Rect]>,
+    content: Rc<[Rect]>,
 }
 
 impl AppLayout {
-    fn load(f: &mut Frame<'_, Backend>, screen: &Screen) -> Self {
+    fn load(f: &mut Frame<'_>, screen: &Screen) -> Self {
         let video_size = match screen {
             Channels => 0,
             Videos => 75,

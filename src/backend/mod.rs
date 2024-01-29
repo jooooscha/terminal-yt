@@ -13,11 +13,10 @@ use std::{
     sync::{Arc, Mutex},
 };
 use termion::{
-    input::MouseTerminal,
-    screen::AlternateScreen,
+    screen::{AlternateScreen, IntoAlternateScreen},
+    raw::RawTerminal,
 };
-#[cfg(not(test))]
-use termion::raw::{IntoRawMode, RawTerminal};
+use termion::raw::IntoRawMode;
 
 use tui::{backend::TermionBackend, layout::Rect, Terminal as TuiTerminal};
 
@@ -25,14 +24,9 @@ pub trait ToTuiListItem {
     fn to_list_item(&self) -> ListItem;
 }
 
-#[cfg(not(test))]
-type TermScreen = MouseTerminal<RawTerminal<Stdout>>;
-#[cfg(test)]
-type TermScreen = MouseTerminal<Stdout>;
-
-type Backend = TermionBackend<AlternateScreen<TermScreen>>;
-
-type Term = Arc<Mutex<TuiTerminal<Backend>>>;
+type AlternateRawScreen = AlternateScreen<RawTerminal<Stdout>>;
+type TermionScreen = TermionBackend<AlternateRawScreen>;
+type Term = Arc<Mutex<TuiTerminal<TermionScreen>>>;
 
 #[derive(Clone)]
 pub(crate) struct Terminal {
@@ -42,18 +36,14 @@ pub(crate) struct Terminal {
 
 impl Default for Terminal {
     fn default() -> Self {
-        #[cfg(not(test))]
-        let stdout = stdout().into_raw_mode().unwrap();
-        #[cfg(test)]
-        let stdout = stdout();
-        let mouse_terminal = MouseTerminal::from(stdout);
-        /* let screen = mouse_terminal; */
-        let screen = AlternateScreen::from(mouse_terminal);
-        let _stdin = stdin();
-        let backend = TermionBackend::new(screen);
+        let stdout_raw = stdout().into_raw_mode().unwrap();
+        let alternate_screen = stdout_raw.into_alternate_screen().unwrap();
+        let backend = TermionBackend::new(alternate_screen);
         let terminal = TuiTerminal::new(backend).unwrap();
         let size = terminal.size().unwrap();
         let term = Arc::new(Mutex::new(terminal));
+
+        let _stdin = stdin();
 
         Terminal {
             term,
