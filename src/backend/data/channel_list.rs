@@ -99,8 +99,12 @@ impl ChannelList {
         self.list_state.selected()
     }
 
-    pub(crate) fn state(&self) -> ListState {
-        self.list_state.clone()
+    pub(crate) fn state(&self) -> &ListState {
+        &self.list_state
+    }
+
+    pub(crate) fn state_mut(&mut self) -> &mut ListState {
+        &mut self.list_state
     }
 
     pub(crate) fn push(&mut self, channel: Channel) {

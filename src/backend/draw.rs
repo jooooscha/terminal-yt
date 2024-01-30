@@ -1,12 +1,9 @@
 use crate::backend::{
     core::Core,
-    data::{channel::Channel, channel_list::ChannelList},
-    io::{history::History, config::Config},
     Screen,
     Screen::*,
-    Terminal,
 };
-use std::{thread, rc::Rc};
+use std::{thread, rc::Rc, sync::{RwLock, Arc}};
 use tui::widgets::ListItem;
 use tui::{
     layout::{Alignment, Constraint::*, Direction, Layout, Rect},
@@ -18,35 +15,6 @@ use tui::{
 
 const INFO_LINE: &str =
     "q close; o open video/select; Enter/l select; Esc/h go back; m mark; M unmark";
-
-pub struct AppState {
-    channel: Option<Channel>,
-    channel_list: ChannelList,
-    history: History,
-    screen: Screen,
-    terminal: Terminal,
-    config: Config,
-}
-
-impl From<&Core> for AppState {
-    fn from(core: &Core) -> Self {
-        let channel = core.get_selected_channel().cloned();
-        let channel_list = core.channel_list().clone();
-        let history = core.playback_history.clone();
-        let screen = core.current_screen.clone();
-        let terminal = core.terminal.clone();
-        let config = core.config.clone();
-
-        AppState {
-            channel,
-            channel_list,
-            history,
-            screen,
-            terminal,
-            config,
-        }
-    }
-}
 
 #[derive(Default)]
 struct Widget<'a> {
@@ -139,44 +107,63 @@ impl AppLayout {
 }
 
 #[allow(clippy::unnecessary_unwrap)]
-pub fn draw(app: AppState) {
+pub fn draw(core: Arc<RwLock<Core>>) {
     thread::spawn(move || {
-        let channels = app.channel_list.clone();
+        let (
+            channels,
+            current_screen,
+            app_title,
+            terminal,
+            history,
+        ) = {
+            let core_read_lock = core.read().unwrap();
+            (
+                core_read_lock.channel_list().clone(),
+                core_read_lock.current_screen.clone(),
+                core_read_lock.config.app_title.clone(),
+                core_read_lock.terminal.term.clone(),
+                core_read_lock.playback_history.clone(),
+            )
+        };
 
-        let channel_symbol = match app.screen {
+        let channel_symbol = match current_screen {
             Channels => ">> ",
             Videos => "-",
         };
         let chan_widget = Widget::builder()
-            .with_title(&format!(" {} ", app.config.app_title))
+            .with_title(&format!(" {} ", app_title))
             .with_symbol(channel_symbol)
             .with_list(channels.get_spans_list());
 
-        let _ = app.terminal.term.clone().lock().unwrap().draw(|f| {
-            let layout = AppLayout::load(f, &app.screen);
+        let _ = terminal.lock().unwrap().draw(|f| {
+            let layout = AppLayout::load(f, &current_screen);
 
-            f.render_stateful_widget(
-                chan_widget.render(),
-                layout.channels(),
-                &mut channels.state(),
-            );
-
-            if let Some(channel) = app.channel {
-                let video_widget = Widget::builder()
-                    .with_title(&format!(" {} ", channel.name()))
-                    .with_symbol(">> ")
-                    .with_list(channel.get_spans_list());
+            if let Ok(mut core_write_lock) = core.try_write() {
 
                 f.render_stateful_widget(
-                    video_widget.render(),
-                    layout.videos(),
-                    &mut channel.state(),
+                    chan_widget.render(),
+                    layout.channels(),
+                    core_write_lock.channel_list_mut().state_mut(),
                 );
+
+                if let Some(channel) = core_write_lock.get_selected_channel_mut() {
+                    let c = channel.clone();
+                    let video_widget = Widget::builder()
+                        .with_title(&format!(" {} ", channel.name()))
+                        .with_symbol(">> ")
+                        .with_list(c.get_spans_list());
+
+                    f.render_stateful_widget(
+                        video_widget.render(),
+                        layout.videos(),
+                        channel.state_mut(),
+                    );
+                }
             }
 
             let history_widget = Widget::builder()
                 .with_title(" Playback History ")
-                .with_list(app.history.to_list_items());
+                .with_list(history.to_list_items());
 
             f.render_widget(history_widget.render(), layout.history());
 

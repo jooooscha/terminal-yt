@@ -113,8 +113,13 @@ impl Channel {
         &self.tag
     }
 
+    #[allow(dead_code)]
     pub fn state(&self) -> ListState {
         self.list_state.clone()
+    }
+
+    pub fn state_mut(&mut self) -> &mut ListState {
+        &mut self.list_state
     }
 
     pub fn push(&mut self, video: Video) {

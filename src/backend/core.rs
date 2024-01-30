@@ -1,7 +1,6 @@
 use crate::{
     backend::{
         data::{channel::Channel, channel_list::ChannelList, video::Video},
-        draw::draw,
         io::config::Config,
         io::{history::History, write_config, FileType::DbFile},
         Action,
@@ -12,10 +11,7 @@ use crate::{
     },
     notification::{notify_error, notify_open},
 };
-use std::{
-    process::{Command, Stdio},
-    sync::mpsc::{channel, Receiver, Sender},
-};
+use std::process::{Command, Stdio};
 
 #[derive(Clone, Debug)]
 pub enum FetchState {
@@ -51,8 +47,6 @@ pub(crate) struct Core {
     pub(crate) current_screen: Screen,
     channel_list: ChannelList,
     pub(crate) playback_history: History,
-    pub(crate) status_sender: Sender<StateUpdate>,
-    pub(crate) status_receiver: Receiver<StateUpdate>,
 }
 
 impl Core {
@@ -77,16 +71,12 @@ impl Core {
 
         let playback_history = History::load();
 
-        let (status_sender, status_receiver) = channel();
-
         let core = Core {
             terminal,
             config,
             current_screen: Channels,
             channel_list,
             playback_history,
-            status_sender,
-            status_receiver,
         };
 
         Ok(core)
@@ -98,18 +88,10 @@ impl Core {
     }
 
     /// receive all status updates from status channel
-    pub(crate) fn update_status_line(&mut self) -> bool {
-        let mut changed = false;
-
-        for item in self.status_receiver.try_iter() {
-            changed = true;
-
-            if let Some(channel) = self.channel_list.get_unfiltered_mut_by_id(&item.text) {
-                channel.fetch_state = item.state.clone();
-            }
+    pub(crate) fn update_status_line(&mut self, item: StateUpdate) {
+        if let Some(channel) = self.channel_list.get_unfiltered_mut_by_id(&item.text) {
+            channel.fetch_state = item.state.clone();
         }
-
-        changed
     }
 
     pub(crate) fn update_at_start(&self) -> bool {
@@ -222,9 +204,9 @@ impl Core {
         }();
     }
 
-    pub(crate) fn draw(&self) {
-        draw(self.into());
-    }
+    // pub(crate) fn draw(&self) {
+        // draw(self.into());
+    // }
 
     pub fn toggle_filter(&mut self) {
         self.channel_list.toggle_filter();
@@ -244,6 +226,10 @@ impl Core {
 
     pub fn channel_list(&self) -> &ChannelList {
         &self.channel_list
+    }
+
+    pub fn channel_list_mut(&mut self) -> &mut ChannelList {
+        &mut self.channel_list
     }
 
     pub(crate) fn get_selected_channel_index(&self) -> Option<usize> {
