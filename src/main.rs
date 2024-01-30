@@ -30,14 +30,12 @@ fn main() -> Result<(), Error> {
 
     let data = Data::init(status_sender);
 
-    eprintln!("#");
     if core.read().unwrap().update_at_start() {
         data.update(&core.read().unwrap().config);
     }
 
 
     loop {
-        eprintln!("loop");
         let event = events.next();
 
         if let Ok(c) = data.try_recv() {

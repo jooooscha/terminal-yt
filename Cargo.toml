@@ -1,6 +1,6 @@
 [package]
 name = "tyt"
-version = "1.4.1"
+version = "1.4.2"
 authors = ["jooooscha <j.loos@posteo.net>"]
 edition = "2021"
 
