@@ -10,10 +10,6 @@ jobs:
     name: Build and Release
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        shell: devenv shell bash -- -e {0}
-
     steps:
       # prepare nix and devenv
       - uses: actions/checkout@v4
