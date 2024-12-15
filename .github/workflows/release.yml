@@ -1,29 +1,69 @@
-name: Build on release
+name: Build and Release Rust Project
 
 on:
-  release:
-    types: [created]
+  push:
+    tags:
+      - '*' # Trigger on all tag pushes
 
 jobs:
-  release:
-    name: release ${{ matrix.target }}
+  build:
+    name: Build and Release
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # - target: x86_64-pc-windows-gnu
-          #   archive: zip
-          - target: x86_64-unknown-linux-musl
-            archive: tar.gz tar.xz
-          # - target: x86_64-apple-darwin
-          #  archive: zip
+
+    defaults:
+      run:
+        shell: devenv shell bash -- -e {0}
+
     steps:
-      - uses: actions/checkout@master
-      - name: Compile and release
-        uses: rust-build/rust-build.action@v1.3.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASETOKEN }}
+      # prepare nix and devenv
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v26
+      - uses: cachix/cachix-action@v14
         with:
-          RUSTTARGET: ${{ matrix.target }}
-          ARCHIVE_TYPES: ${{ matrix.archive }}
+          name: devenv
+      - name: Install devenv.sh
+        run: nix profile install nixpkgs#devenv
+
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Build the Rust project
+      - name: Build project
+        run: |
+          cargo build --release
+
+      # Upload build artifacts
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-output
+          path: target/release/
+
+      # Create a release and upload binaries
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: target/release/ # Path to the built binaries
+          asset_name: build_output.tar.gz # Rename the uploaded artifact
+          asset_content_type: application/gzip
+
+      # Optionally compress the build output
+      - name: Compress build output
+        run: |
+          tar -czvf build_output.tar.gz -C target/release .
+
