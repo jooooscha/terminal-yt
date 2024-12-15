@@ -109,6 +109,12 @@ impl AppLayout {
 #[allow(clippy::unnecessary_unwrap)]
 pub fn draw(core: Arc<RwLock<Core>>) {
     thread::spawn(move || {
+
+        let mut core_lock = match core.try_write().ok() {
+            Some(core_lock) => core_lock,
+            None => return,
+        };
+
         let (
             channels,
             current_screen,
@@ -116,13 +122,13 @@ pub fn draw(core: Arc<RwLock<Core>>) {
             terminal,
             history,
         ) = {
-            let core_read_lock = core.read().unwrap();
+            // let core_read_lock = core.try_read().unwrap();
             (
-                core_read_lock.channel_list().clone(),
-                core_read_lock.current_screen.clone(),
-                core_read_lock.config.app_title.clone(),
-                core_read_lock.terminal.term.clone(),
-                core_read_lock.playback_history.clone(),
+                core_lock.channel_list().clone(),
+                core_lock.current_screen.clone(),
+                core_lock.config.app_title.clone(),
+                core_lock.terminal.term.clone(),
+                core_lock.playback_history.clone(),
             )
         };
 
@@ -138,27 +144,24 @@ pub fn draw(core: Arc<RwLock<Core>>) {
         let _ = terminal.lock().unwrap().draw(|f| {
             let layout = AppLayout::load(f, &current_screen);
 
-            if let Ok(mut core_write_lock) = core.try_write() {
+            f.render_stateful_widget(
+                chan_widget.render(),
+                layout.channels(),
+                core_lock.channel_list_mut().state_mut(),
+            );
+
+            if let Some(channel) = core_lock.get_selected_channel_mut() {
+                let c = channel.clone();
+                let video_widget = Widget::builder()
+                    .with_title(&format!(" {} ", channel.name()))
+                    .with_symbol(">> ")
+                    .with_list(c.get_spans_list());
 
                 f.render_stateful_widget(
-                    chan_widget.render(),
-                    layout.channels(),
-                    core_write_lock.channel_list_mut().state_mut(),
+                    video_widget.render(),
+                    layout.videos(),
+                    channel.state_mut(),
                 );
-
-                if let Some(channel) = core_write_lock.get_selected_channel_mut() {
-                    let c = channel.clone();
-                    let video_widget = Widget::builder()
-                        .with_title(&format!(" {} ", channel.name()))
-                        .with_symbol(">> ")
-                        .with_list(c.get_spans_list());
-
-                    f.render_stateful_widget(
-                        video_widget.render(),
-                        layout.videos(),
-                        channel.state_mut(),
-                    );
-                }
             }
 
             let history_widget = Widget::builder()
