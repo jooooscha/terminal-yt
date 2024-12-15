@@ -31,9 +31,9 @@ jobs:
 
       # Upload build artifacts
       - name: Upload release artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: build-output
+          name: build-artifacts
           path: target/release/
 
       # Create a release and upload binaries
