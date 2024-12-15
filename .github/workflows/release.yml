@@ -38,6 +38,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: target/release/tyt
+          files: tyt-linux.tar.gz
           fail_on_unmatched_files: true
 
