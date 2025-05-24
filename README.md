@@ -98,3 +98,12 @@ The list `update_on` accepts any of `mon, tue, wed, thu, fri, sat, sub, workday,
 
 - place config in `~/.config/tyt/subscriptions.yaml`
 - `nix run github:jooooscha/terminal-yt`
+
+#### Arch Linux
+
+With your favorite AUR helper:
+```bash
+paru -S terminal-yt-bin  # latest release
+# or
+paru -S terminal-yt-git  # following main
+```
