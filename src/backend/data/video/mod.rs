@@ -9,6 +9,15 @@ use tui::{
     text::{Span, Line},
     widgets::ListItem,
 };
+use log::*;
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
+pub enum DownloadState {
+    #[default]
+    NotDownloaded,
+    Downloading,
+    Downloaded,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize, Eq, Default)]
 pub struct Video {
@@ -28,6 +37,9 @@ pub struct Video {
     pub(super) is_new: bool,
 
     pub(super) id: Option<String>,
+
+    #[serde(default)]
+    pub download_state: DownloadState,
 }
 
 impl Video {
@@ -138,23 +150,42 @@ impl ToTuiListItem for Video {
             .fg(Color::DarkGray)
             .add_modifier(Modifier::ITALIC);
 
-        if self.marked {
-            ListItem::new(Line::from(vec![
+        let mut elements = if self.marked {
+            vec![
                 Span::styled(new, gray),
                 Span::styled(title, gray),
-                Span::styled(dearrow_marker, gray),
-                Span::styled(spacer, gray),
-                Span::styled(date, gray),
-            ]))
+            ]
         } else {
-            ListItem::new(Line::from(vec![
+            vec![
                 Span::styled(new, yellow),
                 Span::styled(title, yellow),
-                Span::styled(dearrow_marker, gray),
-                Span::styled(spacer, gray),
-                Span::styled(date, gray),
-            ]))
+            ]
+        };
+
+        elements.extend(vec![
+            Span::styled(dearrow_marker, gray),
+            Span::styled(spacer.clone(), gray),
+            Span::styled(date, gray),
+        ]);
+
+        debug!("self.download_state: {:?}, {:?}", self.link(), self.download_state);
+        match self.download_state {
+            DownloadState::Downloaded => {
+                elements.extend(vec![
+                    Span::styled(spacer, gray),
+                    Span::styled("↓".to_string(), gray),
+                ])
+            },
+            DownloadState::Downloading => {
+                elements.extend(vec![
+                    Span::styled(spacer, gray),
+                    Span::styled("🔃".to_string(), gray),
+                ])
+            }
+            DownloadState::NotDownloaded => {}
         }
+
+        ListItem::new(Line::from(elements))
     }
 }
 

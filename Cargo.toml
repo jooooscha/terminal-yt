@@ -23,3 +23,5 @@ reqwest = { version = "*", features = ["blocking", "json"] }
 arboard = "3.1.0"
 fancy-regex = "0.13.0"
 lazy_static = "1.4.0"
+log = "0.4.29"
+simplelog = "0.12.2"

@@ -12,7 +12,10 @@ use crate::{
     notification::{notify_error, notify_open},
 };
 use std::process::{Command, Stdio};
+use super::data::video::DownloadState;
+use log::*;
 
+/// Thread states, printed as-is to user
 #[derive(Clone, Debug)]
 pub enum FetchState {
     DownloadsFailure(usize),
@@ -20,6 +23,7 @@ pub enum FetchState {
     Loading,
     FetchingDearrow,
     Fetched,
+    VideoState(String, DownloadState), // string is video id/url
 }
 
 impl Default for FetchState {
@@ -36,6 +40,7 @@ pub(crate) struct StateUpdate {
 
 impl StateUpdate {
     pub(crate) fn new(text: String, status: self::FetchState) -> Self {
+        debug!("New StateUpdate: {}, {:?}", text, status);
         Self { text, state: status }
     }
 }
@@ -89,8 +94,23 @@ impl Core {
 
     /// receive all status updates from status channel
     pub(crate) fn update_status_line(&mut self, item: StateUpdate) {
-        if let Some(channel) = self.channel_list.get_unfiltered_mut_by_id(&item.text) {
-            channel.fetch_state = item.state.clone();
+        match item.state {
+            FetchState::VideoState(video_url, state) => {
+                debug!("Updaing video state: {}, {:?}, ({})", video_url, state, &item.text);
+                if let Some(channel) = self.channel_list.get_unfiltered_mut_by_id(&item.text) {
+                    debug!("Updaing video in in channel: {}", &channel.name());
+                    let video = channel.get_mut_by_id(video_url);
+                    debug!("video: {:?}", video);
+                    if let Some(v) = video {
+                        v.download_state = state;
+                    }
+                }
+            }
+            _ => {
+                if let Some(channel) = self.channel_list.get_unfiltered_mut_by_id(&item.text) {
+                    channel.fetch_state = item.state.clone();
+                }
+            }
         }
     }
 

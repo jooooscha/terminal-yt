@@ -130,6 +130,10 @@ impl Channel {
         self.videos.get_mut(index)
     }
 
+    pub fn get_mut_by_id(&mut self, video_url: String) -> Option<&mut Video> {
+        self.videos.iter_mut().find(|v| v.link == video_url)
+    }
+
     // add only missing videos, always uses title from new video
     pub fn merge_videos(&mut self, other_videos: Vec<Video>) {
         for video in other_videos.into_iter() {

@@ -1,0 +1,289 @@
+13:49:51 [INFO] Starting Update
+13:49:51 [DEBUG] (6) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, Loading
+13:49:51 [DEBUG] (18) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=7DKv5H5Frt0", NotDownloaded
+13:49:51 [DEBUG] (18) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=F0JDK_71yDg", NotDownloaded
+13:49:51 [DEBUG] (18) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=Zl_5LT2fzak", NotDownloaded
+13:49:51 [DEBUG] (18) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=hNZy603as5w", NotDownloaded
+13:49:51 [DEBUG] (18) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=pU9sHwNKc2c", NotDownloaded
+13:49:51 [DEBUG] (18) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=LDiXNsWQzD0", NotDownloaded
+13:49:51 [DEBUG] (18) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=jplrbxI5GN8", NotDownloaded
+13:49:51 [DEBUG] (18) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=lIbfMjZ0ME4", NotDownloaded
+13:49:51 [DEBUG] (18) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=CmZdGo6b5yA", NotDownloaded
+13:49:51 [DEBUG] (18) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=j3OqAN4ISOw", NotDownloaded
+13:49:51 [DEBUG] (18) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=XQIu5tZ0vbQ", NotDownloaded
+13:49:51 [DEBUG] (18) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=CkZyZFa5qO0", NotDownloaded
+13:49:51 [DEBUG] (18) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=ZgDBIzClmPg", NotDownloaded
+13:49:51 [DEBUG] (18) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=QqRREz0iBes", NotDownloaded
+13:49:51 [DEBUG] (18) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=3kwDVw0u4Kw", NotDownloaded
+13:49:51 [DEBUG] (6) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, FetchingDearrow
+13:49:51 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=7DKv5H5Frt0
+13:49:51 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=F0JDK_71yDg
+13:49:51 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=Zl_5LT2fzak
+13:49:51 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=hNZy603as5w
+13:49:51 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=pU9sHwNKc2c
+13:49:51 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=LDiXNsWQzD0
+13:49:51 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=jplrbxI5GN8
+13:49:51 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=lIbfMjZ0ME4
+13:49:51 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=CmZdGo6b5yA
+13:49:51 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=j3OqAN4ISOw
+13:49:51 [DEBUG] (4) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=7DKv5H5Frt0", Downloaded)
+13:49:51 [DEBUG] (5) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=F0JDK_71yDg", Downloaded)
+13:49:51 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=XQIu5tZ0vbQ
+13:49:51 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=CkZyZFa5qO0
+13:49:51 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=ZgDBIzClmPg
+13:49:51 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=QqRREz0iBes
+13:49:51 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=3kwDVw0u4Kw
+13:49:51 [DEBUG] (4) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=Zl_5LT2fzak", Downloaded)
+13:49:51 [DEBUG] (4) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=pU9sHwNKc2c", Downloaded)
+13:49:51 [DEBUG] (4) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=LDiXNsWQzD0", Downloaded)
+13:49:51 [DEBUG] (4) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=jplrbxI5GN8", Downloaded)
+13:49:51 [DEBUG] (4) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=lIbfMjZ0ME4", Downloaded)
+13:49:51 [DEBUG] (4) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=CmZdGo6b5yA", Downloaded)
+13:49:51 [DEBUG] (4) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=j3OqAN4ISOw", Downloaded)
+13:49:51 [DEBUG] (5) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=hNZy603as5w", Downloaded)
+13:49:51 [DEBUG] (5) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=XQIu5tZ0vbQ", Downloaded)
+13:49:51 [DEBUG] (5) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=CkZyZFa5qO0", Downloaded)
+13:49:51 [DEBUG] (5) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=ZgDBIzClmPg", Downloaded)
+13:49:51 [DEBUG] (5) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=3kwDVw0u4Kw", Downloaded)
+13:49:51 [DEBUG] (4) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=QqRREz0iBes", Downloaded)
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=7DKv5H5Frt0, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:51 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "After ten years, it's time to stop weekly videos.", dearrow_title: None, link: "https://www.youtube.com/watch?v=7DKv5H5Frt0", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2024-01-01T16:00:06+00:00", is_new: false, id: Some("7DKv5H5Frt0"), download_state: NotDownloaded })
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=F0JDK_71yDg, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:51 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "People are going to be angry about pylons.", dearrow_title: None, link: "https://www.youtube.com/watch?v=F0JDK_71yDg", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-12-25T16:00:08+00:00", is_new: false, id: Some("F0JDK_71yDg"), download_state: NotDownloaded })
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=Zl_5LT2fzak, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:51 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "Why the government drops flies on California", dearrow_title: None, link: "https://www.youtube.com/watch?v=Zl_5LT2fzak", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-12-18T16:00:18+00:00", is_new: false, id: Some("Zl_5LT2fzak"), download_state: NotDownloaded })
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=pU9sHwNKc2c, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:51 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "Why don't subtitles match dubbing?", dearrow_title: None, link: "https://www.youtube.com/watch?v=pU9sHwNKc2c", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-12-04T16:00:40+00:00", is_new: false, id: Some("pU9sHwNKc2c"), download_state: NotDownloaded })
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=LDiXNsWQzD0, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:51 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "Why use many streetlights when one will do?", dearrow_title: None, link: "https://www.youtube.com/watch?v=LDiXNsWQzD0", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-11-27T16:00:13+00:00", is_new: false, id: Some("LDiXNsWQzD0"), download_state: NotDownloaded })
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=jplrbxI5GN8, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:51 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "These tiny ships have a serious purpose", dearrow_title: None, link: "https://www.youtube.com/watch?v=jplrbxI5GN8", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-11-20T16:00:29+00:00", is_new: false, id: Some("jplrbxI5GN8"), download_state: NotDownloaded })
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=lIbfMjZ0ME4, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:51 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "Every mistake I've made since 2014.", dearrow_title: None, link: "https://www.youtube.com/watch?v=lIbfMjZ0ME4", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-11-13T16:00:28+00:00", is_new: false, id: Some("lIbfMjZ0ME4"), download_state: NotDownloaded })
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=CmZdGo6b5yA, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:51 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "Does the language you speak change how you think?", dearrow_title: None, link: "https://www.youtube.com/watch?v=CmZdGo6b5yA", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-11-06T16:00:12+00:00", is_new: false, id: Some("CmZdGo6b5yA"), download_state: NotDownloaded })
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=hNZy603as5w, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:51 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "A robot just swapped my electric car's battery", dearrow_title: None, link: "https://www.youtube.com/watch?v=hNZy603as5w", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-12-11T16:00:31+00:00", is_new: false, id: Some("hNZy603as5w"), download_state: NotDownloaded })
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=XQIu5tZ0vbQ, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:51 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "0-100 in less than a second. And I'm driving.", dearrow_title: None, link: "https://www.youtube.com/watch?v=XQIu5tZ0vbQ", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-10-23T15:00:24+00:00", is_new: false, id: Some("XQIu5tZ0vbQ"), download_state: NotDownloaded })
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=CkZyZFa5qO0, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:51 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "there’dn’t’ve", dearrow_title: None, link: "https://www.youtube.com/watch?v=CkZyZFa5qO0", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-10-16T15:00:09+00:00", is_new: false, id: Some("CkZyZFa5qO0"), download_state: NotDownloaded })
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=j3OqAN4ISOw, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:51 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "Boarding planes could have been very different", dearrow_title: None, link: "https://www.youtube.com/watch?v=j3OqAN4ISOw", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-10-30T16:00:36+00:00", is_new: false, id: Some("j3OqAN4ISOw"), download_state: NotDownloaded })
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=ZgDBIzClmPg, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:51 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "I finally rode the weird, curved German elevator.", dearrow_title: None, link: "https://www.youtube.com/watch?v=ZgDBIzClmPg", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-10-09T15:00:33+00:00", is_new: false, id: Some("ZgDBIzClmPg"), download_state: NotDownloaded })
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=3kwDVw0u4Kw, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:51 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "Spherical houses weren't a great idea.", dearrow_title: None, link: "https://www.youtube.com/watch?v=3kwDVw0u4Kw", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-09-25T15:00:06+00:00", is_new: false, id: Some("3kwDVw0u4Kw"), download_state: NotDownloaded })
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=QqRREz0iBes, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:51 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:51 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "The largest telescope that will ever be built*", dearrow_title: None, link: "https://www.youtube.com/watch?v=QqRREz0iBes", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-10-02T15:00:29+00:00", is_new: false, id: Some("QqRREz0iBes"), download_state: NotDownloaded })
+13:49:51 [DEBUG] (22) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=7DKv5H5Frt0", Downloaded
+13:49:51 [DEBUG] (22) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=F0JDK_71yDg", Downloaded
+13:49:51 [DEBUG] (22) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=Zl_5LT2fzak", Downloaded
+13:49:51 [DEBUG] (22) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=hNZy603as5w", Downloaded
+13:49:51 [DEBUG] (22) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=pU9sHwNKc2c", Downloaded
+13:49:51 [DEBUG] (22) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=LDiXNsWQzD0", Downloaded
+13:49:51 [DEBUG] (22) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=jplrbxI5GN8", Downloaded
+13:49:51 [DEBUG] (22) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=lIbfMjZ0ME4", Downloaded
+13:49:51 [DEBUG] (22) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=CmZdGo6b5yA", Downloaded
+13:49:51 [DEBUG] (22) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=j3OqAN4ISOw", Downloaded
+13:49:51 [DEBUG] (22) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=XQIu5tZ0vbQ", Downloaded
+13:49:51 [DEBUG] (22) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=CkZyZFa5qO0", Downloaded
+13:49:51 [DEBUG] (22) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=ZgDBIzClmPg", Downloaded
+13:49:51 [DEBUG] (22) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=QqRREz0iBes", Downloaded
+13:49:51 [DEBUG] (22) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=3kwDVw0u4Kw", Downloaded
+13:49:53 [DEBUG] (45) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=7DKv5H5Frt0", Downloaded
+13:49:53 [DEBUG] (45) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=F0JDK_71yDg", Downloaded
+13:49:53 [DEBUG] (45) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=Zl_5LT2fzak", Downloaded
+13:49:53 [DEBUG] (45) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=hNZy603as5w", Downloaded
+13:49:53 [DEBUG] (45) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=pU9sHwNKc2c", Downloaded
+13:49:53 [DEBUG] (45) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=LDiXNsWQzD0", Downloaded
+13:49:53 [DEBUG] (45) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=jplrbxI5GN8", Downloaded
+13:49:53 [DEBUG] (45) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=lIbfMjZ0ME4", Downloaded
+13:49:53 [DEBUG] (45) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=CmZdGo6b5yA", Downloaded
+13:49:53 [DEBUG] (45) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=j3OqAN4ISOw", Downloaded
+13:49:53 [DEBUG] (45) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=XQIu5tZ0vbQ", Downloaded
+13:49:53 [DEBUG] (45) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=CkZyZFa5qO0", Downloaded
+13:49:53 [DEBUG] (45) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=ZgDBIzClmPg", Downloaded
+13:49:53 [DEBUG] (45) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=QqRREz0iBes", Downloaded
+13:49:53 [DEBUG] (45) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=3kwDVw0u4Kw", Downloaded
+13:49:53 [DEBUG] (6) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, Fetched
+13:49:53 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=7DKv5H5Frt0
+13:49:53 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=F0JDK_71yDg
+13:49:53 [DEBUG] (4) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=F0JDK_71yDg", Downloaded)
+13:49:53 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=Zl_5LT2fzak
+13:49:53 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=hNZy603as5w
+13:49:53 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=pU9sHwNKc2c
+13:49:53 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=LDiXNsWQzD0
+13:49:53 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=jplrbxI5GN8
+13:49:53 [DEBUG] (4) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=Zl_5LT2fzak", Downloaded)
+13:49:53 [DEBUG] (5) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=7DKv5H5Frt0", Downloaded)
+13:49:53 [DEBUG] (5) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=hNZy603as5w", Downloaded)
+13:49:53 [DEBUG] (5) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=pU9sHwNKc2c", Downloaded)
+13:49:53 [DEBUG] (5) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=LDiXNsWQzD0", Downloaded)
+13:49:53 [DEBUG] (5) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=jplrbxI5GN8", Downloaded)
+13:49:53 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=lIbfMjZ0ME4
+13:49:53 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=CmZdGo6b5yA
+13:49:53 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=j3OqAN4ISOw
+13:49:53 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=XQIu5tZ0vbQ
+13:49:53 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=CkZyZFa5qO0
+13:49:53 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=ZgDBIzClmPg
+13:49:53 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=QqRREz0iBes
+13:49:53 [DEBUG] (1) tyt::backend::data::downloader: Downloading video: https://www.youtube.com/watch?v=3kwDVw0u4Kw
+13:49:53 [DEBUG] (5) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=lIbfMjZ0ME4", Downloaded)
+13:49:53 [DEBUG] (4) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=CmZdGo6b5yA", Downloaded)
+13:49:53 [DEBUG] (4) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=XQIu5tZ0vbQ", Downloaded)
+13:49:53 [DEBUG] (4) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=CkZyZFa5qO0", Downloaded)
+13:49:53 [DEBUG] (4) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=ZgDBIzClmPg", Downloaded)
+13:49:53 [DEBUG] (4) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=QqRREz0iBes", Downloaded)
+13:49:53 [DEBUG] (5) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=j3OqAN4ISOw", Downloaded)
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=F0JDK_71yDg, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:53 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "People are going to be angry about pylons.", dearrow_title: Some("Climbing a pylon and explaining the UK's national grid"), link: "https://www.youtube.com/watch?v=F0JDK_71yDg", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-12-25T16:00:08+00:00", is_new: false, id: Some("F0JDK_71yDg"), download_state: Downloaded })
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=7DKv5H5Frt0, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:53 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "After ten years, it's time to stop weekly videos.", dearrow_title: Some("Taking a break and ending weekly uploads"), link: "https://www.youtube.com/watch?v=7DKv5H5Frt0", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2024-01-01T16:00:06+00:00", is_new: false, id: Some("7DKv5H5Frt0"), download_state: Downloaded })
+13:49:53 [DEBUG] (4) tyt::backend::core: New StateUpdate: https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A, VideoState("https://www.youtube.com/watch?v=3kwDVw0u4Kw", Downloaded)
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=hNZy603as5w, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:53 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "A robot just swapped my electric car's battery", dearrow_title: Some("Nio's battery swap station for their electric cars"), link: "https://www.youtube.com/watch?v=hNZy603as5w", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-12-11T16:00:31+00:00", is_new: false, id: Some("hNZy603as5w"), download_state: Downloaded })
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=pU9sHwNKc2c, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:53 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "Why don't subtitles match dubbing?", dearrow_title: Some("Why don't subtitles match dubbing?"), link: "https://www.youtube.com/watch?v=pU9sHwNKc2c", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-12-04T16:00:40+00:00", is_new: false, id: Some("pU9sHwNKc2c"), download_state: Downloaded })
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=LDiXNsWQzD0, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:53 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "Why use many streetlights when one will do?", dearrow_title: None, link: "https://www.youtube.com/watch?v=LDiXNsWQzD0", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-11-27T16:00:13+00:00", is_new: false, id: Some("LDiXNsWQzD0"), download_state: Downloaded })
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=jplrbxI5GN8, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:53 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "These tiny ships have a serious purpose", dearrow_title: Some("Port Iława: The harbour where captains and pilots are trained on scale ship models"), link: "https://www.youtube.com/watch?v=jplrbxI5GN8", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-11-20T16:00:29+00:00", is_new: false, id: Some("jplrbxI5GN8"), download_state: Downloaded })
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=Zl_5LT2fzak, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:53 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "Why the government drops flies on California", dearrow_title: None, link: "https://www.youtube.com/watch?v=Zl_5LT2fzak", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-12-18T16:00:18+00:00", is_new: false, id: Some("Zl_5LT2fzak"), download_state: Downloaded })
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=lIbfMjZ0ME4, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:53 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "Every mistake I've made since 2014.", dearrow_title: Some("Every factual error on this channel so far (2023-11-13)"), link: "https://www.youtube.com/watch?v=lIbfMjZ0ME4", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-11-13T16:00:28+00:00", is_new: false, id: Some("lIbfMjZ0ME4"), download_state: Downloaded })
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=CmZdGo6b5yA, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:53 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "Does the language you speak change how you think?", dearrow_title: Some("Linguistic relativism - Does the language you speak change how you think?"), link: "https://www.youtube.com/watch?v=CmZdGo6b5yA", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-11-06T16:00:12+00:00", is_new: false, id: Some("CmZdGo6b5yA"), download_state: Downloaded })
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=XQIu5tZ0vbQ, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:53 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "0-100 in less than a second. And I'm driving.", dearrow_title: None, link: "https://www.youtube.com/watch?v=XQIu5tZ0vbQ", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-10-23T15:00:24+00:00", is_new: false, id: Some("XQIu5tZ0vbQ"), download_state: Downloaded })
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=CkZyZFa5qO0, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:53 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "there’dn’t’ve", dearrow_title: Some("Why some contractions don't work"), link: "https://www.youtube.com/watch?v=CkZyZFa5qO0", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-10-16T15:00:09+00:00", is_new: false, id: Some("CkZyZFa5qO0"), download_state: Downloaded })
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=ZgDBIzClmPg, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:53 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "I finally rode the weird, curved German elevator.", dearrow_title: Some("Riding the world's only curved elevator in Hanover, Germany"), link: "https://www.youtube.com/watch?v=ZgDBIzClmPg", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-10-09T15:00:33+00:00", is_new: false, id: Some("ZgDBIzClmPg"), download_state: Downloaded })
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=QqRREz0iBes, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:53 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "The largest telescope that will ever be built*", dearrow_title: None, link: "https://www.youtube.com/watch?v=QqRREz0iBes", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-10-02T15:00:29+00:00", is_new: false, id: Some("QqRREz0iBes"), download_state: Downloaded })
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=j3OqAN4ISOw, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:53 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "Boarding planes could have been very different", dearrow_title: Some("The mobile lounges of Montreal airport, a 1950's invention that never caught on"), link: "https://www.youtube.com/watch?v=j3OqAN4ISOw", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-10-30T16:00:36+00:00", is_new: false, id: Some("j3OqAN4ISOw"), download_state: Downloaded })
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video state: https://www.youtube.com/watch?v=3kwDVw0u4Kw, Downloaded, (https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A)
+13:49:53 [DEBUG] (1) tyt::backend::core: Updaing video in in channel: Tom Scott
+13:49:53 [DEBUG] (1) tyt::backend::core: video: Some(Video { title: "Spherical houses weren't a great idea.", dearrow_title: Some("The Bolwoningen: Spherical Homes in the Netherlands"), link: "https://www.youtube.com/watch?v=3kwDVw0u4Kw", origin_url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A", origin_channel_name: "Tom Scott", marked: false, fav: false, pub_date: "2023-09-25T15:00:06+00:00", is_new: false, id: Some("3kwDVw0u4Kw"), download_state: Downloaded })
+13:49:53 [DEBUG] (51) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=7DKv5H5Frt0", Downloaded
+13:49:53 [DEBUG] (51) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=F0JDK_71yDg", Downloaded
+13:49:53 [DEBUG] (51) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=Zl_5LT2fzak", Downloaded
+13:49:53 [DEBUG] (51) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=hNZy603as5w", Downloaded
+13:49:53 [DEBUG] (51) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=pU9sHwNKc2c", Downloaded
+13:49:53 [DEBUG] (51) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=LDiXNsWQzD0", Downloaded
+13:49:53 [DEBUG] (51) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=jplrbxI5GN8", Downloaded
+13:49:53 [DEBUG] (51) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=lIbfMjZ0ME4", Downloaded
+13:49:53 [DEBUG] (51) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=CmZdGo6b5yA", Downloaded
+13:49:53 [DEBUG] (51) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=j3OqAN4ISOw", Downloaded
+13:49:53 [DEBUG] (51) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=XQIu5tZ0vbQ", Downloaded
+13:49:53 [DEBUG] (51) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=CkZyZFa5qO0", Downloaded
+13:49:53 [DEBUG] (51) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=ZgDBIzClmPg", Downloaded
+13:49:53 [DEBUG] (51) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=QqRREz0iBes", Downloaded
+13:49:53 [DEBUG] (51) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=3kwDVw0u4Kw", Downloaded
+13:49:56 [DEBUG] (52) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=7DKv5H5Frt0", Downloaded
+13:49:56 [DEBUG] (52) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=F0JDK_71yDg", Downloaded
+13:49:56 [DEBUG] (52) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=Zl_5LT2fzak", Downloaded
+13:49:56 [DEBUG] (52) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=hNZy603as5w", Downloaded
+13:49:56 [DEBUG] (52) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=pU9sHwNKc2c", Downloaded
+13:49:56 [DEBUG] (52) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=LDiXNsWQzD0", Downloaded
+13:49:56 [DEBUG] (52) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=jplrbxI5GN8", Downloaded
+13:49:56 [DEBUG] (52) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=lIbfMjZ0ME4", Downloaded
+13:49:56 [DEBUG] (52) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=CmZdGo6b5yA", Downloaded
+13:49:56 [DEBUG] (52) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=j3OqAN4ISOw", Downloaded
+13:49:56 [DEBUG] (52) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=XQIu5tZ0vbQ", Downloaded
+13:49:56 [DEBUG] (52) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=CkZyZFa5qO0", Downloaded
+13:49:56 [DEBUG] (52) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=ZgDBIzClmPg", Downloaded
+13:49:56 [DEBUG] (52) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=QqRREz0iBes", Downloaded
+13:49:56 [DEBUG] (52) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=3kwDVw0u4Kw", Downloaded
+13:49:56 [DEBUG] (53) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=7DKv5H5Frt0", Downloaded
+13:49:56 [DEBUG] (53) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=F0JDK_71yDg", Downloaded
+13:49:56 [DEBUG] (53) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=Zl_5LT2fzak", Downloaded
+13:49:56 [DEBUG] (53) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=hNZy603as5w", Downloaded
+13:49:56 [DEBUG] (53) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=pU9sHwNKc2c", Downloaded
+13:49:56 [DEBUG] (53) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=LDiXNsWQzD0", Downloaded
+13:49:56 [DEBUG] (53) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=jplrbxI5GN8", Downloaded
+13:49:56 [DEBUG] (53) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=lIbfMjZ0ME4", Downloaded
+13:49:56 [DEBUG] (53) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=CmZdGo6b5yA", Downloaded
+13:49:56 [DEBUG] (53) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=j3OqAN4ISOw", Downloaded
+13:49:56 [DEBUG] (53) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=XQIu5tZ0vbQ", Downloaded
+13:49:56 [DEBUG] (53) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=CkZyZFa5qO0", Downloaded
+13:49:56 [DEBUG] (53) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=ZgDBIzClmPg", Downloaded
+13:49:56 [DEBUG] (53) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=QqRREz0iBes", Downloaded
+13:49:56 [DEBUG] (53) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=3kwDVw0u4Kw", Downloaded
+13:49:59 [DEBUG] (54) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=7DKv5H5Frt0", Downloaded
+13:49:59 [DEBUG] (54) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=F0JDK_71yDg", Downloaded
+13:49:59 [DEBUG] (54) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=Zl_5LT2fzak", Downloaded
+13:49:59 [DEBUG] (54) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=hNZy603as5w", Downloaded
+13:49:59 [DEBUG] (54) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=pU9sHwNKc2c", Downloaded
+13:49:59 [DEBUG] (54) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=LDiXNsWQzD0", Downloaded
+13:49:59 [DEBUG] (54) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=jplrbxI5GN8", Downloaded
+13:49:59 [DEBUG] (54) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=lIbfMjZ0ME4", Downloaded
+13:49:59 [DEBUG] (54) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=CmZdGo6b5yA", Downloaded
+13:49:59 [DEBUG] (54) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=j3OqAN4ISOw", Downloaded
+13:49:59 [DEBUG] (54) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=XQIu5tZ0vbQ", Downloaded
+13:49:59 [DEBUG] (54) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=CkZyZFa5qO0", Downloaded
+13:49:59 [DEBUG] (54) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=ZgDBIzClmPg", Downloaded
+13:49:59 [DEBUG] (54) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=QqRREz0iBes", Downloaded
+13:49:59 [DEBUG] (54) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=3kwDVw0u4Kw", Downloaded
+13:50:00 [DEBUG] (55) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=7DKv5H5Frt0", Downloaded
+13:50:00 [DEBUG] (55) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=F0JDK_71yDg", Downloaded
+13:50:00 [DEBUG] (55) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=Zl_5LT2fzak", Downloaded
+13:50:00 [DEBUG] (55) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=hNZy603as5w", Downloaded
+13:50:00 [DEBUG] (55) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=pU9sHwNKc2c", Downloaded
+13:50:00 [DEBUG] (55) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=LDiXNsWQzD0", Downloaded
+13:50:00 [DEBUG] (55) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=jplrbxI5GN8", Downloaded
+13:50:00 [DEBUG] (55) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=lIbfMjZ0ME4", Downloaded
+13:50:00 [DEBUG] (55) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=CmZdGo6b5yA", Downloaded
+13:50:00 [DEBUG] (55) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=j3OqAN4ISOw", Downloaded
+13:50:00 [DEBUG] (55) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=XQIu5tZ0vbQ", Downloaded
+13:50:00 [DEBUG] (55) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=CkZyZFa5qO0", Downloaded
+13:50:00 [DEBUG] (55) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=ZgDBIzClmPg", Downloaded
+13:50:00 [DEBUG] (55) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=QqRREz0iBes", Downloaded
+13:50:00 [DEBUG] (55) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=3kwDVw0u4Kw", Downloaded
+13:50:03 [DEBUG] (56) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=7DKv5H5Frt0", Downloaded
+13:50:03 [DEBUG] (56) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=F0JDK_71yDg", Downloaded
+13:50:03 [DEBUG] (56) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=Zl_5LT2fzak", Downloaded
+13:50:03 [DEBUG] (56) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=hNZy603as5w", Downloaded
+13:50:03 [DEBUG] (56) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=pU9sHwNKc2c", Downloaded
+13:50:03 [DEBUG] (56) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=LDiXNsWQzD0", Downloaded
+13:50:03 [DEBUG] (56) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=jplrbxI5GN8", Downloaded
+13:50:03 [DEBUG] (56) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=lIbfMjZ0ME4", Downloaded
+13:50:03 [DEBUG] (56) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=CmZdGo6b5yA", Downloaded
+13:50:03 [DEBUG] (56) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=j3OqAN4ISOw", Downloaded
+13:50:03 [DEBUG] (56) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=XQIu5tZ0vbQ", Downloaded
+13:50:03 [DEBUG] (56) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=CkZyZFa5qO0", Downloaded
+13:50:03 [DEBUG] (56) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=ZgDBIzClmPg", Downloaded
+13:50:03 [DEBUG] (56) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=QqRREz0iBes", Downloaded
+13:50:03 [DEBUG] (56) tyt::backend::data::video: self.download_state: "https://www.youtube.com/watch?v=3kwDVw0u4Kw", Downloaded

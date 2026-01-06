@@ -16,6 +16,8 @@ pub struct ChannelSubscription {
     tag: String,
     #[serde(default)]
     sort_by: SortingMethodVideos,
+    #[serde(default)]
+    download: bool,
 }
 
 impl Default for ChannelSubscription {
@@ -28,6 +30,7 @@ impl Default for ChannelSubscription {
             tag: "Interresting".to_string(),
             sort_by: SortingMethodVideos::default(),
             block_regex: None,
+            download: false,
         }
     }
 }

@@ -1,18 +1,36 @@
 mod backend;
 mod events;
 
+use std::fs::File;
 use std::sync::mpsc::channel;
 use std::sync::{RwLock, Arc};
 
 use crate::backend::{core::Core, draw::draw, data::Data, Action::*, Error, Screen::*};
 use crate::notification::*;
 use arboard::Clipboard;
+use backend::data::downloader::Downloader;
 use events::*;
+use log::LevelFilter;
+use simplelog::{ConfigBuilder, WriteLogger};
 use termion::event::Key;
+use log::*;
 
 mod notification;
 
 fn main() -> Result<(), Error> {
+
+    // init loggin
+    let loggin_config = ConfigBuilder::new()
+        .add_filter_ignore("reqwest".to_string())
+        .set_target_level(LevelFilter::Debug)
+        .build();
+
+    WriteLogger::init(
+        LevelFilter::Debug,
+        loggin_config,
+        File::create("debug.log").unwrap(),
+    ).unwrap();
+
     let core = match Core::load() {
         Ok(core) => core,
         Err(error) => {
@@ -22,13 +40,13 @@ fn main() -> Result<(), Error> {
 
     let core = Arc::new(RwLock::new(core));
 
-    let events = Events::new();
-
+    let events = Events::new(); // event queue
     let mut tick_counter = 0;
 
     let (status_sender, status_receiver) = channel();
+    let data = Data::init(status_sender.clone());
 
-    let data = Data::init(status_sender);
+    let downloader = Downloader::new(status_sender);
 
     if core.read().unwrap().update_at_start() {
         data.update(&core.read().unwrap().config);
@@ -41,6 +59,7 @@ fn main() -> Result<(), Error> {
         if let Ok(c) = data.try_recv() {
             let core_write_lock = core.try_write();
             if let Ok(mut core) = core_write_lock {
+                downloader.sync_channel(c.clone());
                 core.update_channel(c);
                 core.save();
             }

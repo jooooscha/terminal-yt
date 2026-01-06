@@ -1,7 +1,3 @@
-pub(crate) mod channel;
-pub(crate) mod channel_list;
-mod feed;
-pub(crate) mod video;
 use fancy_regex::Regex;
 
 use self::channel_list::ChannelList;
@@ -21,6 +17,13 @@ use std::sync::{
     mpsc::{Receiver, Sender, TryRecvError},
 };
 use threadpool::ThreadPool;
+use log::*;
+
+pub(crate) mod channel;
+pub(crate) mod channel_list;
+mod feed;
+pub(crate) mod video;
+pub mod downloader;
 
 pub(crate) struct Data {
     sender: Sender<Channel>,
@@ -47,6 +50,7 @@ impl Data {
 
     /// start fetching process
     pub(crate) fn update(&self, config: &Config) {
+        info!("Starting Update");
         let subs = match Subscriptions::read() {
             Ok(subs) => subs,
             Err(error) => {
